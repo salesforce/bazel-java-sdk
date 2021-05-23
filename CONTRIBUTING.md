@@ -8,6 +8,12 @@ Specifically, before you embark on any coding for the SDK, please be aware:
 - Do not bring in any dependency (e.g. guava, spring) without discussing it with us first. We are trying to avoid dependencies.
 - We want the SDK code to be very approachable to new learners, so please minimize the use of generics, stream api, lambdas and other advanced coding patterns.
 
+### Please Engage with Us
+
+If you want to implement a major feature, as with any open source project it is worthwhile to engage with us first.
+Perhaps we already planned work in that area that might conflict.
+Perhaps we won't want that feature implemented directly in the SDK (maybe yours is a feature better as a separate library).
+If we discuss ahead of time, we might eliminate any frustration or lost effort.
 
 ### SDK Test Framework is Hard to Use
 

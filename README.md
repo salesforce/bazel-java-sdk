@@ -8,6 +8,9 @@ These are some use cases for *bazel_java_sdk*:
 - Advanced build use cases in which the Bazel command line is not sufficient
 - Integrations with other developer ecosystem tools, like Slack and CI systems
 
+:octocat: Please do us a huge favor. If you think this project could be useful for you, now or in the future, please hit the **Star** button at the top.
+That helps us advocate for more resources on this project. Thanks!
+
 ### Features
 
 - Execution of Bazel commands such as Bazel build and Bazel query and interpretation of the results
@@ -39,13 +42,14 @@ import com.salesforce.bazel.sdk.util.BazelPathHelper;
 // set up the Bazel command line environment using the SDK
 CommandConsoleFactory consoleFactory = new StandardCommandConsoleFactory();
 CommandBuilder commandBuilder = new ShellCommandBuilder(consoleFactory);
-BazelWorkspaceCommandRunner bazelWorkspaceCmdRunner = new BazelWorkspaceCommandRunner(bazelExecutableFile, null,
-        commandBuilder, consoleFactory, bazelWorkspaceDir);
+BazelWorkspaceCommandRunner bazelWorkspaceCmdRunner = new BazelWorkspaceCommandRunner(
+        bazelExecutableFile, null, commandBuilder, consoleFactory, bazelWorkspaceDir);
 
 // Invoke the build all command
 Set<String> targets = new HashSet<>();
 targets.add("//...");
-List<BazelProblem> problems = bazelWorkspaceCmdRunner.runBazelBuild(targets, new ArrayList<String>());
+List<BazelProblem> problems = bazelWorkspaceCmdRunner.runBazelBuild(targets,
+   new ArrayList<String>());
 ```
 
 Assuming you are using Bazel to build your tool (of course!), download the latest release from
@@ -83,6 +87,7 @@ We use GitHub features to manage the project and to communicate with the communi
 
 - [Issues](https://github.com/salesforce/bazel-java-sdk/issues) please ask questions, report problems, and request new features here
 - [Projects](https://github.com/salesforce/bazel-java-sdk/projects) we manage our backlog prioritization here
+- [Pull Requests](https://github.com/salesforce/bazel-java-sdk/pulls) want to contribute a fix or a feature? Send us a PR! See our [Contributors Guide](CONTRIBUTING.md).
 - [Releases](https://github.com/salesforce/bazel-java-sdk/releases) released versions of the SDK are published here
 
 ### Design Tenets
@@ -107,7 +112,7 @@ The bar is high to land an initial job in the software engineering profession.
 There are boot camps and online courses that are helping to make our industry more approachable, but
   there are other ways we can help.
 
-Build engineering is a great transition role for a (perhaps junior) contributor growing into software engineering.
+Build engineering is a great starting role for a (perhaps junior) contributor growing into software engineering.
 Maybe this person starts at the help desk, learns some sys admin skills, is then asked to help with the CI system,
   and then becomes the build engineer.
 This is great; we want more of this.
