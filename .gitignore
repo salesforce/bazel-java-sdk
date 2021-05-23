@@ -1,0 +1,11 @@
+# bazel
+bazel-bin
+bazel-out
+bazel-bazel-java-sdk
+bazel-testlogs
+
+# OS
+.DS_Store
+
+# intellij IDE
+.ijwb*
