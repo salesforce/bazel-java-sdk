@@ -56,10 +56,10 @@ import com.salesforce.bazel.sdk.workspace.RealOperatingEnvironmentDetectionStrat
  * This app, as a tool, is not useful. It simply uses the Bazel Java SDK to read a Bazel workspace, compute the
  * dependency graph, and a few other tasks.
  * <p>
- * The value in this app is the code sample, that shows how to use the SDK to write tools that are actually useful.
+ * The value in this app is it a starting point for using the SDK to write tools that are actually useful.
  * <p>
  * <ul>
- * <li>bz build //examples:BazelAnalyzerApp_deploy.jar</li>
+ * <li>bazel build //examples:BazelAnalyzerApp_deploy.jar</li>
  * <li>Usage: java -jar bazel-bin/examples/BazelAnalyzerApp.jar [path to bazel] [path to Bazel workspace]</li>
  * </ul>
  */
