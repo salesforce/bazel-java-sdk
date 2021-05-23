@@ -23,3 +23,18 @@ Sorry.
 
 If you want to contribute a bug fix or a feature, and are fighting with the test framework, let me (_plaird_) know.
 I wouldn't want you to give up because the tests are too hard to write and/or fix.
+
+### Platform Testing
+
+We support the *bazel_java_sdk* on Mac OS, Linux and Windows.
+
+Because of Windows support, please be mindful of file system operations.
+If you are constructing file system paths, do not assume "/" as the separator character.
+Look around at *BazelPathHelper* usages to see how we convert Bazel paths ("//a/b/c") to
+  file system paths ("a/b/c" or "a\\b\\c").
+
+Ideally, before submitting your PR you will test on all three platforms.
+But, we recognize this is a big burden on contributors.
+Since we are grateful for your contribution, we are willing to do platform testing for you
+  if necessary.
+Please let us know what platforms you tested on in your PR comment.

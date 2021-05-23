@@ -20,8 +20,11 @@ That helps us advocate for more resources on this project. Thanks!
   - Computation of the Java classpath for a Bazel Java target
 
 :lemon: Currently the *bazel_java_sdk* is largely focused on workspaces with Java targets
-  (```java_library```, ```java_test```, ```springboot``` etc). But over time we wish
-  to add broader support for other target types.
+  (```java_library```, ```java_test```, etc). It can execute commands on any workspace, for
+    for the richer dependency analysis features only Java targets will work. Over time we wish
+  to add broader support for [other target types](https://github.com/salesforce/bazel-java-sdk/blob/master/sdk/bazel-java-sdk/src/main/java/com/salesforce/bazel/sdk/model/BazelTargetKind.java).
+
+The *bazel_java_sdk* is tested and supported on Mac OS, Linux, and Windows.
 
 ### Getting Started
 
