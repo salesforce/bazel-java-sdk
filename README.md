@@ -12,16 +12,57 @@ These are some use cases for *bazel_java_sdk*:
 
 - Execution of Bazel commands such as Bazel build and Bazel query and interpretation of the results
 - Modeling of Bazel concepts (targets, labels, BUILD files, aspects, etc) and the dependency graph
-- Java bells and whistles
+- JVM Specific Features
   - Creation of a unified class index for Java dependencies and Java targets (e.g. for an IDE find-class feature)
   - Computation of the Java classpath for a Bazel Java target
 
 :lemon: Currently the *bazel_java_sdk* is largely focused on workspaces with Java targets
-  (```java_library```, ```java_test```, ```springboot``` etc).
+  (```java_library```, ```java_test```, ```springboot``` etc). But over time we wish
+  to add broader support for other target types.
+
+### Getting Started
+
+Invoking Bazel commands is the easiest way to get started with the Bazel Java SDK:
+
+```
+import com.salesforce.bazel.sdk.command.BazelCommandManager;
+import com.salesforce.bazel.sdk.command.BazelWorkspaceCommandRunner;
+import com.salesforce.bazel.sdk.command.CommandBuilder;
+import com.salesforce.bazel.sdk.command.shell.ShellCommandBuilder;
+import com.salesforce.bazel.sdk.console.CommandConsoleFactory;
+import com.salesforce.bazel.sdk.console.StandardCommandConsoleFactory;
+import com.salesforce.bazel.sdk.model.BazelProblem;
+import com.salesforce.bazel.sdk.util.BazelPathHelper;
+
+...
+
+// set up the Bazel command line environment using the SDK
+CommandConsoleFactory consoleFactory = new StandardCommandConsoleFactory();
+CommandBuilder commandBuilder = new ShellCommandBuilder(consoleFactory);
+BazelWorkspaceCommandRunner bazelWorkspaceCmdRunner = new BazelWorkspaceCommandRunner(bazelExecutableFile, null,
+        commandBuilder, consoleFactory, bazelWorkspaceDir);
+
+// Invoke the build all command
+Set<String> targets = new HashSet<>();
+targets.add("//...");
+List<BazelProblem> problems = bazelWorkspaceCmdRunner.runBazelBuild(targets, new ArrayList<String>());
+```
+
+Assuming you are using Bazel to build your tool (of course!), download the latest release from
+ the [Release](https://github.com/salesforce/bazel-java-sdk/releases) list, and add the jar to your project like so:
+
+```
+java_import(
+    name = "bazel-java-sdk",
+    jars = [
+        "bazel-java-sdk-1.0.0.jar",
+    ],
+)
+```
 
 ### Examples
 
-The best way to be introduced to  *bazel_java_sdk* is through some examples:
+A great way to be introduced to  *bazel_java_sdk* is through some examples:
 
 [BazelBuilderApp](examples/src/main/java/com/salesforce/bazel/app/builder/BazelBuilderApp.java)
 This sample app uses the Bazel Java SDK to run a build on a Bazel workspace. It is the
@@ -36,13 +77,22 @@ To see a robust implementation, look at the code for the original use case for t
 The Bazel Eclipse Feature is the Eclipse IDE integration with Bazel, and uses the SDK for the
   underlying execution of builds and analsis of classpath.
 
+### Project Management
+
+We use GitHub features to manage the project and to communicate with the community:
+
+- [Issues](https://github.com/salesforce/bazel-java-sdk/issues) please ask questions, report problems, and request new features here
+- [Projects](https://github.com/salesforce/bazel-java-sdk/projects) we manage our backlog prioritization here
+- [Releases](https://github.com/salesforce/bazel-java-sdk/releases) released versions of the SDK are published here
+
 ### Design Tenets
 
 #### Model the Domain
 
 Inside this SDK you will find models for the major concepts of Bazel.
-It is our intent to do the tedious but important of modeling the Bazel build system in Java, such that
-  you can leverage the SDK
+It is our intent to do the tedious but important job of modeling the Bazel build system in Java, such that
+  you can leverage the SDK for whatever custom build task is required.
+Our goal is to enable you to build a powerful and effective build tool in less than 100 lines of Java code.
 
 #### Minimal Dependencies
 
@@ -60,14 +110,14 @@ There are boot camps and online courses that are helping to make our industry mo
 Build engineering is a great transition role for a (perhaps junior) contributor growing into software engineering.
 Maybe this person starts at the help desk, learns some sys admin skills, is then asked to help with the CI system,
   and then becomes the build engineer.
-This is great, we want more of this.
-Perhaps building a Bazel build tool using our SDK will be someone's first coding project.
+This is great; we want more of this.
+Perhaps building a Bazel build tool using our SDK will be someone's first professional coding project.
 
 For this reason, this SDK is built with all Java skill levels in mind.
 We strive to steer clear of the more advanced features of Java that are difficult for learners:
   generics (outside of Collections), streaming API, lambdas, etc.
-We strive to make use of temporary variables in our code such that each statement performs a single operation
-  to make line by line debugging easy to follow.
+We also strive to make use of local variables in our code such that each statement performs a single
+  operation to make line by line debugging easy to follow.
 
 If you are a learner and encounter areas of difficulty in the SDK, please let us know.
 We would be delighted to support you.
