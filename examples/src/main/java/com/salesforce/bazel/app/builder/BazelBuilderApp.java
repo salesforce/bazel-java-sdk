@@ -19,11 +19,12 @@ import com.salesforce.bazel.sdk.util.BazelPathHelper;
  * This app, as a tool, is not useful. It simply uses the Bazel Java SDK to run a build on a Bazel workspace. In effect,
  * it is the equivalent to 'bazel build //...'.
  * <p>
- * The value in this app is it a starting point for using the SDK to write tools that are actually useful.
+ * The value in this app is as a starting point for using the SDK to write tools that are actually useful.
  * <p>
  * <ul>
  * <li>bazel build //examples:BazelBuilderApp_deploy.jar</li>
- * <li>Usage: java -jar bazel-bin/examples/BazelBuilderApp.jar [path to bazel] [path to Bazel workspace]</li>
+ * <li>Usage: java -jar bazel-bin/examples/BazelBuilderApp_deploy.jar [path to bazel executable] [path to Bazel workspace dir]</li>
+ * <li>Example: java -jar bazel-bin/examples/BazelBuilderApp_deploy.jar /usr/local/bin/bazel ../my-bazel-ws
  * </ul>
  */
 public class BazelBuilderApp {

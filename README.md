@@ -27,7 +27,7 @@ That helps us advocate for more resources on this project. Thanks!
 
 Invoking Bazel commands is the easiest way to get started with the Bazel Java SDK:
 
-```
+```java
 import com.salesforce.bazel.sdk.command.BazelCommandManager;
 import com.salesforce.bazel.sdk.command.BazelWorkspaceCommandRunner;
 import com.salesforce.bazel.sdk.command.CommandBuilder;
@@ -55,7 +55,7 @@ List<BazelProblem> problems = bazelWorkspaceCmdRunner.runBazelBuild(targets,
 Assuming you are using Bazel to build your tool (of course!), download the latest release from
  the [Release](https://github.com/salesforce/bazel-java-sdk/releases) list, and add the jar to your project like so:
 
-```
+```starlark
 java_import(
     name = "bazel-java-sdk",
     jars = [
@@ -116,7 +116,7 @@ Build engineering is a great starting role for a (perhaps junior) contributor gr
 Maybe this person starts at the help desk, learns some sys admin skills, is then asked to help with the CI system,
   and then becomes the build engineer.
 This is great; we want more of this.
-Perhaps building a Bazel build tool using our SDK will be someone's first professional coding project.
+Perhaps writing a Bazel build tool using our SDK will be someone's first professional coding project.
 
 For this reason, this SDK is built with all Java skill levels in mind.
 We strive to steer clear of the more advanced features of Java that are difficult for learners:
