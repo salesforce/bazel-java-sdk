@@ -336,7 +336,7 @@ public class BazelWorkspaceAspectHelper {
 
         File bazelWorkspaceRootDirectory = bazelWorkspaceCommandRunner.getBazelWorkspaceRootDirectory();
         List<String> listOfGeneratedFilePaths = bazelCommandExecutor.runBazelAndGetErrorLines(ConsoleType.WORKSPACE,
-        	bazelWorkspaceRootDirectory, null, args, filter, BazelCommandExecutor.TIMEOUT_INFINITE);
+            bazelWorkspaceRootDirectory, null, args, filter, BazelCommandExecutor.TIMEOUT_INFINITE);
 
         return listOfGeneratedFilePaths;
     }

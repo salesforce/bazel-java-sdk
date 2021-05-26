@@ -33,7 +33,6 @@ import com.salesforce.bazel.sdk.aspect.AspectTargetInfo;
 import com.salesforce.bazel.sdk.aspect.AspectTargetInfos;
 import com.salesforce.bazel.sdk.aspect.BazelAspectLocation;
 import com.salesforce.bazel.sdk.aspect.LocalBazelAspectLocation;
-import com.salesforce.bazel.sdk.command.BazelCommandManager;
 import com.salesforce.bazel.sdk.command.BazelWorkspaceCommandOptions;
 import com.salesforce.bazel.sdk.command.BazelWorkspaceCommandRunner;
 import com.salesforce.bazel.sdk.command.CommandBuilder;
@@ -60,7 +59,8 @@ import com.salesforce.bazel.sdk.workspace.RealOperatingEnvironmentDetectionStrat
  * <p>
  * <ul>
  * <li>bazel build //examples:BazelAnalyzerApp_deploy.jar</li>
- * <li>Usage: java -jar bazel-bin/examples/BazelAnalyzerApp_deploy.jar [path to bazel executable] [path to Bazel workspace dir]</li>
+ * <li>Usage: java -jar bazel-bin/examples/BazelAnalyzerApp_deploy.jar [path to bazel executable] [path to Bazel
+ * workspace dir]</li>
  * <li>Example: java -jar bazel-bin/examples/BazelAnalyzerApp_deploy.jar /usr/local/bin/bazel ../my-bazel-ws
  * </ul>
  */
@@ -125,7 +125,8 @@ public class BazelAnalyzerApp {
 
     private static void parseArgs(String[] args) {
         if (args.length < 2) {
-            throw new IllegalArgumentException("Usage: java -jar BazelAnalyzerApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
+            throw new IllegalArgumentException(
+                    "Usage: java -jar BazelAnalyzerApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
         }
         bazelExecutablePath = args[0];
         bazelExecutableFile = new File(bazelExecutablePath);
@@ -136,13 +137,16 @@ public class BazelAnalyzerApp {
         bazelWorkspaceDir = BazelPathHelper.getCanonicalFileSafely(bazelWorkspaceDir);
 
         if (!bazelExecutableFile.exists()) {
-            throw new IllegalArgumentException("Bazel executable path does not exist. Usage: java -jar BazelAnalyzerApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
+            throw new IllegalArgumentException(
+                    "Bazel executable path does not exist. Usage: java -jar BazelAnalyzerApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
         }
         if (!bazelWorkspaceDir.exists()) {
-            throw new IllegalArgumentException("Bazel workspace directory does not exist. Usage: java -jar BazelAnalyzerApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
+            throw new IllegalArgumentException(
+                    "Bazel workspace directory does not exist. Usage: java -jar BazelAnalyzerApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
         }
         if (!bazelWorkspaceDir.isDirectory()) {
-            throw new IllegalArgumentException("Bazel workspace directory does not exist. Usage: java -jar BazelAnalyzerApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
+            throw new IllegalArgumentException(
+                    "Bazel workspace directory does not exist. Usage: java -jar BazelAnalyzerApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
         }
     }
 
@@ -151,18 +155,20 @@ public class BazelAnalyzerApp {
         aspectDir = BazelPathHelper.getCanonicalFileSafely(aspectDir);
 
         if (!aspectDir.exists()) {
-            throw new IllegalArgumentException("Aspect directory not found. Update the code ASPECT_LOCATION to point to the 'aspect' directory from bazel-java-sdk.");
+            throw new IllegalArgumentException(
+                    "Aspect directory not found. Update the code ASPECT_LOCATION to point to the 'aspect' directory from bazel-java-sdk.");
         }
         if (!aspectDir.isDirectory()) {
-          throw new IllegalArgumentException("bzljavasdk_aspect.bzl not found. Update the code ASPECT_LOCATION to point to the 'aspect' directory from bazel-java-sdk.");
+            throw new IllegalArgumentException(
+                    "bzljavasdk_aspect.bzl not found. Update the code ASPECT_LOCATION to point to the 'aspect' directory from bazel-java-sdk.");
         }
         File aspectFile = new File(aspectDir, "bzljavasdk_aspect.bzl");
         if (!aspectFile.exists()) {
-            throw new IllegalArgumentException("bzljavasdk_aspect.bzl not found. Update the code ASPECT_LOCATION to point to the 'aspect' directory from bazel-java-sdk.");
+            throw new IllegalArgumentException(
+                    "bzljavasdk_aspect.bzl not found. Update the code ASPECT_LOCATION to point to the 'aspect' directory from bazel-java-sdk.");
         }
         return aspectDir;
     }
-
 
     private static void printBazelOptions(BazelWorkspaceCommandOptions bazelOptions) {
         System.out.println("\nBazel configuration options for the workspace:");

@@ -23,7 +23,8 @@ import com.salesforce.bazel.sdk.util.BazelPathHelper;
  * <p>
  * <ul>
  * <li>bazel build //examples:BazelBuilderApp_deploy.jar</li>
- * <li>Usage: java -jar bazel-bin/examples/BazelBuilderApp_deploy.jar [path to bazel executable] [path to Bazel workspace dir]</li>
+ * <li>Usage: java -jar bazel-bin/examples/BazelBuilderApp_deploy.jar [path to bazel executable] [path to Bazel
+ * workspace dir]</li>
  * <li>Example: java -jar bazel-bin/examples/BazelBuilderApp_deploy.jar /usr/local/bin/bazel ../my-bazel-ws
  * </ul>
  */
@@ -55,7 +56,8 @@ public class BazelBuilderApp {
 
     private static void parseArgs(String[] args) {
         if (args.length < 2) {
-            throw new IllegalArgumentException("Usage: java -jar BazelBuildApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
+            throw new IllegalArgumentException(
+                    "Usage: java -jar BazelBuildApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
         }
         bazelExecutablePath = args[0];
         bazelExecutableFile = new File(bazelExecutablePath);
@@ -66,13 +68,16 @@ public class BazelBuilderApp {
         bazelWorkspaceDir = BazelPathHelper.getCanonicalFileSafely(bazelWorkspaceDir);
 
         if (!bazelExecutableFile.exists()) {
-            throw new IllegalArgumentException("Bazel executable path does not exist. Usage: java -jar BazelBuildApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
+            throw new IllegalArgumentException(
+                    "Bazel executable path does not exist. Usage: java -jar BazelBuildApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
         }
         if (!bazelWorkspaceDir.exists()) {
-            throw new IllegalArgumentException("Bazel workspace directory does not exist. Usage: java -jar BazelBuildApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
+            throw new IllegalArgumentException(
+                    "Bazel workspace directory does not exist. Usage: java -jar BazelBuildApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
         }
         if (!bazelWorkspaceDir.isDirectory()) {
-            throw new IllegalArgumentException("Bazel workspace directory does not exist. Usage: java -jar BazelBuildApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
+            throw new IllegalArgumentException(
+                    "Bazel workspace directory does not exist. Usage: java -jar BazelBuildApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
         }
     }
 

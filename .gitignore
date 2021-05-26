@@ -9,3 +9,8 @@ bazel-testlogs
 
 # intellij IDE
 .ijwb*
+
+# Eclipse
+.project
+.settings
+.classpath
