@@ -6,6 +6,10 @@ name: Release
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release version tag (e.g. 1.0.0)'
+        required: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -39,7 +43,7 @@ jobs:
         with:
           allowUpdates: false
           artifactErrorsFailBuild: true
-          artifact: "bazel-bin/sdk/bazel-java-sdk/libbazel-java-sdk.jar"
+          artifacts: "bazel-bin/sdk/bazel-java-sdk/libbazel-java-sdk.jar"
           omitNameDuringUpdate: true
-          tag: ${{ github.event.release.tag_name }}
+          tag: ${{ github.event.inputs.tag }}
           token: ${{ secrets.GITHUB_TOKEN }}
