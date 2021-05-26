@@ -138,8 +138,8 @@ java_test(
     ]),
     deps = [
         ":bazel-java-sdk",
-        "//sdk/bazel-java-sdk-test:test-command-mocks",
-        "//sdk/bazel-java-sdk-test:test-workspace-support",
+        "//sdk/bazel-java-sdk-test-framework:test-command-mocks",
+        "//sdk/bazel-java-sdk-test-framework:test-workspace-support",
 
         "@maven//:org_json_json",
         "@maven//:org_hamcrest_hamcrest_core",
@@ -167,8 +167,8 @@ java_test(
     ],
     deps = [
         ":bazel-java-sdk",
-        "//sdk/bazel-java-sdk-test:test-command-mocks",
-        "//sdk/bazel-java-sdk-test:test-workspace-support",
+        "//sdk/bazel-java-sdk-test-framework:test-command-mocks",
+        "//sdk/bazel-java-sdk-test-framework:test-workspace-support",
 
         "@maven//:net_bytebuddy_byte_buddy",
         "@maven//:org_hamcrest_hamcrest_core",
@@ -182,7 +182,7 @@ java_test(
     srcs = ["src/test/java/com/salesforce/bazel/sdk/workspace/BazelWorkspaceScannerTest.java"],
     deps = [
         ":bazel-java-sdk",
-        "//sdk/bazel-java-sdk-test:test-workspace-support",
+        "//sdk/bazel-java-sdk-test-framework:test-workspace-support",
     ],
 )
 
@@ -194,8 +194,8 @@ java_test(
     ],
     deps = [
         ":bazel-java-sdk",
-        "//sdk/bazel-java-sdk-test:test-command-mocks",
-        "//sdk/bazel-java-sdk-test:test-workspace-support",
+        "//sdk/bazel-java-sdk-test-framework:test-command-mocks",
+        "//sdk/bazel-java-sdk-test-framework:test-workspace-support",
 
         "@maven//:net_bytebuddy_byte_buddy",
         "@maven//:org_hamcrest_hamcrest_core",
@@ -224,8 +224,8 @@ java_test(
     ],
     deps = [
         ":bazel-java-sdk",
-        "//sdk/bazel-java-sdk-test:test-command-mocks",
-        "//sdk/bazel-java-sdk-test:test-workspace-support",
+        "//sdk/bazel-java-sdk-test-framework:test-command-mocks",
+        "//sdk/bazel-java-sdk-test-framework:test-workspace-support",
 
         "@maven//:net_bytebuddy_byte_buddy",
         "@maven//:org_hamcrest_hamcrest_core",
@@ -241,8 +241,8 @@ java_test(
     ],
     deps = [
         ":bazel-java-sdk",
-        "//sdk/bazel-java-sdk-test:test-command-mocks",
-        "//sdk/bazel-java-sdk-test:test-workspace-support",
+        "//sdk/bazel-java-sdk-test-framework:test-command-mocks",
+        "//sdk/bazel-java-sdk-test-framework:test-workspace-support",
 
         "@maven//:net_bytebuddy_byte_buddy",
         "@maven//:org_hamcrest_hamcrest_core",
