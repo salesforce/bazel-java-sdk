@@ -15,10 +15,8 @@ repositories = [
 def bazel_java_sdk_deps():
     maven_install(
         artifacts = [
-            "org.json:json:20160212",
+            "com.googlecode.json-simple:json-simple:1.1.1",
             "org.slf4j:slf4j-api:1.7.7",
-            "ch.qos.logback:logback-classic:1.2.3",
-            "ch.qos.logback:logback-core:1.2.3",
 
             "junit:junit:4.13",
             "net.bytebuddy:byte-buddy-agent:1.10.18",

@@ -3,7 +3,8 @@ java_library(
     srcs = glob(["src/main/java/**/*.java"]),
     visibility = ["//visibility:public"],
     deps = [
-        "@maven//:org_json_json",
+#        "@maven//:org_json_json",
+        "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
 
@@ -141,7 +142,7 @@ java_test(
         "//sdk/bazel-java-sdk-test-framework:test-command-mocks",
         "//sdk/bazel-java-sdk-test-framework:test-workspace-support",
 
-        "@maven//:org_json_json",
+#        "@maven//:org_json_json",
         "@maven//:org_hamcrest_hamcrest_core",
         "@maven//:junit_junit",
         "@maven//:org_mockito_mockito_core",
