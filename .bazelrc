@@ -1,3 +1,6 @@
 # Bazel Project Settings
 
+# Always send test output to stdout
+# This allows test failures in our CI (Github Actions) to be viewable.
+# I actually prefer it for local development, too.
 test --test_output=all
