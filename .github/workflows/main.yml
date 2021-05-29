@@ -13,46 +13,29 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
           - displayTargetName: ubuntu-latest
             os: ubuntu-latest
-            bazelisk_url: https://github.com/bazelbuild/bazelisk/releases/download/v1.9.0/bazelisk-linux-amd64
-            bazelisk_exec: bazelisk-linux-amd64
-            bin_dir: /bin
-            cmd: /bin/bazel
-            cache_dir: /home/runner/.cache/bazel
-            cache_key: bazel-ubuntu
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Mount bazel cache
-        uses: actions/cache@v1
-        with:
-          path: "${{ matrix.cache_dir }}"
-          key: ${{ matrix.cache_key }}
-
-      - name: Install Bazelisk
-        run: |
-          curl -LO "${{ matrix.bazelisk_url }}"
-          mkdir -p "${GITHUB_WORKSPACE}${{ matrix.bin_dir }}"
-          mv ${{ matrix.bazelisk_exec }} "${GITHUB_WORKSPACE}${{ matrix.cmd }}"
-          chmod +x "${GITHUB_WORKSPACE}${{ matrix.cmd }}"
+      # we don't have to install Bazelisk because it comes with the modern Github runners
+      # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-software
 
       - name: Build
         run: |
-          "${GITHUB_WORKSPACE}${{ matrix.cmd }}" build //...
+          which bazel
+          bazel --version
+          bazel build //...
 
       - name: Test
         run: |
-          "${GITHUB_WORKSPACE}${{ matrix.cmd }}" test //...
+          bazel test //...
