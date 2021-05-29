@@ -19,8 +19,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - displayTargetName: ubuntu-latest
+          - displayTargetName: ubuntu
             os: ubuntu-latest
+          - displayTargetName: windows
+            os: windows-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -32,7 +34,6 @@ jobs:
 
       - name: Build
         run: |
-          which bazel
           bazel --version
           bazel build //...
 

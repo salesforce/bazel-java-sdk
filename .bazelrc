@@ -1,0 +1,3 @@
+# Bazel Project Settings
+
+test --test_output=all
