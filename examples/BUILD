@@ -21,3 +21,15 @@ java_binary(
       "//sdk/bazel-java-sdk",
     ]
 )
+
+java_binary(
+    name = "BazelSubscriberApp",
+    main_class = "com.salesforce.bazel.app.subscriber.BazelSubscriberApp",
+    srcs = [
+      "src/main/java/com/salesforce/bazel/app/subscriber/BazelSubscriberApp.java",
+      "src/main/java/com/salesforce/bazel/app/subscriber/ExampleBazelEventSubscriber.java",
+    ],
+    deps = [
+      "//sdk/bazel-java-sdk",
+    ]
+)

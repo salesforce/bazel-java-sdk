@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.salesforce.bazel.sdk.command.BazelCommandManager;
 import com.salesforce.bazel.sdk.command.BazelWorkspaceCommandRunner;
 import com.salesforce.bazel.sdk.command.CommandBuilder;
 import com.salesforce.bazel.sdk.command.shell.ShellCommandBuilder;
@@ -21,9 +20,10 @@ import com.salesforce.bazel.sdk.util.BazelPathHelper;
  * <p>
  * The value in this app is as a starting point for using the SDK to write tools that are actually useful.
  * <p>
+ * Usage:
  * <ul>
- * <li>bazel build //examples:BazelBuilderApp_deploy.jar</li>
- * <li>Usage: java -jar bazel-bin/examples/BazelBuilderApp_deploy.jar [path to bazel executable] [path to Bazel
+ * <li>Build: bazel build //examples:BazelBuilderApp_deploy.jar</li>
+ * <li>Args: java -jar bazel-bin/examples/BazelBuilderApp_deploy.jar [path to bazel executable] [path to Bazel
  * workspace dir]</li>
  * <li>Example: java -jar bazel-bin/examples/BazelBuilderApp_deploy.jar /usr/local/bin/bazel ../my-bazel-ws
  * </ul>

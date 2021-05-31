@@ -57,9 +57,10 @@ import com.salesforce.bazel.sdk.workspace.RealOperatingEnvironmentDetectionStrat
  * <p>
  * The value in this app is as a starting point for using the SDK to write tools that are actually useful.
  * <p>
+ * Usage:
  * <ul>
- * <li>bazel build //examples:BazelAnalyzerApp_deploy.jar</li>
- * <li>Usage: java -jar bazel-bin/examples/BazelAnalyzerApp_deploy.jar [path to bazel executable] [path to Bazel
+ * <li>Build: bazel build //examples:BazelAnalyzerApp_deploy.jar</li>
+ * <li>Args: java -jar bazel-bin/examples/BazelAnalyzerApp_deploy.jar [path to bazel executable] [path to Bazel
  * workspace dir]</li>
  * <li>Example: java -jar bazel-bin/examples/BazelAnalyzerApp_deploy.jar /usr/local/bin/bazel ../my-bazel-ws
  * </ul>

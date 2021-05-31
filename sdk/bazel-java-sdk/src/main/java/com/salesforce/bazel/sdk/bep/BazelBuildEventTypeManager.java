@@ -8,11 +8,17 @@ import java.util.Set;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import com.salesforce.bazel.sdk.bep.event.BEPBuildFinishedEvent;
+import com.salesforce.bazel.sdk.bep.event.BEPBuildMetricsEvent;
 import com.salesforce.bazel.sdk.bep.event.BEPProgressEvent;
 import com.salesforce.bazel.sdk.bep.event.BEPStartedEvent;
 import com.salesforce.bazel.sdk.bep.event.BEPTargetCompletedEvent;
+import com.salesforce.bazel.sdk.bep.event.BEPTestResultEvent;
+import com.salesforce.bazel.sdk.bep.event.BazelBuildEvent;
 
 public class BazelBuildEventTypeManager {
+    
+    public static final String EVENTTYPE_IGNORED = "ignored";
     
     /**
      * List of resolvers that can map a textual BEP event type to a concrete implementation.
@@ -31,15 +37,16 @@ public class BazelBuildEventTypeManager {
      */
     protected static Set<String> eventTypes = new HashSet<>();
     static {
-        eventTypes.add("buildFinished");
-        eventTypes.add("buildMetrics");
+        eventTypes.add(BEPBuildFinishedEvent.NAME);
+        eventTypes.add(BEPBuildMetricsEvent.NAME);
+        eventTypes.add("buildToolLogs"); // this one has the lastMessage on it normally
         eventTypes.add("configuration");
         eventTypes.add("optionsParsed");
         eventTypes.add("pattern");
         eventTypes.add(BEPProgressEvent.NAME);
         eventTypes.add(BEPStartedEvent.NAME);
         eventTypes.add(BEPTargetCompletedEvent.NAME);
-        eventTypes.add("testResult");
+        eventTypes.add(BEPTestResultEvent.NAME);
         eventTypes.add("testSummary");
         eventTypes.add("unstructuredCommand");
     }
@@ -78,9 +85,15 @@ public class BazelBuildEventTypeManager {
                     Object type = id.get(eventType);
                     if (type != null) {
                         // this is a supported type in the SDK
-                        event = createEvent(eventType, index, eventObject);
+                        event = createEvent(eventType, json, index, eventObject);
                     }
                 }
+            }
+            if (event == null) {
+                // placeholder event, having this in the list makes it possible to skip reparsing 
+                // lines that were seen in the last iteration of this file by keeping the file lines/events
+                // lists in sync
+                event = createEvent(EVENTTYPE_IGNORED, json, index, null);
             }
         } catch (Exception anyE) {
             anyE.printStackTrace();
@@ -93,11 +106,11 @@ public class BazelBuildEventTypeManager {
     /**
      * Used by a BazelBuildEventStream to create an event object when it receives the json event. 
      */
-    static BazelBuildEvent createEvent(String eventType, int index, JSONObject eventObject) {
+    static BazelBuildEvent createEvent(String eventType, String rawEvent, int index, JSONObject eventObject) {
         BazelBuildEvent event = null;
         
         for (BazelBuildEventTypeResolver resolver : resolvers) {
-            event = resolver.createEvent(eventType, index, eventObject);
+            event = resolver.createEvent(eventType, rawEvent, index, eventObject);
             if (event != null) {
                 return event;
             }

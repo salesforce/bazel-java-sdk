@@ -4,27 +4,71 @@ import java.util.List;
 
 import org.json.simple.JSONObject;
 
-import com.salesforce.bazel.sdk.bep.BazelBuildEvent;
-
+/**
+ * Model for the Build Progress BEP event.
+ */
 public class BEPProgressEvent extends BazelBuildEvent {
 
     public static final String NAME = "progress";
+    private static boolean includeStdOutErrInToString = true;
+    
+    protected List<String> stdout;
     protected List<String> stderr;
 
-    public BEPProgressEvent(int index, JSONObject eventObject) {
-        super(NAME, index, eventObject);
+    public BEPProgressEvent(String rawEvent, int index, JSONObject eventObj) {
+        super(NAME, rawEvent, index, eventObj);
         
-        JSONObject progressDetail = (JSONObject)eventObject.get("progress");
+        JSONObject progressDetail = (JSONObject)eventObj.get("progress");
         if (progressDetail != null) {
-            Object stderr = progressDetail.get("stderr");
-            if (stderr != null) {
-                String stderrStr = stderr.toString();
-                if (stderrStr.startsWith("ERROR:") || stderrStr.contains("FAILED")) {
-                    this.stderr = splitAndCleanAndDedupeLines(stderrStr);
-                    this.isError = true;
-                }
+            parseDetails(progressDetail);
+        }
+    }
+    
+    // GETTERS
+    
+    public List<String> getStdout() {
+        return stdout;
+    }
+
+    public List<String> getStderr() {
+        return stderr;
+    }
+    
+    // FEATURE TOGGLES
+    
+    /**
+     * Calling toString() on a progress event can be very verbose if the default behavior of
+     * including stdout and stderr in the output. You may enable/disable this behavior.
+     */
+    public static void includeStdOutErrInToString(boolean include) {
+        includeStdOutErrInToString = include;
+    }
+
+    // PARSER
+    
+    void parseDetails(JSONObject progressDetail) {
+        Object stderrObj = progressDetail.get("stderr");
+        if (stderrObj != null) {
+            String stderrStr = stderrObj.toString();
+            if (stderrStr.startsWith("ERROR:") || stderrStr.contains("FAILED")) {
+                isError = true;
             }
+            stderr = splitAndCleanAndDedupeLines(stderrStr);
+        }
+        Object stdoutObj = progressDetail.get("stdout");
+        if (stdoutObj != null) {
+            String stdoutStr = stdoutObj.toString();
+            stdout = splitAndCleanAndDedupeLines(stdoutStr);
         }
     }
 
+    // TOSTRING
+    
+    @Override
+    public String toString() {
+        String stdoutStr = includeStdOutErrInToString ? "stdout=" + stdout.toString() : "";
+        String stderrStr = includeStdOutErrInToString ? ", stderr=" + stderr.toString() + ", " : "";
+        return "BEPProgressEvent ["+ stdoutStr + stderrStr + "index=" + index + ", eventType=" + eventType
+                + ", isProcessed=" + isProcessed + ", isLastMessage=" + isLastMessage + ", isError=" + isError + "]";
+    }
 }

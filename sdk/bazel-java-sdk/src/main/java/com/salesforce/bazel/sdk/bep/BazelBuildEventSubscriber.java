@@ -1,5 +1,7 @@
 package com.salesforce.bazel.sdk.bep;
 
+import com.salesforce.bazel.sdk.bep.event.BazelBuildEvent;
+
 /**
  * Interface for subscribing to a BazelBuildEventStream.
  * <p>

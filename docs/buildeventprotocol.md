@@ -383,17 +383,52 @@ metrics to be populated.
     "buildMetrics": {}
   },
   "buildMetrics": {
-    "actionSummary": { "actionsExecuted": "2" },
+    "actionSummary": { "actionsCreated": "2", "actionsExecuted": "2" },
     "memoryMetrics": { "usedHeapSizePostBuild":"31446304" },
-    "targetMetrics": {},
     "packageMetrics": {},
     "timingMetrics": {
       "cpuTimeInMs": "647",
-      "wallTimeInMs": "3459"
+      "wallTimeInMs": "3459",
+      "analysisPhaseTimeInMS": "23",
     }
   }
 }
 ```
+
+### TYPE: BUILD TOOL LOGS
+
+An event that is published at the end of a build, with various logs of the build.
+This event is not that interesting except it is usually the bearer of the _lastMessage_
+property.
+
+**Example Payload:**
+```json
+{
+  "id": {
+    "buildToolLogs": {}
+  },
+  "lastMessage": true,
+  "buildToolLogs": {
+    "log": [
+      {
+        "name": "elapsed time",
+        "contents": "OS42ODgwMDA="
+      },
+      {
+        "name": "critical path",
+        "contents": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      },
+      {
+        "name": "process stats",
+        "contents": "MSBwcm9jZXNzOiAxIGludGVybmFsLg=="
+      },
+      {
+        "name": "command.profile.gz",
+        "uri": "file:///private/var/tmp/_bazel_mbenioff/8fc74f66fda297c82a847368ee50d6a4/command.profile.gz"
+      }
+    ]
+  }
+}```
 
 ### TYPE: TEST RESULT
 
