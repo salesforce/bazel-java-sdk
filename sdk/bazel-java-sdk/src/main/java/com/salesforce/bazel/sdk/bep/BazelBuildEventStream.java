@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.salesforce.bazel.sdk.bep.event.BazelBuildEvent;
+import com.salesforce.bazel.sdk.bep.event.BEPEvent;
 
 /**
  * Abstraction for a Bazel Build Event Protocol event stream.
@@ -65,7 +65,7 @@ public abstract class BazelBuildEventStream {
     
     // INTERNALS
     
-    protected void publishEventToSubscribers(BazelBuildEvent event) {
+    protected void publishEventToSubscribers(BEPEvent event) {
         if (paused) {
             return;
         }

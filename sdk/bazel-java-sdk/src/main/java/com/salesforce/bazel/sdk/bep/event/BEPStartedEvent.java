@@ -5,7 +5,7 @@ import org.json.simple.JSONObject;
 /**
  * Model for the Build Started BEP event.
  */
-public class BEPStartedEvent extends BazelBuildEvent{
+public class BEPStartedEvent extends BEPEvent{
     public static final String NAME = "started";
     
     // Details

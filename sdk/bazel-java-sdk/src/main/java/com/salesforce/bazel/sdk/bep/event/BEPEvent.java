@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 /**
@@ -16,7 +17,7 @@ import org.json.simple.JSONObject;
  * <p>
  * <a href="https://docs.bazel.build/versions/master/build-event-protocol.html">BEP Documentation</a>
  */
-public class BazelBuildEvent {
+public class BEPEvent {
     
     // Keeping the raw JSON string for each event can be helpful during debugging, but takes a lot
     // of memory, so this disabled by default
@@ -36,7 +37,7 @@ public class BazelBuildEvent {
     protected boolean isLastMessage = false;
     protected boolean isError = false;
     
-    public BazelBuildEvent(String eventType, String rawEvent, int index, JSONObject eventObj) {
+    public BEPEvent(String eventType, String rawEvent, int index, JSONObject eventObj) {
         this.eventType = eventType;
         this.index = index;
 
@@ -250,12 +251,43 @@ public class BazelBuildEvent {
         }
         return value;
     }
+    
+    /**
+     * Parses json properties of the following pattern. The pathPrefix property is optional.
+     *  {
+     *   "name": "foo/foo.jar",
+     *   "uri": "file:///private/foo/myrepo/bazel-out/darwin-fastbuild/bin/foo/foo.jar",
+     *   "pathPrefix": [
+     *     "bazel-out", "darwin-fastbuild", "bin"
+     *   ]
+     * }
+     */
+    protected BEPFileUri decodeURIFromJsonObject(Object valueObj) {
+        BEPFileUri fileUri = null;
+        JSONObject jsonObj = (JSONObject)valueObj;
+        String name = decodeStringFromJsonObject(jsonObj.get("name"));
+        String uri = decodeStringFromJsonObject(jsonObj.get("uri"));
+        List<String> prefixes = null;
+        
+        JSONArray prefixArray = (JSONArray)jsonObj.get("pathPrefix");
+        if (prefixArray != null && prefixArray.size() > 0) {
+            prefixes = new ArrayList<>();
+            for (int i=0; i<prefixArray.size(); i++) {
+                prefixes.add(prefixArray.get(i).toString());
+            }
+        }
+         
+        if (name != null && uri != null) {
+            fileUri = new BEPFileUri(name, uri, prefixes);
+        }
+        return fileUri;
+    }
 
     // TOSTRING
     
     @Override
     public String toString() {
-        return "BazelBuildEvent [index=" + index + ", eventType=" + eventType + ", isProcessed=" + isProcessed
+        return "BEPEvent [index=" + index + ", eventType=" + eventType + ", isProcessed=" + isProcessed
                 + ", isLastMessage=" + isLastMessage + ", isError=" + isError + "]";
     }
 }

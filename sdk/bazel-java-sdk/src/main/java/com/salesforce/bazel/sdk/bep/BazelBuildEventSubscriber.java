@@ -1,6 +1,6 @@
 package com.salesforce.bazel.sdk.bep;
 
-import com.salesforce.bazel.sdk.bep.event.BazelBuildEvent;
+import com.salesforce.bazel.sdk.bep.event.BEPEvent;
 
 /**
  * Interface for subscribing to a BazelBuildEventStream.
@@ -12,6 +12,6 @@ public interface BazelBuildEventSubscriber {
     /**
      * Invoked when each subscribed event is received from Bazel 
      */
-    void onEvent(BazelBuildEvent event);
+    void onEvent(BEPEvent event);
     
 }

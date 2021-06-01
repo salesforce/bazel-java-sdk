@@ -10,7 +10,7 @@ import java.util.List;
 
 import com.salesforce.bazel.sdk.bep.BazelBuildEventTypeManager;
 import com.salesforce.bazel.sdk.bep.event.BEPStartedEvent;
-import com.salesforce.bazel.sdk.bep.event.BazelBuildEvent;
+import com.salesforce.bazel.sdk.bep.event.BEPEvent;
 import com.salesforce.bazel.sdk.logging.LogHelper;
 
 /**
@@ -34,7 +34,7 @@ public class BazelBuildEventsFileParser {
     private File bepFile;
     
     // since it is common to want to see the errors in a build, we always populate the list
-    private List<BazelBuildEvent> errorEvents = new ArrayList<>();
+    private List<BEPEvent> errorEvents = new ArrayList<>();
     
     /**
      * Creates the BazelBuildEventsFile for a File. Note that the File may not exist.
@@ -72,7 +72,7 @@ public class BazelBuildEventsFileParser {
         
         try (BufferedReader b = new BufferedReader(new FileReader(bepFile, Charset.forName("UTF-8")))) {
             String eventString = "";
-            BazelBuildEvent event = null;
+            BEPEvent event = null;
 
             LOG.info(callerForLog+": Reading "+bepFile.getAbsolutePath());
 
@@ -126,7 +126,7 @@ public class BazelBuildEventsFileParser {
         return result;
     }
     
-    public List<BazelBuildEvent> getBuildErrorEvents() {
+    public List<BEPEvent> getBuildErrorEvents() {
         return this.errorEvents;
     }
     
@@ -137,7 +137,7 @@ public class BazelBuildEventsFileParser {
         
         BazelBuildEventsFileContents result = bazelEventsFile.readEvents("testapp", null);
         
-        for (BazelBuildEvent event : result.events) {
+        for (BEPEvent event : result.events) {
             System.out.println(event.toString());
         }
     }

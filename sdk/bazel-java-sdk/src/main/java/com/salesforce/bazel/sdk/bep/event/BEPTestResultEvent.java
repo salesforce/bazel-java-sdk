@@ -8,15 +8,25 @@ import org.json.simple.JSONObject;
 
 /**
  * Model for the Test Result BEP event.
+ * <p>
+ * The most common use of this event is to detect and inspect test failures. 
+ * For this case, follow this approach:<ul>
+ * <li>If the test failed, isError() will be true</li>
+ * <li>The detailed error messages can be retrieved by reading in the test log file 
+ * using getActionOutputs().</li>
+ * <li>From the list of action outputs, the action output with name ending in .log 
+ * (as opposed to .xml) is probably the easiest to process for most use cases.</li>
+ * <li>The BEPFileUri class that contains the action output file uri has helper functions 
+ * to read in the lines of the log file.</li></ul>
  */
-public class BEPTestResultEvent extends BazelBuildEvent {
+public class BEPTestResultEvent extends BEPEvent {
     public static final String NAME = "testResult";
 
     private String testLabel;
     private int testRun;
     private int testShard;
     private int testAttempt;
-    private Map<String, String> actionOutputs = new HashMap<>();
+    private Map<String, BEPFileUri> actionOutputs = new HashMap<>();
     private int testDurationMs = 0;
     private String testStatus;
     private long testAttemptStartMillisEpoch;
@@ -38,6 +48,9 @@ public class BEPTestResultEvent extends BazelBuildEvent {
     
     // GETTERS
     
+    /**
+     * The Bazel label of the failed target.
+     */
     public String getTestLabel() {
         return testLabel;
     }
@@ -54,14 +67,23 @@ public class BEPTestResultEvent extends BazelBuildEvent {
         return testAttempt;
     }
 
-    public Map<String, String> getActionOutputs() {
+    /**
+     * References to the files on disk that contain the output from the test run.
+     */
+    public Map<String, BEPFileUri> getActionOutputs() {
         return actionOutputs;
     }
 
+    /**
+     * Duration of the test run.
+     */
     public int getTestDurationMs() {
         return testDurationMs;
     }
 
+    /**
+     * Result of the test, appears to be either PASSED or FAILED.
+     */
     public String getTestStatus() {
         return testStatus;
     }
@@ -70,6 +92,10 @@ public class BEPTestResultEvent extends BazelBuildEvent {
         return testAttemptStartMillisEpoch;
     }
 
+    /**
+     * May provide values such as "darwin-sandbox", but it does not appear to be
+     * provided in many cases so don't rely on this being present.
+     */
     public String getTestStrategy() {
         return testStrategy;
     }
@@ -118,11 +144,9 @@ public class BEPTestResultEvent extends BazelBuildEvent {
     void parseDetails(JSONObject testDetail) {
         JSONArray actionOutputArray = (JSONArray)testDetail.get("testActionOutput");
         for (Object actionOutput : actionOutputArray) {
-            JSONObject jactionOutput = (JSONObject)actionOutput;
-            String name = decodeStringFromJsonObject(jactionOutput.get("name"));
-            String uri = decodeStringFromJsonObject(jactionOutput.get("uri"));
-            if (name != null && uri != null) {
-                actionOutputs.put(name, uri);
+            BEPFileUri fileUri = this.decodeURIFromJsonObject(actionOutput);
+            if (fileUri != null) {
+                actionOutputs.put(fileUri.getId(), fileUri);
             }
         }
         testDurationMs = this.decodeIntFromJsonObject(testDetail.get("testAttemptDurationMillis"));

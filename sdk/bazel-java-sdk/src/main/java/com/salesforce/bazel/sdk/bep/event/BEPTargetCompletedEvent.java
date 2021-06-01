@@ -1,8 +1,15 @@
 package com.salesforce.bazel.sdk.bep.event;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-public class BEPTargetCompletedEvent extends BazelBuildEvent {
+/**
+ * Model for the Target Completed BEP event.
+ */
+public class BEPTargetCompletedEvent extends BEPEvent {
     
     public static final String NAME = "targetCompleted";
     
@@ -10,6 +17,7 @@ public class BEPTargetCompletedEvent extends BazelBuildEvent {
     private String failureSpawnCode;
     private int failureSpawnExitCode;
     private boolean success = false;
+    private List<BEPFileUri> importantOutput = new ArrayList<>();
 
     public BEPTargetCompletedEvent(String rawEvent, int index, JSONObject eventObj) {
         super(NAME, rawEvent, index, eventObj);
@@ -36,6 +44,14 @@ public class BEPTargetCompletedEvent extends BazelBuildEvent {
 
     public boolean isSuccess() {
         return success;
+    }
+    
+    /**
+     * For a successful build, important outputs will be listed, which include the built
+     * artifacts from this target. The name "importantOutput" comes from the BEP json format.
+     */
+    public  List<BEPFileUri> getImportantOutput() {
+        return importantOutput;
     }
 
 
@@ -92,15 +108,26 @@ public class BEPTargetCompletedEvent extends BazelBuildEvent {
 
         // SUCCESS
         success = this.decodeBooleanFromJsonObject(completedDetail.get("success"));
+        JSONArray importantOutputArray = (JSONArray)completedDetail.get("importantOutput");
+        if (importantOutputArray != null && importantOutputArray.size() > 0) {
+            for (int i=0; i<importantOutputArray.size(); i++) {
+                BEPFileUri fileUri = this.decodeURIFromJsonObject(importantOutputArray.get(i));
+                if (fileUri != null) {
+                    importantOutput.add(fileUri);
+                }
+            }
+        }
     }
 
     // TOSTRING
-    
+
     @Override
     public String toString() {
         return "BEPTargetCompletedEvent [failureMessage=" + failureMessage + ", failureSpawnCode=" + failureSpawnCode
-                + ", failureSpawnExitCode=" + failureSpawnExitCode + ", success=" + success + ", index=" + index
-                + ", eventType=" + eventType + ", isProcessed=" + isProcessed + ", isLastMessage=" + isLastMessage
-                + ", isError=" + isError + "]";
+                + ", failureSpawnExitCode=" + failureSpawnExitCode + ", success=" + success + ", importantOutput="
+                + importantOutput + ", index=" + index + ", eventType=" + eventType + ", isProcessed=" + isProcessed
+                + ", isLastMessage=" + isLastMessage + ", isError=" + isError + "]";
     }
+
+    
 }

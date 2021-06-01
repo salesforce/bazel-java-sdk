@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.salesforce.bazel.sdk.bep.event.BazelBuildEvent;
+import com.salesforce.bazel.sdk.bep.event.BEPEvent;
 import com.salesforce.bazel.sdk.bep.file.BazelBuildEventsFileParser;
 import com.salesforce.bazel.sdk.bep.file.BazelBuildEventsFileContents;
 
@@ -130,7 +130,7 @@ public class BazelBuildEventsFileStream extends BazelBuildEventStream {
                     monitoredFile.previousResults = newContent;
 
                     // iterate through the newly found lines and send them to the subscribers
-                    for (BazelBuildEvent event : newContent.events) {
+                    for (BEPEvent event : newContent.events) {
                         if (event.isProcessed()) {
                             continue;
                         }

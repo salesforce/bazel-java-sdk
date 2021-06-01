@@ -1,6 +1,8 @@
 package com.salesforce.bazel.app.subscriber;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.salesforce.bazel.sdk.bep.BazelBuildEventSubscriber;
 import com.salesforce.bazel.sdk.bep.BazelBuildEventsFileStream;
@@ -47,8 +49,8 @@ public class BazelSubscriberApp {
         File testBEPFile = new File(bazelWorkspaceDir, testBEPFilename);
         
         BazelBuildEventsFileStream bepStream = new BazelBuildEventsFileStream();
-        bepStream.addFileToMonitor(buildBEPFile, false);
-        bepStream.addFileToMonitor(testBEPFile, true);
+        bepStream.addFileToMonitor(buildBEPFile, true);
+        //bepStream.addFileToMonitor(testBEPFile, true);
         BazelBuildEventSubscriber exampleSubscriber = new ExampleBazelEventSubscriber();
         
         // subscribe to all events with this form:
@@ -56,7 +58,7 @@ public class BazelSubscriberApp {
         
         // filter events to receive only the ones you want:
         //Set<String> eventTypes = new HashSet<>();
-        //eventTypes.add("buildFinished");
+        //eventTypes.add("testResult");
         //bepStream.subscribe(exampleSubscriber, eventTypes);
         
         

@@ -2,7 +2,7 @@ package com.salesforce.bazel.sdk.bep;
 
 import org.json.simple.JSONObject;
 
-import com.salesforce.bazel.sdk.bep.event.BazelBuildEvent;
+import com.salesforce.bazel.sdk.bep.event.BEPEvent;
 
 /**
  * Interface to implement if you need to add additional/alternate support for
@@ -17,6 +17,6 @@ public interface BazelBuildEventTypeResolver {
      * Create the event object for the passed parameters. Or, return null to 
      * allow the default SDK functionality for the BEP event. 
      */
-    BazelBuildEvent createEvent(String eventType, String rawEvent, int index, JSONObject eventObject);
+    BEPEvent createEvent(String eventType, String rawEvent, int index, JSONObject eventObject);
 
 }

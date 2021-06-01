@@ -5,7 +5,7 @@ import org.json.simple.JSONObject;
 /**
  * Model for the Build Finished BEP event.
  */
-public class BEPBuildFinishedEvent extends BazelBuildEvent {
+public class BEPBuildFinishedEvent extends BEPEvent {
     
     public static final String NAME = "buildFinished";
 

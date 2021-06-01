@@ -7,7 +7,7 @@ import org.json.simple.JSONObject;
 /**
  * Model for the Build Progress BEP event.
  */
-public class BEPProgressEvent extends BazelBuildEvent {
+public class BEPProgressEvent extends BEPEvent {
 
     public static final String NAME = "progress";
     private static boolean includeStdOutErrInToString = true;
@@ -47,6 +47,10 @@ public class BEPProgressEvent extends BazelBuildEvent {
     // PARSER
     
     void parseDetails(JSONObject progressDetail) {
+        
+        // TODO defer the heavy work of cleaning and deduping lines
+        // TODO should we be doing the error detection at all, and can we defer it if we need to do a text scan
+        
         Object stderrObj = progressDetail.get("stderr");
         if (stderrObj != null) {
             String stderrStr = stderrObj.toString();
