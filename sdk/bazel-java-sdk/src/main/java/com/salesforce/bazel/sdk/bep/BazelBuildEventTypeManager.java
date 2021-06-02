@@ -17,7 +17,10 @@ import com.salesforce.bazel.sdk.bep.event.BEPPatternEvent;
 import com.salesforce.bazel.sdk.bep.event.BEPProgressEvent;
 import com.salesforce.bazel.sdk.bep.event.BEPStartedEvent;
 import com.salesforce.bazel.sdk.bep.event.BEPTargetCompletedEvent;
+import com.salesforce.bazel.sdk.bep.event.BEPTargetConfiguredEvent;
 import com.salesforce.bazel.sdk.bep.event.BEPTestResultEvent;
+import com.salesforce.bazel.sdk.bep.event.BEPTestSummaryEvent;
+import com.salesforce.bazel.sdk.bep.event.BEPUnstructuredCommandLineEvent;
 
 public class BazelBuildEventTypeManager {
     
@@ -49,9 +52,10 @@ public class BazelBuildEventTypeManager {
         eventTypes.add(BEPProgressEvent.NAME);
         eventTypes.add(BEPStartedEvent.NAME);
         eventTypes.add(BEPTargetCompletedEvent.NAME);
+        eventTypes.add(BEPTargetConfiguredEvent.NAME);
         eventTypes.add(BEPTestResultEvent.NAME);
-        eventTypes.add("testSummary");
-        eventTypes.add("unstructuredCommand");
+        eventTypes.add(BEPTestSummaryEvent.NAME);
+        eventTypes.add(BEPUnstructuredCommandLineEvent.NAME);
     }
 
     /**

@@ -247,6 +247,37 @@ code interacts with the value.
 }
 ```
 
+### TYPE: TARGET CONFIGURED
+
+**Google Description:**
+> Event indicating the completion of a target. The target is specified in the
+> id. If the target failed the root causes are provided as children events.
+
+**Example Payload:**
+
+```json
+{
+  "id": {
+    "targetConfigured": {
+      "label": "//projects/libs/scone/abstractions:abstractions"
+    }
+  },
+  "children": [
+    {
+      "targetCompleted": {
+        "label": "//projects/libs/scone/abstractions:abstractions",
+        "configuration": {
+          "id": "1aee508e1d8c40d63ce4bd544a171e81ac2463f0e7d2f7a8dd4d4ddf19a5366e"
+        }
+      }
+    }
+  ],
+  "configured": {
+    "targetKind": "java_library rule"
+  }
+}
+```
+
 ### TYPE: TARGET COMPLETED
 
 **Google Description:**

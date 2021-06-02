@@ -252,6 +252,19 @@ public class BEPEvent {
         return value;
     }
     
+    protected List<String> decodeStringArrayFromJsonObject(Object array) {
+        List<String> values = new ArrayList<>();
+        
+        if (array != null) {
+            JSONArray jsonArray = (JSONArray)array;
+            for (int i = 0; i<jsonArray.size(); i++) {
+                values.add(jsonArray.get(i).toString());
+            }
+        }
+        
+        return values;
+    }
+    
     /**
      * Parses json properties of the following pattern. The pathPrefix property is optional.
      *  {
@@ -277,7 +290,7 @@ public class BEPEvent {
             }
         }
          
-        if (name != null && uri != null) {
+        if (uri != null) {
             fileUri = new BEPFileUri(name, uri, prefixes);
         }
         return fileUri;
