@@ -3,7 +3,6 @@ java_library(
     srcs = glob(["src/main/java/**/*.java"]),
     visibility = ["//visibility:public"],
     deps = [
-#        "@maven//:org_json_json",
         "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
