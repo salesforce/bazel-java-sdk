@@ -420,7 +420,7 @@ metrics to be populated.
     "timingMetrics": {
       "cpuTimeInMs": "647",
       "wallTimeInMs": "3459",
-      "analysisPhaseTimeInMS": "23",
+      "analysisPhaseTimeInMs": "23",
     }
   }
 }

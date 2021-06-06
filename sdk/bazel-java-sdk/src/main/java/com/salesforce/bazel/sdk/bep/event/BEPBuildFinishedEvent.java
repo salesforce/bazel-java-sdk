@@ -9,7 +9,7 @@ public class BEPBuildFinishedEvent extends BEPEvent {
     
     public static final String NAME = "buildFinished";
 
-    private boolean overallSuccess = true;
+    private boolean overallSuccess = false;
     private long finishTimeMillis = 0L;
     private String exitCodeName;
     private int exitCodeCode;
@@ -67,6 +67,8 @@ public class BEPBuildFinishedEvent extends BEPEvent {
 
     void parseDetails(JSONObject finishedDetail) {
         overallSuccess = decodeBooleanFromJsonObject(finishedDetail.get("overallSuccess"));
+        this.isError = !overallSuccess;
+        
         finishTimeMillis = this.decodeLongFromJsonObject(finishedDetail.get("finishTimeMillis"));
         JSONObject exitCodeObj = (JSONObject)finishedDetail.get("exitCode");
         if (exitCodeObj != null) {

@@ -25,6 +25,87 @@ java_test(
 )
 
 java_test(
+    name = "BEPBuildFinishedEventTest",
+    srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPBuildFinishedEventTest.java",],
+    deps = [
+        ":bazel-java-sdk",
+        "@maven//:com_googlecode_json_simple_json_simple",
+    ],
+)
+
+java_test(
+    name = "BEPBuildMetricsEventTest",
+    srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPBuildMetricsEventTest.java",],
+    deps = [
+        ":bazel-java-sdk",
+        "@maven//:com_googlecode_json_simple_json_simple",
+    ],
+)
+
+java_test(
+    name = "BEPBuildConfigurationEventTest",
+    srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPBuildConfigurationEventTest.java",],
+    deps = [
+        ":bazel-java-sdk",
+        "@maven//:com_googlecode_json_simple_json_simple",
+    ],
+)
+
+java_test(
+    name = "BEPOptionsParsedEventTest",
+    srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPOptionsParsedEventTest.java",],
+    deps = [
+        ":bazel-java-sdk",
+        "@maven//:com_googlecode_json_simple_json_simple",
+    ],
+)
+
+java_test(
+    name = "BEPPatternEventTest",
+    srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPPatternEventTest.java",],
+    deps = [
+        ":bazel-java-sdk",
+        "@maven//:com_googlecode_json_simple_json_simple",
+    ],
+)
+
+java_test(
+    name = "BEPProgressEventTest",
+    srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPProgressEventTest.java",],
+    deps = [
+        ":bazel-java-sdk",
+        "@maven//:com_googlecode_json_simple_json_simple",
+    ],
+)
+
+java_test(
+    name = "BEPStartedEventTest",
+    srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPStartedEventTest.java",],
+    deps = [
+        ":bazel-java-sdk",
+        "@maven//:com_googlecode_json_simple_json_simple",
+    ],
+)
+
+java_test(
+    name = "BEPTargetCompletedEventTest",
+    srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPTargetCompletedEventTest.java",],
+    deps = [
+        ":bazel-java-sdk",
+        "@maven//:com_googlecode_json_simple_json_simple",
+    ],
+)
+
+java_test(
+    name = "BEPTargetConfiguredEventTest",
+    srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPTargetConfiguredEventTest.java",],
+    deps = [
+        ":bazel-java-sdk",
+        "@maven//:com_googlecode_json_simple_json_simple",
+    ],
+)
+
+java_test(
     name = "BazelLabelTest",
     srcs = [
         "src/main/java/com/salesforce/bazel/sdk/model/BazelLabel.java",

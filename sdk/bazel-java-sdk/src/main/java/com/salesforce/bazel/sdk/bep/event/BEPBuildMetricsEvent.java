@@ -8,8 +8,8 @@ import org.json.simple.JSONObject;
 public class BEPBuildMetricsEvent extends BEPEvent {
     public static final String NAME = "buildMetrics";
 
-    private String actionsCreated;
-    private String actionsExecuted;
+    private int actionsCreated;
+    private int actionsExecuted;
     private long usedHeapSizePostBuild = 0L;
     private int cpuTimeInMs = 0;
     private int wallTimeInMs = 0;
@@ -28,11 +28,11 @@ public class BEPBuildMetricsEvent extends BEPEvent {
     
     // GETTERS
     
-    public String getActionsCreated() {
+    public int getActionsCreated() {
         return actionsCreated;
     }
 
-    public String getActionsExecuted() {
+    public int getActionsExecuted() {
         return actionsExecuted;
     }
 
@@ -70,8 +70,8 @@ public class BEPBuildMetricsEvent extends BEPEvent {
     void parseDetails(JSONObject metricsDetail) {
         JSONObject actionSummaryObj = (JSONObject)metricsDetail.get("actionSummary");
         if (actionSummaryObj != null) {
-            actionsCreated = this.decodeStringFromJsonObject(actionSummaryObj.get("actionsCreated"));
-            actionsExecuted = this.decodeStringFromJsonObject(actionSummaryObj.get("actionsExecuted"));
+            actionsCreated = this.decodeIntFromJsonObject(actionSummaryObj.get("actionsCreated"));
+            actionsExecuted = this.decodeIntFromJsonObject(actionSummaryObj.get("actionsExecuted"));
         }
         JSONObject memoryObj = (JSONObject)metricsDetail.get("memoryMetrics");
         if (memoryObj != null) {
