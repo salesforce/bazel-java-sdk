@@ -39,6 +39,7 @@ import org.junit.rules.TemporaryFolder;
 
 import com.salesforce.bazel.sdk.command.test.MockCommandSimulatedOutputMatcher;
 import com.salesforce.bazel.sdk.command.test.TestBazelCommandEnvironmentFactory;
+import com.salesforce.bazel.sdk.init.JVMRuleSupport;
 import com.salesforce.bazel.sdk.model.BazelLabel;
 import com.salesforce.bazel.sdk.model.BazelTargetKind;
 import com.salesforce.bazel.sdk.util.BazelPathHelper;
@@ -51,12 +52,13 @@ public class BazelLauncherBuilderTest {
 
     private static final int DEBUG_PORT = 1234;
 
+
     @Test
     @Ignore // Windows
     public void testBuildRunCommand() throws Exception {
         TestBazelCommandEnvironmentFactory env = createEnv();
         BazelLabel label = new BazelLabel("//projects/libs/javalib0"); // $SLASH_OK bazel path
-        BazelTargetKind targetKind = BazelTargetKind.JAVA_BINARY;
+        BazelTargetKind targetKind = JVMRuleSupport.KIND_JAVA_BINARY;
 
         BazelLauncherBuilder launcherBuilder = env.bazelWorkspaceCommandRunner.getBazelLauncherBuilder();
         launcherBuilder.setLabel(label);
@@ -79,7 +81,7 @@ public class BazelLauncherBuilderTest {
     public void testBuildRunCommandWithDebug() throws Exception {
         TestBazelCommandEnvironmentFactory env = createEnv();
         BazelLabel label = new BazelLabel("//projects/libs/javalib0"); // $SLASH_OK bazel path
-        BazelTargetKind targetKind = BazelTargetKind.JAVA_BINARY;
+        BazelTargetKind targetKind = JVMRuleSupport.KIND_JAVA_BINARY;
 
         BazelLauncherBuilder launcherBuilder = env.bazelWorkspaceCommandRunner.getBazelLauncherBuilder();
         launcherBuilder.setLabel(label);
@@ -101,7 +103,7 @@ public class BazelLauncherBuilderTest {
     public void testBuildTestCommand() throws Exception {
         TestBazelCommandEnvironmentFactory env = createEnv();
         BazelLabel label = new BazelLabel("//projects/libs/javalib0"); // $SLASH_OK bazel path
-        BazelTargetKind targetKind = BazelTargetKind.JAVA_TEST;
+        BazelTargetKind targetKind = JVMRuleSupport.KIND_JAVA_TEST;
 
         BazelLauncherBuilder launcherBuilder = env.bazelWorkspaceCommandRunner.getBazelLauncherBuilder();
         launcherBuilder.setLabel(label);
@@ -122,7 +124,7 @@ public class BazelLauncherBuilderTest {
     public void testBuildSeleniumTestCommand() throws Exception {
         TestBazelCommandEnvironmentFactory env = createEnv();
         BazelLabel label = new BazelLabel("//projects/libs/javalib0"); // $SLASH_OK bazel path
-        BazelTargetKind targetKind = BazelTargetKind.JAVA_WEB_TEST_SUITE;
+        BazelTargetKind targetKind = JVMRuleSupport.KIND_SELENIUM_TEST;
 
         BazelLauncherBuilder launcherBuilder = env.bazelWorkspaceCommandRunner.getBazelLauncherBuilder();
         launcherBuilder.setLabel(label);
@@ -143,7 +145,7 @@ public class BazelLauncherBuilderTest {
     public void testBuildTestCommandWithFilter() throws Exception {
         TestBazelCommandEnvironmentFactory env = createEnv();
         BazelLabel label = new BazelLabel("//projects/libs/javalib0"); // $SLASH_OK bazel path
-        BazelTargetKind targetKind = BazelTargetKind.JAVA_TEST;
+        BazelTargetKind targetKind = JVMRuleSupport.KIND_JAVA_TEST;
         List<String> bazelArgs =
                 Collections.singletonList(BazelCommandArgs.TEST_FILTER.getName() + "=someBazelTestFilter");
 
@@ -167,7 +169,7 @@ public class BazelLauncherBuilderTest {
     public void testBuildTestCommandWithDebugEnabled() throws Exception {
         TestBazelCommandEnvironmentFactory env = createEnv();
         BazelLabel label = new BazelLabel("//projects/libs/javalib0"); // $SLASH_OK bazel path
-        BazelTargetKind targetKind = BazelTargetKind.JAVA_TEST;
+        BazelTargetKind targetKind = JVMRuleSupport.KIND_JAVA_TEST;
 
         BazelLauncherBuilder launcherBuilder = env.bazelWorkspaceCommandRunner.getBazelLauncherBuilder();
         launcherBuilder.setLabel(label);
