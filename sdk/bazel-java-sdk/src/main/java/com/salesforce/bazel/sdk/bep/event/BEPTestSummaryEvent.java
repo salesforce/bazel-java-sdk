@@ -1,7 +1,7 @@
 package com.salesforce.bazel.sdk.bep.event;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -14,7 +14,7 @@ public class BEPTestSummaryEvent extends BEPEvent {
 
     private String testLabel;
     private String testStatus;
-    private Map<String, BEPFileUri> actionOutputs = new HashMap<>();
+    private List<BEPFileUri> testLogs = new ArrayList<>();
     private long firstStartTimeMillis;
     private long lastStopTimeMillis;
     private int totalRunDurationMillis;
@@ -30,11 +30,47 @@ public class BEPTestSummaryEvent extends BEPEvent {
             parseId(idDetail);
         }
 
-        JSONObject testDetail = (JSONObject)eventObj.get("testResult");
+        JSONObject testDetail = (JSONObject)eventObj.get("testSummary");
         if (testDetail != null) {
             parseDetails(testDetail);
         }
     }
+    
+    // GETTERS
+    
+    public String getTestLabel() {
+        return testLabel;
+    }
+
+    public String getTestStatus() {
+        return testStatus;
+    }
+
+    public List<BEPFileUri> getTestLogs() {
+        return testLogs;
+    }
+
+    public long getFirstStartTimeMillis() {
+        return firstStartTimeMillis;
+    }
+
+    public long getLastStopTimeMillis() {
+        return lastStopTimeMillis;
+    }
+
+    public int getTotalRunDurationMillis() {
+        return totalRunDurationMillis;
+    }
+
+    public int getTotalRunCount() {
+        return totalRunCount;
+    }
+
+    public int getRunCount() {
+        return runCount;
+    }
+    
+    // PARSER
     
     /*
      "id": {
@@ -68,15 +104,16 @@ public class BEPTestSummaryEvent extends BEPEvent {
        }
      */
     
+
     void parseDetails(JSONObject testDetail) {
-        JSONArray actionOutputArray = (JSONArray)testDetail.get("passed");
-        for (Object actionOutput : actionOutputArray) {
-            BEPFileUri fileUri = this.decodeURIFromJsonObject(actionOutput);
+        JSONArray testLogArray = (JSONArray)testDetail.get("passed");
+        for (Object testLog : testLogArray) {
+            BEPFileUri fileUri = this.decodeURIFromJsonObject(testLog);
             if (fileUri != null) {
-                actionOutputs.put(fileUri.getId(), fileUri);
+                testLogs.add(fileUri);
             }
         }
-        firstStartTimeMillis = this.decodeLongFromJsonObject(testDetail.get("overallStatus"));
+        firstStartTimeMillis = this.decodeLongFromJsonObject(testDetail.get("firstStartTimeMillis"));
         lastStopTimeMillis = this.decodeLongFromJsonObject(testDetail.get("lastStopTimeMillis"));
         totalRunDurationMillis = this.decodeIntFromJsonObject(testDetail.get("totalRunDurationMillis"));
 
@@ -92,7 +129,7 @@ public class BEPTestSummaryEvent extends BEPEvent {
     @Override
     public String toString() {
         return "BEPTestSummaryEvent [testLabel=" + testLabel + ", testStatus=" + testStatus + ", actionOutputs="
-                + actionOutputs + ", firstStartTimeMillis=" + firstStartTimeMillis + ", lastStopTimeMillis="
+                + testLogs + ", firstStartTimeMillis=" + firstStartTimeMillis + ", lastStopTimeMillis="
                 + lastStopTimeMillis + ", totalRunDurationMillis=" + totalRunDurationMillis + ", totalRunCount="
                 + totalRunCount + ", runCount=" + runCount + ", index=" + index + ", eventType=" + eventType
                 + ", isProcessed=" + isProcessed + ", isLastMessage=" + isLastMessage + ", isError=" + isError + "]";

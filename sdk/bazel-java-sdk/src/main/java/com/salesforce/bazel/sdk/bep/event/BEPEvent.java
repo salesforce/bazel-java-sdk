@@ -289,7 +289,7 @@ public class BEPEvent {
                 prefixes.add(prefixArray.get(i).toString());
             }
         }
-         
+        System.out.println("URI: "+uri); 
         if (uri != null) {
             fileUri = new BEPFileUri(name, uri, prefixes);
         }

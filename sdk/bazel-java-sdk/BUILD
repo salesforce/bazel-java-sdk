@@ -106,6 +106,34 @@ java_test(
 )
 
 java_test(
+    name = "BEPTestResultEventTest",
+    srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPTestResultEventTest.java",],
+    deps = [
+        ":bazel-java-sdk",
+        "@maven//:com_googlecode_json_simple_json_simple",
+    ],
+)
+
+java_test(
+    name = "BEPTestSummaryEventTest",
+    srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPTestSummaryEventTest.java",],
+    deps = [
+        ":bazel-java-sdk",
+        "@maven//:com_googlecode_json_simple_json_simple",
+    ],
+)
+
+java_test(
+    name = "BEPUnstructuredCommandLineEventTest",
+    srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPUnstructuredCommandLineEventTest.java",],
+    deps = [
+        ":bazel-java-sdk",
+        "@maven//:com_googlecode_json_simple_json_simple",
+    ],
+)
+
+
+java_test(
     name = "BazelLabelTest",
     srcs = [
         "src/main/java/com/salesforce/bazel/sdk/model/BazelLabel.java",
