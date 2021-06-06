@@ -7,6 +7,7 @@ import java.util.Set;
 import com.salesforce.bazel.sdk.bep.BazelBuildEventSubscriber;
 import com.salesforce.bazel.sdk.bep.BazelBuildEventsFileStream;
 import com.salesforce.bazel.sdk.bep.event.BEPProgressEvent;
+import com.salesforce.bazel.sdk.init.JVMRuleSupport;
 import com.salesforce.bazel.sdk.util.BazelPathHelper;
 
 /**
@@ -45,6 +46,9 @@ public class BazelSubscriberApp {
 
     public static void main(String[] args) {
         parseArgs(args);
+        
+        // Load the rules support, currently only JVM rules (java_library etc) are supported
+        JVMRuleSupport.initialize();
 
         BEPProgressEvent.includeStdOutErrInToString(false);
 

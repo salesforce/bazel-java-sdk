@@ -33,107 +33,29 @@
  */
 package com.salesforce.bazel.sdk.model;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 /**
- * The Bazel targets we support.
+ * A Bazel rule type (e.g. java_library) we support.
+ * <p>
+ * It is tempting to make this an Enum, but we want the set of supported kinds to be expandable.
  */
-public enum BazelTargetKind {
+public class BazelTargetKind {
 
-    JAVA_LIBRARY("java_library") {
+    protected final String targetKind;
+    protected boolean isRunnable = false; 
+    protected boolean isTestable = false; 
+    
+    static Map<String, BazelTargetKind> knownInstances = new HashMap<>();
 
-        @Override
-        public boolean isRunnable() {
-            return false;
-        }
-
-        @Override
-        public boolean isTestable() {
-            return false;
-        }
-    },
-
-    JAVA_BINARY("java_binary") {
-
-        @Override
-        public boolean isRunnable() {
-            return true;
-        }
-
-        @Override
-        public boolean isTestable() {
-            return false;
-        }
-    },
-
-    JAVA_TEST("java_test") {
-
-        @Override
-        public boolean isRunnable() {
-            return false;
-        }
-
-        @Override
-        public boolean isTestable() {
-            return true;
-        }
-    },
-
-    // Selenium https://github.com/bazelbuild/rules_webtesting
-    JAVA_WEB_TEST_SUITE("java_web_test_suite") {
-
-        @Override
-        public boolean isRunnable() {
-            return false;
-        }
-
-        @Override
-        public boolean isTestable() {
-            return true;
-        }
-    },
-
-    JAVA_PROTO_LIBRARY("java_proto_library") {
-
-        @Override
-        public boolean isRunnable() {
-            return false;
-        }
-
-        @Override
-        public boolean isTestable() {
-            return false;
-        }
-    },
-
-    JAVA_LITE_PROTO_LIBRARY("java_lite_proto_library") {
-
-        @Override
-        public boolean isRunnable() {
-            return false;
-        }
-
-        @Override
-        public boolean isTestable() {
-            return false;
-        }
-    },
-
-    JAVA_GRPC_LIBRARY("java_grpc_library") {
-
-        @Override
-        public boolean isRunnable() {
-            return false;
-        }
-
-        @Override
-        public boolean isTestable() {
-            return false;
-        }
-    };
-
-    private final String targetKind;
-
-    private BazelTargetKind(String targetKind) {
+    public BazelTargetKind(String targetKind, boolean isRunnable, boolean isTestable) {
         this.targetKind = targetKind;
+        this.isRunnable = isRunnable;
+        this.isTestable = isTestable;
+        
+        knownInstances.put(targetKind.toLowerCase(), this);
     }
 
     /**
@@ -143,11 +65,10 @@ public enum BazelTargetKind {
      * @return matching TargetKind instance, null if no match
      */
     public static BazelTargetKind valueOfIgnoresCase(String value) {
-        try {
-            return BazelTargetKind.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException ex) {
-            return null;
-        }
+        String valueLower = value.toLowerCase();
+        BazelTargetKind found = knownInstances.get(valueLower);
+        
+        return found;
     }
 
     /**
@@ -176,12 +97,35 @@ public enum BazelTargetKind {
     /**
      * Returns true if this target kind is runnable using "bazel run".
      */
-    public abstract boolean isRunnable();
+    public boolean isRunnable() {
+        return this.isRunnable;
+    }
 
     /**
      * Returns true if this target kind is runnable using "bazel test".
      */
-    public abstract boolean isTestable();
+    public boolean isTestable() {
+        return this.isTestable;
+    }
+
+    
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(targetKind);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        BazelTargetKind other = (BazelTargetKind) obj;
+        return Objects.equals(targetKind, other.targetKind);
+    }
 
     @Override
     public String toString() {

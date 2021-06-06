@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -93,10 +92,21 @@ public class AspectTargetInfos {
         return labelToAspectTargetInfo.get(label);
     }
 
-    public Collection<AspectTargetInfo> lookupByTargetKind(EnumSet<BazelTargetKind> requestedTargetKinds) {
+    public Collection<AspectTargetInfo> lookupByTargetKind(Set<BazelTargetKind> requestedTargetKinds) {
         List<AspectTargetInfo> aspectTargetInfos = new ArrayList<>();
         for (AspectTargetInfo aspectTargetInfo : labelToAspectTargetInfo.values()) {
             if (requestedTargetKinds.contains(BazelTargetKind.valueOfIgnoresCase(aspectTargetInfo.getKind()))) {
+                aspectTargetInfos.add(aspectTargetInfo);
+            }
+        }
+        return aspectTargetInfos;
+    }
+
+    public Collection<AspectTargetInfo> lookupByTargetKind(BazelTargetKind... requestedTargetKinds) {
+        List<BazelTargetKind> requestedTargetKindsList = Arrays.asList(requestedTargetKinds);
+        List<AspectTargetInfo> aspectTargetInfos = new ArrayList<>();
+        for (AspectTargetInfo aspectTargetInfo : labelToAspectTargetInfo.values()) {
+            if (requestedTargetKindsList.contains(BazelTargetKind.valueOfIgnoresCase(aspectTargetInfo.getKind()))) {
                 aspectTargetInfos.add(aspectTargetInfo);
             }
         }

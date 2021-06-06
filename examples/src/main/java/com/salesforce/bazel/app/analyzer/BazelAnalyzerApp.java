@@ -39,6 +39,7 @@ import com.salesforce.bazel.sdk.command.CommandBuilder;
 import com.salesforce.bazel.sdk.command.shell.ShellCommandBuilder;
 import com.salesforce.bazel.sdk.console.CommandConsoleFactory;
 import com.salesforce.bazel.sdk.console.StandardCommandConsoleFactory;
+import com.salesforce.bazel.sdk.init.JVMRuleSupport;
 import com.salesforce.bazel.sdk.model.BazelDependencyGraph;
 import com.salesforce.bazel.sdk.model.BazelLabel;
 import com.salesforce.bazel.sdk.model.BazelPackageInfo;
@@ -78,7 +79,10 @@ public class BazelAnalyzerApp {
 
     public static void main(String[] args) throws Exception {
         parseArgs(args);
-
+        
+        // Load the rules support, currently only JVM rules (java_library etc) are supported
+        JVMRuleSupport.initialize();
+        
         // load the aspect (the component we use to introspect the Bazel build) on the file system
         File aspectDir = loadAspectDirectory(ASPECT_LOCATION);
 
