@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,11 +20,11 @@ import java.util.List;
  * This class is meant to model the URI property, and provide some common helper functions for working with them.
  */
 public class BEPFileUri {
-    private String id;
-    private String uriStr;
+    private final String id;
+    private final String uriStr;
     private URI uri;
-    private File file;
-    private List<String> prefixes;
+    private final File file;
+    private final List<String> prefixes;
 
     /**
      * Constructor for BEPFileUri
@@ -53,7 +52,7 @@ public class BEPFileUri {
      */
     public BEPFileUri(String id, String uriString, List<String> prefixes) {
         this.id = id;
-        this.uriStr = uriString;
+        uriStr = uriString;
         this.prefixes = prefixes;
 
         if (!uriString.startsWith(("file://"))) {
@@ -62,7 +61,7 @@ public class BEPFileUri {
         }
 
         try {
-            this.uri = new URI(uriString);
+            uri = new URI(uriString);
         } catch (URISyntaxException use) {
             use.printStackTrace();
             throw new IllegalArgumentException(use);

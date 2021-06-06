@@ -66,7 +66,7 @@ public class AspectTargetInfos {
             if (previousValue != null) {
                 if (!previousValue.toString().equals(aspectTargetInfo.toString())) {
                     throw new IllegalStateException(
-                            "Did not expect a duplicate label with different contents: " + previousValue.getLabel());
+                        "Did not expect a duplicate label with different contents: " + previousValue.getLabel());
                 }
             }
         }
@@ -93,13 +93,21 @@ public class AspectTargetInfos {
     }
 
     public Collection<AspectTargetInfo> lookupByTargetKind(Set<BazelTargetKind> requestedTargetKinds) {
-        List<AspectTargetInfo> aspectTargetInfos = new ArrayList<>();
+        List<AspectTargetInfo> matchedTargetInfos = new ArrayList<>();
+
         for (AspectTargetInfo aspectTargetInfo : labelToAspectTargetInfo.values()) {
-            if (requestedTargetKinds.contains(BazelTargetKind.valueOfIgnoresCase(aspectTargetInfo.getKind()))) {
-                aspectTargetInfos.add(aspectTargetInfo);
+            String aspectKindStr = aspectTargetInfo.getKind();
+            BazelTargetKind aspectKind = BazelTargetKind.valueOfIgnoresCase(aspectKindStr);
+            if (aspectKind != null) {
+                if (requestedTargetKinds.contains(aspectKind)) {
+                    matchedTargetInfos.add(aspectTargetInfo);
+                }
+            } else {
+                System.err.println("AspectTargetInfo " + aspectTargetInfo.getLabel() + " has an unknown kind: "
+                        + aspectTargetInfo.getKind());
             }
         }
-        return aspectTargetInfos;
+        return matchedTargetInfos;
     }
 
     public Collection<AspectTargetInfo> lookupByTargetKind(BazelTargetKind... requestedTargetKinds) {
@@ -132,14 +140,14 @@ public class AspectTargetInfos {
     }
 
     public Iterable<AspectTargetInfo> getTargetInfos() {
-        return this.labelToAspectTargetInfo.values();
+        return labelToAspectTargetInfo.values();
     }
 
     private static void assertAllSourcesHaveSameRootPath(Path rootSourcePath, AspectTargetInfo aspectTargetInfo) {
         for (String sourcePath : aspectTargetInfo.getSources()) {
             if (!Paths.get(sourcePath).startsWith(rootSourcePath)) {
                 throw new IllegalStateException("AspectTargetInfo " + aspectTargetInfo.getLabel()
-                        + " has sources that are not under " + rootSourcePath + ": " + aspectTargetInfo.getSources());
+                + " has sources that are not under " + rootSourcePath + ": " + aspectTargetInfo.getSources());
             }
         }
     }

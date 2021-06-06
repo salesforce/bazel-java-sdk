@@ -20,7 +20,7 @@
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  *
@@ -45,36 +45,36 @@ import java.util.Objects;
 public class BazelTargetKind {
 
     protected final String targetKind;
-    protected boolean isRunnable = false; 
-    protected boolean isTestable = false; 
-    
+    protected boolean isRunnable = false;
+    protected boolean isTestable = false;
+
     static Map<String, BazelTargetKind> knownInstances = new HashMap<>();
 
     public BazelTargetKind(String targetKind, boolean isRunnable, boolean isTestable) {
         this.targetKind = targetKind;
         this.isRunnable = isRunnable;
         this.isTestable = isTestable;
-        
+
         knownInstances.put(targetKind.toLowerCase(), this);
     }
 
     /**
      * Returns the corresponding TargetKind value based on the specified String value, ignoring the casing of the given
      * value. Returns null if no matching TargetKind value is found.
-     * 
+     *
      * @return matching TargetKind instance, null if no match
      */
     public static BazelTargetKind valueOfIgnoresCase(String value) {
         String valueLower = value.toLowerCase();
         BazelTargetKind found = knownInstances.get(valueLower);
-        
+
         return found;
     }
 
     /**
      * Returns the corresponding TargetKind value based on the specified String value, ignoring the casing of the given
      * value. Throws an Exception if not matching TargetKind value is found.
-     * 
+     *
      * @return matching TargetKind instance
      * @throws IllegalStateException
      *             if no matching TargetKind is found for the specified value
@@ -88,28 +88,37 @@ public class BazelTargetKind {
     }
 
     /**
+     * Gets the map (key is the kind string, value is the kind object) of registered target kinds.
+     */
+    public static Map<String, BazelTargetKind> getKnownKinds() {
+        // returning the live copy, if the SDK user thinks they know a good reason to modify this then
+        // give them the ability but hopefully they know what they are doing.
+        return knownInstances;
+    }
+
+    /**
      * Returns the target kind as a String.
      */
     public String getKind() {
-        return this.targetKind;
+        return targetKind;
     }
 
     /**
      * Returns true if this target kind is runnable using "bazel run".
      */
     public boolean isRunnable() {
-        return this.isRunnable;
+        return isRunnable;
     }
 
     /**
      * Returns true if this target kind is runnable using "bazel test".
      */
     public boolean isTestable() {
-        return this.isTestable;
+        return isTestable;
     }
 
-    
-    
+
+
     @Override
     public int hashCode() {
         return Objects.hash(targetKind);
@@ -117,12 +126,15 @@ public class BazelTargetKind {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         BazelTargetKind other = (BazelTargetKind) obj;
         return Objects.equals(targetKind, other.targetKind);
     }

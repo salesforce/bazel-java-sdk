@@ -1,9 +1,7 @@
 package com.salesforce.bazel.sdk.bep.event;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 /**
@@ -69,9 +67,9 @@ public class BEPTargetConfiguredEvent extends BEPEvent {
 
     void parseDetails(JSONObject completedDetail) {
 
-        targetKind = this.decodeStringFromJsonObject(completedDetail.get("targetKind"));
-        testSize = this.decodeStringFromJsonObject(completedDetail.get("testSize"));
-        tags = this.decodeStringArrayFromJsonObject(completedDetail.get("tag"));
+        targetKind = decodeStringFromJsonObject(completedDetail.get("targetKind"));
+        testSize = decodeStringFromJsonObject(completedDetail.get("testSize"));
+        tags = decodeStringArrayFromJsonObject(completedDetail.get("tag"));
     }
 
     // TOSTRING
