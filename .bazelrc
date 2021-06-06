@@ -4,3 +4,6 @@
 # This allows test failures in our CI (Github Actions) to be viewable.
 # I actually prefer it for local development, too.
 test --test_output=all
+
+# Target JDK 8 for better compatibility
+build --javacopt="--release 8"

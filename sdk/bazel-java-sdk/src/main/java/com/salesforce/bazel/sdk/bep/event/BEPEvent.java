@@ -166,7 +166,7 @@ public class BEPEvent {
         for (String line : rawLines) {
             line = stripControlCharacters(line);
             line = line.trim();
-            if (line.isBlank()) {
+            if (line.trim().isEmpty()) {
                 // ignore blank lines
                 continue;
             }

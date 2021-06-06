@@ -70,7 +70,7 @@ public class BazelBuildEventsFileParser {
         // build on the work there, and not resend same events to subscribers
         boolean isContinuation = false;
         
-        try (BufferedReader b = new BufferedReader(new FileReader(bepFile, Charset.forName("UTF-8")))) {
+        try (BufferedReader b = new BufferedReader(new FileReader(bepFile))) {
             String eventString = "";
             BEPEvent event = null;
 

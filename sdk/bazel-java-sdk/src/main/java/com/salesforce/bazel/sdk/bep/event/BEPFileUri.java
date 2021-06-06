@@ -138,14 +138,14 @@ public class BEPFileUri {
         // startRecording is true when lines should recorded
         boolean startRecording = beginRegex == null;
         
-        try (BufferedReader b = new BufferedReader(new FileReader(file, Charset.forName("UTF-8")))) {
+        try (BufferedReader b = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = b.readLine()) != null) {
                 if (!startRecording && matchRegex(line, beginRegex)) {
                     startRecording = true;
                 }
                 if (startRecording) {
-                    boolean ignore = ignoreBlankLines && line.isBlank();
+                    boolean ignore = ignoreBlankLines && line.trim().isEmpty();
                     if (!ignore) {
                         lines.add(line);
                     }
@@ -171,7 +171,7 @@ public class BEPFileUri {
         }
         StringBuffer text = new StringBuffer();
 
-        try (BufferedReader b = new BufferedReader(new FileReader(file, Charset.forName("UTF-8")))) {
+        try (BufferedReader b = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = b.readLine()) != null) {
                 text.append(line);
