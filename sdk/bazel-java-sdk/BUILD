@@ -196,8 +196,8 @@ java_test(
 )
 
 java_test(
-    name = "BazelBuildFileHelperTest",
-    srcs = ["src/test/java/com/salesforce/bazel/sdk/model/BazelBuildFileHelperTest.java"],
+    name = "BuildFileSupportTest",
+    srcs = ["src/test/java/com/salesforce/bazel/sdk/workspace/BuildFileSupportTest.java"],
     deps = [
         ":bazel-java-sdk",
 
