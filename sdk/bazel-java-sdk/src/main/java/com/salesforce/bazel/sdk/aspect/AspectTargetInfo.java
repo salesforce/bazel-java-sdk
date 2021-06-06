@@ -88,7 +88,6 @@ public final class AspectTargetInfo {
     private final List<AspectOutputJarSet> jars;
     private final List<String> sources;
 
-
     @Override
     public String toString() {
         StringBuffer builder = new StringBuffer();
@@ -154,7 +153,7 @@ public final class AspectTargetInfo {
         if (aspectFile.exists()) {
             JSONObject jsonObject = null;
             try {
-                jsonObject = (JSONObject)jsonParser.parse(new FileReader(aspectFile));
+                jsonObject = (JSONObject) jsonParser.parse(new FileReader(aspectFile));
             } catch (Exception je) {
                 System.err.println("JSON file has illegal characters: " + aspectFile.getAbsolutePath()); // TODO log
                 throw new IllegalArgumentException(je);
@@ -242,13 +241,12 @@ public final class AspectTargetInfo {
             List<String> sources = jsonArrayToStringArray(jsonObject.get("sources"));
 
             String build_file_artifact_location = null; // object.getString("build_file_artifact_location");
-            String kind = (String)jsonObject.get("kind");
-            String label = (String)jsonObject.get("label");
-            String mainClass = (String)jsonObject.get("main_class");
-
+            String kind = (String) jsonObject.get("kind");
+            String label = (String) jsonObject.get("label");
+            String mainClass = (String) jsonObject.get("main_class");
 
             info = new AspectTargetInfo(aspectDataFile, jars, generated_jars, build_file_artifact_location, kind, label,
-                deps, sources, mainClass);
+                    deps, sources, mainClass);
         } catch (Exception anyE) {
             //System.err.println("Error parsing Bazel aspect info from file "+aspectDataFile.getAbsolutePath()+". Error: "+anyE.getMessage());
             throw new IllegalArgumentException(anyE);
@@ -257,8 +255,8 @@ public final class AspectTargetInfo {
     }
 
     AspectTargetInfo(File aspectDataFile, List<AspectOutputJarSet> jars, List<AspectOutputJarSet> generatedJars,
-        String workspaceRelativePath, String kind, String label, List<String> deps, List<String> sources,
-        String mainClass) {
+            String workspaceRelativePath, String kind, String label, List<String> deps, List<String> sources,
+            String mainClass) {
         this.aspectDataFile = aspectDataFile;
         this.jars = jars;
         this.generatedJars = generatedJars;
@@ -270,7 +268,8 @@ public final class AspectTargetInfo {
         this.mainClass = mainClass;
     }
 
-    private static List<AspectOutputJarSet> jsonArrayToJarArray(Object arrayObject, JSONParser jsonParser) throws Exception {
+    private static List<AspectOutputJarSet> jsonArrayToJarArray(Object arrayObject, JSONParser jsonParser)
+            throws Exception {
         List<AspectOutputJarSet> jarList = new ArrayList<>();
         if (arrayObject == null) {
             return jarList;
@@ -279,9 +278,9 @@ public final class AspectTargetInfo {
             return jarList;
         }
 
-        JSONArray array = (JSONArray)arrayObject;
+        JSONArray array = (JSONArray) arrayObject;
         for (Object jarSet : array) {
-            JSONObject jarSetObject = (JSONObject)jsonParser.parse(jarSet.toString());
+            JSONObject jarSetObject = (JSONObject) jsonParser.parse(jarSet.toString());
             jarList.add(new AspectOutputJarSet(jarSetObject));
         }
         return jarList;

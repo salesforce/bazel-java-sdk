@@ -10,9 +10,9 @@ import org.json.simple.JSONObject;
  * Model for the Target Configured BEP event.
  */
 public class BEPTargetConfiguredEvent extends BEPEvent {
-    
+
     public static final String NAME = "targetConfigured";
-    
+
     private String targetLabel;
     private String targetKind;
     private String testSize;
@@ -20,24 +20,24 @@ public class BEPTargetConfiguredEvent extends BEPEvent {
 
     public BEPTargetConfiguredEvent(String rawEvent, int index, JSONObject eventObj) {
         super(NAME, rawEvent, index, eventObj);
-        
-        JSONObject idDetail = (JSONObject)eventObj.get("id");
+
+        JSONObject idDetail = (JSONObject) eventObj.get("id");
         if (idDetail != null) {
             parseId(idDetail);
         }
-        
-        JSONObject completedDetail = (JSONObject)eventObj.get("configured");
+
+        JSONObject completedDetail = (JSONObject) eventObj.get("configured");
         if (completedDetail != null) {
             parseDetails(completedDetail);
         }
     }
-    
+
     // GETTERS
 
     public String getTargetLabel() {
         return targetLabel;
     }
-    
+
     public String getTargetKind() {
         return targetKind;
     }
@@ -51,14 +51,14 @@ public class BEPTargetConfiguredEvent extends BEPEvent {
     }
 
     // PARSER
-    
+
     void parseId(JSONObject idDetail) {
-        JSONObject targetConfiguredObj = (JSONObject)idDetail.get("targetConfigured");
+        JSONObject targetConfiguredObj = (JSONObject) idDetail.get("targetConfigured");
         if (targetConfiguredObj != null) {
             targetLabel = decodeStringFromJsonObject(targetConfiguredObj.get("label"));
         }
     }
-    
+
     /*
     "configured": {
         "targetKind": "java_library rule",
@@ -66,9 +66,9 @@ public class BEPTargetConfiguredEvent extends BEPEvent {
         "tag": []
       }      
      */
-        
+
     void parseDetails(JSONObject completedDetail) {
-        
+
         targetKind = this.decodeStringFromJsonObject(completedDetail.get("targetKind"));
         testSize = this.decodeStringFromJsonObject(completedDetail.get("testSize"));
         tags = this.decodeStringArrayFromJsonObject(completedDetail.get("tag"));

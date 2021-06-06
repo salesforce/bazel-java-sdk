@@ -10,8 +10,8 @@ import com.salesforce.bazel.sdk.bep.event.BEPEvent;
 public interface BazelBuildEventSubscriber {
 
     /**
-     * Invoked when each subscribed event is received from Bazel 
+     * Invoked when each subscribed event is received from Bazel
      */
     void onEvent(BEPEvent event);
-    
+
 }

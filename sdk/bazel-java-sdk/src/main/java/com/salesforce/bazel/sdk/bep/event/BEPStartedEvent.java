@@ -5,9 +5,9 @@ import org.json.simple.JSONObject;
 /**
  * Model for the Build Started BEP event.
  */
-public class BEPStartedEvent extends BEPEvent{
+public class BEPStartedEvent extends BEPEvent {
     public static final String NAME = "started";
-    
+
     // Details
     private String uuid;
     private long startTimeMillis = 0L;
@@ -20,19 +20,19 @@ public class BEPStartedEvent extends BEPEvent{
 
     public BEPStartedEvent(String rawEvent, int index, JSONObject eventObj) {
         super(NAME, rawEvent, index, eventObj);
-        
-        JSONObject startedDetail = (JSONObject)eventObj.get("started");
+
+        JSONObject startedDetail = (JSONObject) eventObj.get("started");
         if (startedDetail != null) {
             parseDetails(startedDetail);
         }
     }
-    
+
     // GETTERS
-    
+
     public long getStartTimeMillis() {
         return startTimeMillis;
     }
-    
+
     public static String getName() {
         return NAME;
     }
@@ -64,7 +64,6 @@ public class BEPStartedEvent extends BEPEvent{
     public String getServerPid() {
         return serverPid;
     }
-    
 
     // PARSER
 
@@ -80,7 +79,6 @@ public class BEPStartedEvent extends BEPEvent{
         "serverPid": "58316"
      }
      */
-    
 
     void parseDetails(JSONObject startedDetail) {
         uuid = this.decodeStringFromJsonObject(startedDetail.get("uuid"));
@@ -103,5 +101,5 @@ public class BEPStartedEvent extends BEPEvent{
                 + ", serverPid=" + serverPid + ", index=" + index + ", eventType=" + eventType + ", isProcessed="
                 + isProcessed + ", isLastMessage=" + isLastMessage + ", isError=" + isError + "]";
     }
-    
+
 }

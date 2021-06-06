@@ -12,14 +12,13 @@ import java.util.List;
 /**
  * Holder for a uri to a file, and associated helper functions.
  * <p>
- * A repeating pattern in a number of BEP event payloads it the use of a URI
- * to represent a path to a file. 
+ * A repeating pattern in a number of BEP event payloads it the use of a URI to represent a path to a file.
  * <p>
  * Example:<br/>
- * "uri": "file:///private/var/tmp/_bazel_mbenioff/xyz/execroot/myrepo/bazel-out/darwin-fastbuild/testlogs/foo/foo-test/test.log"
+ * "uri":
+ * "file:///private/var/tmp/_bazel_mbenioff/xyz/execroot/myrepo/bazel-out/darwin-fastbuild/testlogs/foo/foo-test/test.log"
  * <p>
- * This class is meant to model the URI property, and provide some common helper functions for
- * working with them.  
+ * This class is meant to model the URI property, and provide some common helper functions for working with them.
  */
 public class BEPFileUri {
     private String id;
@@ -30,46 +29,53 @@ public class BEPFileUri {
 
     /**
      * Constructor for BEPFileUri
-     * @param id an identifier that will be helpful in logs/debug to know what this uri
-     *  is pointing at. The caller should determine the best identifier for this purpose.
-     * @param uriString the file:// String that is the URI
+     * 
+     * @param id
+     *            an identifier that will be helpful in logs/debug to know what this uri is pointing at. The caller
+     *            should determine the best identifier for this purpose.
+     * @param uriString
+     *            the file:// String that is the URI
      */
     public BEPFileUri(String id, String uriString) {
         this(id, uriString, null);
     }
-    
+
     /**
      * Constructor for BEPFileUri
-     * @param id an identifier that will be helpful in logs/debug to know what this uri
-     *  is pointing at. The caller should determine the best identifier for this purpose.
-     * @param uriString the file:// String that is the URI
-     * @param prefixes in some cases BEP includes a set of prefixes along with a uri
+     * 
+     * @param id
+     *            an identifier that will be helpful in logs/debug to know what this uri is pointing at. The caller
+     *            should determine the best identifier for this purpose.
+     * @param uriString
+     *            the file:// String that is the URI
+     * @param prefixes
+     *            in some cases BEP includes a set of prefixes along with a uri
      */
     public BEPFileUri(String id, String uriString, List<String> prefixes) {
         this.id = id;
         this.uriStr = uriString;
         this.prefixes = prefixes;
-        
+
         if (!uriString.startsWith(("file://"))) {
-            throw new IllegalArgumentException("Expected a file:// uri for property "+id
-                +", instead got "+uriString);
+            throw new IllegalArgumentException(
+                    "Expected a file:// uri for property " + id + ", instead got " + uriString);
         }
-        
+
         try {
             this.uri = new URI(uriString);
         } catch (URISyntaxException use) {
             use.printStackTrace();
             throw new IllegalArgumentException(use);
         }
-        
+
         file = new File(uri);
     }
 
     // GETTERS
 
     /**
-     * Provided by the caller to the constructor. Only used for logging/debugging. Intended to
-     * help identify the purpose of the URI.
+     * Provided by the caller to the constructor. Only used for logging/debugging. Intended to help identify the purpose
+     * of the URI.
      */
     public String getId() {
         return id;
@@ -88,22 +94,23 @@ public class BEPFileUri {
     public URI getUri() {
         return uri;
     }
-    
+
     /**
-     * Returns the File identified by the URI. This file may or may not exist - caller 
-     * should verify the File exists before using it.
+     * Returns the File identified by the URI. This file may or may not exist - caller should verify the File exists
+     * before using it.
      */
     public File getFile() {
         return file;
     }
-    
+
     /**
-     * A sequence of prefixes to apply to the file name to construct a full path.
-     * This feature is optional (only some BEP events provide it) and may be null.
-     * If present, there will usually be 3 entries:<ol>
+     * A sequence of prefixes to apply to the file name to construct a full path. This feature is optional (only some
+     * BEP events provide it) and may be null. If present, there will usually be 3 entries:
+     * <ol>
      * <li>A root output directory, eg "bazel-out"</li>
      * <li>A configuration mnemonic, eg "k8-fastbuild"</li>
-     * <li>An output category, eg "genfiles"</li></ol>
+     * <li>An output category, eg "genfiles"</li>
+     * </ol>
      */
     public List<String> getPrefixes() {
         return prefixes;
@@ -112,32 +119,30 @@ public class BEPFileUri {
     // FILE OPS
 
     /**
-     * Loads all the lines of the File identified by the URI into a List.
-     * If the File does not exist, the List will be empty.
+     * Loads all the lines of the File identified by the URI into a List. If the File does not exist, the List will be
+     * empty.
      */
     public List<String> loadLines() {
         return loadLines(null, null, false);
     }
-    
+
     /**
-     * Loads all the lines of the File identified by the URI into a List.
-     * If the File does not exist, the List will be empty.
+     * Loads all the lines of the File identified by the URI into a List. If the File does not exist, the List will be
+     * empty.
      * <p>
-     * The method accepts a beginRegex and an endRegex. The returned lines
-     * will redact any lines prior to the first line matching the beginRegex. 
-     * It will redact any lines after the line matching the endRegex. If beginRegex
-     * is null, no lines are redacted from the beginning. If endRegex is null, no 
-     * lines are redacted at the end.
+     * The method accepts a beginRegex and an endRegex. The returned lines will redact any lines prior to the first line
+     * matching the beginRegex. It will redact any lines after the line matching the endRegex. If beginRegex is null, no
+     * lines are redacted from the beginning. If endRegex is null, no lines are redacted at the end.
      */
     public List<String> loadLines(String beginRegex, String endRegex, boolean ignoreBlankLines) {
         List<String> lines = new ArrayList<>();
         if (!file.exists()) {
             return lines;
         }
-        
+
         // startRecording is true when lines should recorded
         boolean startRecording = beginRegex == null;
-        
+
         try (BufferedReader b = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = b.readLine()) != null) {
@@ -157,13 +162,13 @@ public class BEPFileUri {
         } catch (Exception ioe) {
             ioe.printStackTrace();
         }
-        
+
         return lines;
     }
 
     /**
-     * Loads all the lines of the File identified by the URI into a String.
-     * If the File does not exist, the String will be empty.
+     * Loads all the lines of the File identified by the URI into a String. If the File does not exist, the String will
+     * be empty.
      */
     public String loadString() {
         if (!file.exists()) {
@@ -180,19 +185,19 @@ public class BEPFileUri {
         } catch (Exception ioe) {
             ioe.printStackTrace();
         }
-        
+
         return text.toString();
     }
-    
+
     // TOSTRING
-    
+
     @Override
     public String toString() {
         return uriStr;
     }
-    
+
     // INTERNALS
-    
+
     private boolean matchRegex(String line, String regex) {
         if (regex == null) {
             return true;

@@ -11,7 +11,7 @@ import com.salesforce.bazel.sdk.bep.event.BEPEvent;
  */
 public class BazelBuildEventsFileContents {
     public List<BEPEvent> events = new ArrayList<>();
-    
+
     // commonly needed quick lookups, if any event has these fields set, we set the flag on the result
     public BEPStartedEvent startedEvent = null;
     public boolean hasLastEvent = false;

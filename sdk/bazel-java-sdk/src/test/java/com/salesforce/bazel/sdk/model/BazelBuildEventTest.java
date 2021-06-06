@@ -6,7 +6,7 @@ public class BazelBuildEventTest {
 
     @Test
     public void testBasics() {
-        
+
     }
-    
+
 }

@@ -14,20 +14,19 @@ public class BEPBuildMetricsEvent extends BEPEvent {
     private int cpuTimeInMs = 0;
     private int wallTimeInMs = 0;
     private int analysisPhaseTimeInMs = 0;
-    
-    
+
     public BEPBuildMetricsEvent(String rawEvent, int index, JSONObject eventObj) {
         super(NAME, rawEvent, index, eventObj);
-        
-        JSONObject metricsDetail = (JSONObject)eventObj.get("buildMetrics");
+
+        JSONObject metricsDetail = (JSONObject) eventObj.get("buildMetrics");
         if (metricsDetail != null) {
             parseDetails(metricsDetail);
         }
-        
+
     }
-    
+
     // GETTERS
-    
+
     public int getActionsCreated() {
         return actionsCreated;
     }
@@ -53,7 +52,7 @@ public class BEPBuildMetricsEvent extends BEPEvent {
     }
 
     // PARSER
-    
+
     // Notice the numbers are encoded as strings not numbers
     /*
        "buildMetrics": {
@@ -68,17 +67,17 @@ public class BEPBuildMetricsEvent extends BEPEvent {
      */
 
     void parseDetails(JSONObject metricsDetail) {
-        JSONObject actionSummaryObj = (JSONObject)metricsDetail.get("actionSummary");
+        JSONObject actionSummaryObj = (JSONObject) metricsDetail.get("actionSummary");
         if (actionSummaryObj != null) {
             actionsCreated = this.decodeIntFromJsonObject(actionSummaryObj.get("actionsCreated"));
             actionsExecuted = this.decodeIntFromJsonObject(actionSummaryObj.get("actionsExecuted"));
         }
-        JSONObject memoryObj = (JSONObject)metricsDetail.get("memoryMetrics");
+        JSONObject memoryObj = (JSONObject) metricsDetail.get("memoryMetrics");
         if (memoryObj != null) {
             Object heapObj = memoryObj.get("usedHeapSizePostBuild");
             usedHeapSizePostBuild = decodeLongFromJsonObject(heapObj);
         }
-        JSONObject timingObj = (JSONObject)metricsDetail.get("timingMetrics");
+        JSONObject timingObj = (JSONObject) metricsDetail.get("timingMetrics");
         if (timingObj != null) {
             Object cpuObj = timingObj.get("cpuTimeInMs");
             cpuTimeInMs = decodeIntFromJsonObject(cpuObj);
@@ -90,7 +89,7 @@ public class BEPBuildMetricsEvent extends BEPEvent {
     }
 
     // TOSTRING
-    
+
     @Override
     public String toString() {
         return "BEPBuildMetricsEvent [actionsCreated=" + actionsCreated + ", actionsExecuted=" + actionsExecuted

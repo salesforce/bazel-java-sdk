@@ -6,26 +6,25 @@ import org.json.simple.JSONObject;
  * Model for the Build Finished BEP event.
  */
 public class BEPBuildFinishedEvent extends BEPEvent {
-    
+
     public static final String NAME = "buildFinished";
 
     private boolean overallSuccess = false;
     private long finishTimeMillis = 0L;
     private String exitCodeName;
     private int exitCodeCode;
-    
 
     public BEPBuildFinishedEvent(String rawEvent, int index, JSONObject eventObj) {
         super(NAME, rawEvent, index, eventObj);
-        
-        JSONObject finishedDetail = (JSONObject)eventObj.get("finished");
+
+        JSONObject finishedDetail = (JSONObject) eventObj.get("finished");
         if (finishedDetail != null) {
             parseDetails(finishedDetail);
         }
     }
-    
+
     // GETTERS
-    
+
     public boolean isOverallSuccess() {
         return overallSuccess;
     }
@@ -42,9 +41,8 @@ public class BEPBuildFinishedEvent extends BEPEvent {
         return exitCodeCode;
     }
 
-
     // PARSER
-    
+
     /*
      FAIL
       "finished": {
@@ -55,7 +53,7 @@ public class BEPBuildFinishedEvent extends BEPEvent {
           },
           "anomalyReport": {}
         }
-
+    
      SUCCESS
       "finished": {
         "overallSuccess": true,
@@ -68,9 +66,9 @@ public class BEPBuildFinishedEvent extends BEPEvent {
     void parseDetails(JSONObject finishedDetail) {
         overallSuccess = decodeBooleanFromJsonObject(finishedDetail.get("overallSuccess"));
         this.isError = !overallSuccess;
-        
+
         finishTimeMillis = this.decodeLongFromJsonObject(finishedDetail.get("finishTimeMillis"));
-        JSONObject exitCodeObj = (JSONObject)finishedDetail.get("exitCode");
+        JSONObject exitCodeObj = (JSONObject) finishedDetail.get("exitCode");
         if (exitCodeObj != null) {
             exitCodeName = this.decodeStringFromJsonObject(exitCodeObj.get("name"));
             exitCodeCode = this.decodeIntFromJsonObject(exitCodeObj.get("code"));
@@ -78,7 +76,7 @@ public class BEPBuildFinishedEvent extends BEPEvent {
     }
 
     // TOSTRING
-    
+
     @Override
     public String toString() {
         return "BEPBuildFinishedEvent [overallSuccess=" + overallSuccess + ", finishTimeMillis=" + finishTimeMillis

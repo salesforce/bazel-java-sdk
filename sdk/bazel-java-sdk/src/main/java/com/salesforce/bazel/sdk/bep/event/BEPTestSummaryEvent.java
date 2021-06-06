@@ -20,24 +20,23 @@ public class BEPTestSummaryEvent extends BEPEvent {
     private int totalRunDurationMillis;
     private int totalRunCount;
     private int runCount;
-    
 
     public BEPTestSummaryEvent(String rawEvent, int index, JSONObject eventObj) {
         super(NAME, rawEvent, index, eventObj);
-        
-        JSONObject idDetail = (JSONObject)eventObj.get("id");
+
+        JSONObject idDetail = (JSONObject) eventObj.get("id");
         if (idDetail != null) {
             parseId(idDetail);
         }
 
-        JSONObject testDetail = (JSONObject)eventObj.get("testSummary");
+        JSONObject testDetail = (JSONObject) eventObj.get("testSummary");
         if (testDetail != null) {
             parseDetails(testDetail);
         }
     }
-    
+
     // GETTERS
-    
+
     public String getTestLabel() {
         return testLabel;
     }
@@ -69,9 +68,9 @@ public class BEPTestSummaryEvent extends BEPEvent {
     public int getRunCount() {
         return runCount;
     }
-    
+
     // PARSER
-    
+
     /*
      "id": {
       "testSummary": {
@@ -80,9 +79,9 @@ public class BEPTestSummaryEvent extends BEPEvent {
       }
      } 
      */
-    
+
     void parseId(JSONObject idDetail) {
-        JSONObject testId = (JSONObject)idDetail.get("testSummary");
+        JSONObject testId = (JSONObject) idDetail.get("testSummary");
         if (testId != null) {
             testLabel = decodeStringFromJsonObject(testId.get("label"));
         }
@@ -103,10 +102,9 @@ public class BEPTestSummaryEvent extends BEPEvent {
          "runCount": 1
        }
      */
-    
 
     void parseDetails(JSONObject testDetail) {
-        JSONArray testLogArray = (JSONArray)testDetail.get("passed");
+        JSONArray testLogArray = (JSONArray) testDetail.get("passed");
         for (Object testLog : testLogArray) {
             BEPFileUri fileUri = this.decodeURIFromJsonObject(testLog);
             if (fileUri != null) {
@@ -121,7 +119,7 @@ public class BEPTestSummaryEvent extends BEPEvent {
         if ("FAILED".equals(testStatus)) {
             this.isError = true;
         }
-        
+
         runCount = this.decodeIntFromJsonObject(testDetail.get("runCount"));
         totalRunCount = this.decodeIntFromJsonObject(testDetail.get("totalRunCount"));
     }

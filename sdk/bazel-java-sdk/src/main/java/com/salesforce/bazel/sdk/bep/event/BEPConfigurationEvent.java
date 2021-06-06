@@ -16,19 +16,17 @@ public class BEPConfigurationEvent extends BEPEvent {
     private String cpu;
     private Map<String, String> makeVariables = new HashMap<>();
 
-    
     public BEPConfigurationEvent(String rawEvent, int index, JSONObject eventObj) {
         super(NAME, rawEvent, index, eventObj);
-        
-        JSONObject configDetail = (JSONObject)eventObj.get("configuration");
+
+        JSONObject configDetail = (JSONObject) eventObj.get("configuration");
         if (configDetail != null) {
             parseDetails(configDetail);
         }
     }
-    
+
     // GETTERS
-    
-    
+
     public String getMnemonic() {
         return mnemonic;
     }
@@ -45,9 +43,8 @@ public class BEPConfigurationEvent extends BEPEvent {
         return makeVariables;
     }
 
-
     // PARSING
-    
+
     /*
      "configuration": {
        "mnemonic": "darwin-fastbuild",
@@ -61,13 +58,13 @@ public class BEPConfigurationEvent extends BEPEvent {
        }
      }
      */
-    
+
     void parseDetails(JSONObject configDetail) {
         mnemonic = this.decodeStringFromJsonObject(configDetail.get("mnemonic"));
         platformName = this.decodeStringFromJsonObject(configDetail.get("platformName"));
         cpu = this.decodeStringFromJsonObject(configDetail.get("cpu"));
-        
-        JSONObject makeVariablesObj = (JSONObject)configDetail.get("makeVariable");
+
+        JSONObject makeVariablesObj = (JSONObject) configDetail.get("makeVariable");
         if (makeVariablesObj != null) {
             for (Object key : makeVariablesObj.keySet()) {
                 Object value = makeVariablesObj.get(key);
@@ -79,7 +76,7 @@ public class BEPConfigurationEvent extends BEPEvent {
     }
 
     // TOSTRING
-    
+
     @Override
     public String toString() {
         return "BEPConfigurationEvent [mnemonic=" + mnemonic + ", platformName=" + platformName + ", cpu=" + cpu
@@ -87,5 +84,4 @@ public class BEPConfigurationEvent extends BEPEvent {
                 + ", isProcessed=" + isProcessed + ", isLastMessage=" + isLastMessage + ", isError=" + isError + "]";
     }
 
-    
 }

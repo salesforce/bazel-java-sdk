@@ -9,15 +9,15 @@ import org.json.simple.JSONObject;
 /**
  * Model for the Test Result BEP event.
  * <p>
- * The most common use of this event is to detect and inspect test failures. 
- * For this case, follow this approach:<ul>
+ * The most common use of this event is to detect and inspect test failures. For this case, follow this approach:
+ * <ul>
  * <li>If the test failed, isError() will be true</li>
- * <li>The detailed error messages can be retrieved by reading in the test log file 
- * using getActionOutputs().</li>
- * <li>From the list of action outputs, the action output with name ending in .log 
- * (as opposed to .xml) is probably the easiest to process for most use cases.</li>
- * <li>The BEPFileUri class that contains the action output file uri has helper functions 
- * to read in the lines of the log file.</li></ul>
+ * <li>The detailed error messages can be retrieved by reading in the test log file using getActionOutputs().</li>
+ * <li>From the list of action outputs, the action output with name ending in .log (as opposed to .xml) is probably the
+ * easiest to process for most use cases.</li>
+ * <li>The BEPFileUri class that contains the action output file uri has helper functions to read in the lines of the
+ * log file.</li>
+ * </ul>
  */
 public class BEPTestResultEvent extends BEPEvent {
     public static final String NAME = "testResult";
@@ -35,19 +35,19 @@ public class BEPTestResultEvent extends BEPEvent {
     public BEPTestResultEvent(String rawEvent, int index, JSONObject eventObj) {
         super(NAME, rawEvent, index, eventObj);
 
-        JSONObject idDetail = (JSONObject)eventObj.get("id");
+        JSONObject idDetail = (JSONObject) eventObj.get("id");
         if (idDetail != null) {
             parseId(idDetail);
         }
 
-        JSONObject testDetail = (JSONObject)eventObj.get("testResult");
+        JSONObject testDetail = (JSONObject) eventObj.get("testResult");
         if (testDetail != null) {
             parseDetails(testDetail);
         }
     }
-    
+
     // GETTERS
-    
+
     /**
      * The Bazel label of the failed target.
      */
@@ -93,15 +93,15 @@ public class BEPTestResultEvent extends BEPEvent {
     }
 
     /**
-     * May provide values such as "darwin-sandbox", but it does not appear to be
-     * provided in many cases so don't rely on this being present.
+     * May provide values such as "darwin-sandbox", but it does not appear to be provided in many cases so don't rely on
+     * this being present.
      */
     public String getTestStrategy() {
         return testStrategy;
     }
 
     // PARSER
-    
+
     /*
        "id": {
         "testResult": {
@@ -114,7 +114,7 @@ public class BEPTestResultEvent extends BEPEvent {
       },
      */
     void parseId(JSONObject idDetail) {
-        JSONObject testId = (JSONObject)idDetail.get("testResult");
+        JSONObject testId = (JSONObject) idDetail.get("testResult");
         if (testId != null) {
             testLabel = decodeStringFromJsonObject(testId.get("label"));
             testRun = decodeIntFromJsonObject(testId.get("run"));
@@ -122,7 +122,7 @@ public class BEPTestResultEvent extends BEPEvent {
             testAttempt = decodeIntFromJsonObject(testId.get("attempt"));
         }
     }
-    
+
     /*
        "testResult": {
         "testActionOutput": [
@@ -142,7 +142,7 @@ public class BEPTestResultEvent extends BEPEvent {
       }
      */
     void parseDetails(JSONObject testDetail) {
-        JSONArray actionOutputArray = (JSONArray)testDetail.get("testActionOutput");
+        JSONArray actionOutputArray = (JSONArray) testDetail.get("testActionOutput");
         for (Object actionOutput : actionOutputArray) {
             BEPFileUri fileUri = this.decodeURIFromJsonObject(actionOutput);
             if (fileUri != null) {
@@ -155,14 +155,14 @@ public class BEPTestResultEvent extends BEPEvent {
             this.isError = true;
         }
         testAttemptStartMillisEpoch = this.decodeLongFromJsonObject(testDetail.get("testAttemptStartMillisEpoch"));
-        JSONObject execDetail = (JSONObject)testDetail.get("executionInfo");
+        JSONObject execDetail = (JSONObject) testDetail.get("executionInfo");
         if (execDetail != null) {
             testStrategy = this.decodeStringFromJsonObject(execDetail.get("strategy"));
         }
     }
 
     // TOSTRING
-    
+
     @Override
     public String toString() {
         return "BEPTestResultEvent [testLabel=" + testLabel + ", testRun=" + testRun + ", testShard=" + testShard

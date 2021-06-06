@@ -10,9 +10,9 @@ import org.json.simple.JSONObject;
  * Model for the Target Completed BEP event.
  */
 public class BEPTargetCompletedEvent extends BEPEvent {
-    
+
     public static final String NAME = "targetCompleted";
-    
+
     private String failureMessage;
     private String failureSpawnCode;
     private int failureSpawnExitCode;
@@ -21,13 +21,13 @@ public class BEPTargetCompletedEvent extends BEPEvent {
 
     public BEPTargetCompletedEvent(String rawEvent, int index, JSONObject eventObj) {
         super(NAME, rawEvent, index, eventObj);
-        
-        JSONObject completedDetail = (JSONObject)eventObj.get("completed");
+
+        JSONObject completedDetail = (JSONObject) eventObj.get("completed");
         if (completedDetail != null) {
             parseDetails(completedDetail);
         }
     }
-    
+
     // GETTERS
 
     public String getFailureMessage() {
@@ -45,18 +45,17 @@ public class BEPTargetCompletedEvent extends BEPEvent {
     public boolean isSuccess() {
         return success;
     }
-    
+
     /**
-     * For a successful build, important outputs will be listed, which include the built
-     * artifacts from this target. The name "importantOutput" comes from the BEP json format.
+     * For a successful build, important outputs will be listed, which include the built artifacts from this target. The
+     * name "importantOutput" comes from the BEP json format.
      */
-    public  List<BEPFileUri> getImportantOutput() {
+    public List<BEPFileUri> getImportantOutput() {
         return importantOutput;
     }
 
-
     // PARSER
-    
+
     /*
      FAILURE:
        "completed": {
@@ -91,15 +90,15 @@ public class BEPTargetCompletedEvent extends BEPEvent {
            ]
       } 
      */
-        
+
     void parseDetails(JSONObject completedDetail) {
-        
+
         // FAILURE
-        JSONObject failureDetailObj = (JSONObject)completedDetail.get("failureDetail");
+        JSONObject failureDetailObj = (JSONObject) completedDetail.get("failureDetail");
         if (failureDetailObj != null) {
             this.isError = true;
             failureMessage = this.decodeStringFromJsonObject(failureDetailObj.get("message"));
-            JSONObject spawnObj = (JSONObject)failureDetailObj.get("spawn");
+            JSONObject spawnObj = (JSONObject) failureDetailObj.get("spawn");
             if (spawnObj != null) {
                 failureSpawnCode = this.decodeStringFromJsonObject(failureDetailObj.get("code"));
                 failureSpawnExitCode = this.decodeIntFromJsonObject(spawnObj.get("spawnExitCode"));
@@ -108,9 +107,9 @@ public class BEPTargetCompletedEvent extends BEPEvent {
 
         // SUCCESS
         success = this.decodeBooleanFromJsonObject(completedDetail.get("success"));
-        JSONArray importantOutputArray = (JSONArray)completedDetail.get("importantOutput");
+        JSONArray importantOutputArray = (JSONArray) completedDetail.get("importantOutput");
         if (importantOutputArray != null && importantOutputArray.size() > 0) {
-            for (int i=0; i<importantOutputArray.size(); i++) {
+            for (int i = 0; i < importantOutputArray.size(); i++) {
                 BEPFileUri fileUri = this.decodeURIFromJsonObject(importantOutputArray.get(i));
                 if (fileUri != null) {
                     importantOutput.add(fileUri);
@@ -129,5 +128,4 @@ public class BEPTargetCompletedEvent extends BEPEvent {
                 + ", isLastMessage=" + isLastMessage + ", isError=" + isError + "]";
     }
 
-    
 }
