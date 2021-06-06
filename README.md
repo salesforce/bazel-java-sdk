@@ -77,9 +77,13 @@ A great way to be introduced to  *bazel_java_sdk* is through some examples:
 This sample app uses the Bazel Java SDK to run a build on a Bazel workspace. It is the
   equivalent to the command line command ```bazel build //...```.
 
-[BazelAnalyzerApp](examples/src/main/java/com/salesforce/bazel/app/analyzer/BazelAnalyzerApp.java)
+[BazelSubscriberApp](examples/src/main/java/com/salesforce/bazel/app/subscriber/BazelSubscriberApp.java)
+This sample app uses the Bazel Java SDK to listen for build events emitted by Bazel. This shows the
+  SDK support for the Bazel Build Event Protocol (BEP).
+
+[BazelJavaAnalyzerApp](examples/src/main/java/com/salesforce/bazel/app/analyzer/BazelAnalyzerApp.java)
 This sample app uses the Bazel Java SDK to load a Bazel workspace, compute the
-  dependency graph, and a few other tasks.
+  dependency graph of Java targets, and a few other tasks.
 
 [Bazel Eclipse Feature](https://github.com/salesforce/bazel-eclipse)
 To see a robust implementation, look at the code for the original use case for the  *bazel_java_sdk*.
