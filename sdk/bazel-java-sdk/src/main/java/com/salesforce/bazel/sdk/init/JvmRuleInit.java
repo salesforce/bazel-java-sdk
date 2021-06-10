@@ -8,7 +8,7 @@ import com.salesforce.bazel.sdk.model.BazelTargetKind;
  * Initializer to install support for Java rules into the SDK. Call initialize() once
  * at startup.
  */
-public class JvmRuleSupport {
+public class JvmRuleInit {
 
     // register the collection of Java rules that we want to handle
     public static final BazelTargetKind KIND_JAVA_LIBRARY = new BazelTargetKind("java_library", false, false);

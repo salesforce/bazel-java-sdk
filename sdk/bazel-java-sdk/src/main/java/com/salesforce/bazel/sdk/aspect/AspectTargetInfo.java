@@ -66,8 +66,6 @@ import java.util.List;
  */
 public class AspectTargetInfo {
 
-    public static final String ASPECT_FILENAME_SUFFIX = ".bzleclipse-build.json";
-
     protected final File aspectDataFile; // full path to the file on the file system
     protected final String workspaceRelativePath; // relative path on the filesystem within the workspace
     protected final List<String> deps;

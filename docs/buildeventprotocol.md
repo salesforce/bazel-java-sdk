@@ -93,7 +93,7 @@ file, as it has embedded documentation.
   "started": {
     "uuid": "b4fa160a-2233-48de-b4d1-463a20c67256",
     "startTimeMillis": "1622343691246",
-    "buildToolVersion": "3.7.1",
+    "buildToolVersion": "3.7.0",
     "optionsDescription": "--javacopt=-Werror --javacopt=-Xlint:-options --javacopt='--release 11'",
     "command": "build",
     "workingDirectory": "/Users/mbenioff/dev/myrepo",
@@ -123,8 +123,8 @@ from the payload.
   "unstructuredCommandLine": {
     "args": [
       "build",
-      "--binary_path=/Users/mbenioff/Library/Caches/bazelisk/downloads/bazelbuild/bazel-3.7.1-darwin-x86_64/bin/bazel",
-      "--rc_source=/Users/mbenioff/dev/sfdc-bazel/.bazelrc",
+      "--binary_path=/opt/bazel-3.7.0-darwin-x86_64/bin/bazel",
+      "--rc_source=/Users/mbenioff/dev/myrepo/.bazelrc",
       "--default_override=2:run=--action_env=PATH",
       "--default_override=1:test:debug=--test_arg=--node_options=--inspect-brk",
       "--default_override=2:test=--explicit_java_test_deps=true",
@@ -132,7 +132,7 @@ from the payload.
       "--client_env=TERM_PROGRAM=Apple_Terminal",
       "--client_env=USER=mbenioff",
       "--client_env=PWD=/Users/mbenioff/dev/myrepo",
-      "--client_env=JAVA_HOME=/Users/mbenioff/java/openjdk_11.0.9_11.43.54_x64",
+      "--client_env=JAVA_HOME=/Users/mbenioff/java/openjdk_11.0.0_x64",
       "//..."
     ]
   }

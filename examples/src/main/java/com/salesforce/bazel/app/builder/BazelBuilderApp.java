@@ -11,7 +11,7 @@ import com.salesforce.bazel.sdk.command.CommandBuilder;
 import com.salesforce.bazel.sdk.command.shell.ShellCommandBuilder;
 import com.salesforce.bazel.sdk.console.CommandConsoleFactory;
 import com.salesforce.bazel.sdk.console.StandardCommandConsoleFactory;
-import com.salesforce.bazel.sdk.init.JvmRuleSupport;
+import com.salesforce.bazel.sdk.init.JvmRuleInit;
 import com.salesforce.bazel.sdk.model.BazelProblem;
 import com.salesforce.bazel.sdk.util.BazelPathHelper;
 
@@ -39,7 +39,7 @@ public class BazelBuilderApp {
         parseArgs(args);
         
         // Load the rules support, currently only JVM rules (java_library etc) are supported
-        JvmRuleSupport.initialize();
+        JvmRuleInit.initialize();
 
         // set up the command line env
         CommandConsoleFactory consoleFactory = new StandardCommandConsoleFactory();
