@@ -1,8 +1,6 @@
 package com.salesforce.bazel.app.subscriber;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 
 import com.salesforce.bazel.sdk.bep.BazelBuildEventSubscriber;
 import com.salesforce.bazel.sdk.bep.BazelBuildEventsFileStream;
