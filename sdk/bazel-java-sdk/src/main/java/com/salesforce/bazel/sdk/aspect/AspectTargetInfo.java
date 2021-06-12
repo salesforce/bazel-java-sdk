@@ -62,7 +62,7 @@ import java.util.List;
  }
  * </pre>
  * <p>
- * See resources/bzleclipse_aspect.bzl for the code that creates the JSON files
+ * See resources/bzljavasdk_aspect.bzl for the code that creates the JSON files
  */
 public class AspectTargetInfo {
 
