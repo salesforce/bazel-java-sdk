@@ -85,10 +85,15 @@ This sample app uses the Bazel Java SDK to listen for build events emitted by Ba
 This sample app uses the Bazel Java SDK to load a Bazel workspace, compute the
   dependency graph of Java targets, and a few other tasks.
 
+[JvmCodeIndexerApp](examples/src/main/java/com/salesforce/bazel/app/indexer/JvmCodeIndexerApp.java)
+This sample app uses the Bazel Java SDK to scan a Bazel workspace, or a Maven .m2 directory, looking
+  for jar files and source files to index. This feature is useful for tools such as IDEs that need
+  to provide a listing of JVM types available within the Bazel workspace.
+
 [Bazel Eclipse Feature](https://github.com/salesforce/bazel-eclipse)
 To see a robust implementation, look at the code for the original use case for the  *bazel_java_sdk*.
 The Bazel Eclipse Feature is the Eclipse IDE integration with Bazel, and uses the SDK for the
-  underlying execution of builds and analsis of classpath.
+  underlying execution of builds and analysis of classpath.
 
 ### Project Management
 

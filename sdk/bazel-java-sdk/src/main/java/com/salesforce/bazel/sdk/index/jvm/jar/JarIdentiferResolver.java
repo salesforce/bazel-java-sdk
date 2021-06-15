@@ -21,7 +21,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.salesforce.bazel.sdk.index.jar;
+package com.salesforce.bazel.sdk.index.jvm.jar;
 
 import java.io.File;
 import java.util.zip.ZipFile;
@@ -35,6 +35,13 @@ public class JarIdentiferResolver {
     public JarIdentiferResolver() {}
 
     public JarIdentifier resolveJarIdentifier(File gavRoot, File pathFile, ZipFile zipFile) {
+    	if (gavRoot == null) {
+    		return null;
+    	}
+    	if (pathFile == null) {
+    		return null;
+    	}
+    	
         String path = pathFile.getAbsolutePath();
 
         // do some quick Bazel exclusions (TODO how best to identify the interesting jars in the Bazel output dirs?)

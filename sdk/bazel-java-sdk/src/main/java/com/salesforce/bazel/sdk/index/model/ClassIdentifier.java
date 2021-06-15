@@ -24,7 +24,7 @@
 package com.salesforce.bazel.sdk.index.model;
 
 /**
- * Holder object for a JVM type: package name + class name
+ * Holder object for a type: package name + class name
  */
 public class ClassIdentifier {
     public String packageName;
