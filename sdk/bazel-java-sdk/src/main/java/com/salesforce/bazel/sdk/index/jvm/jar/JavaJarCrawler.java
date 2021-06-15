@@ -21,7 +21,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.salesforce.bazel.sdk.index.jar;
+package com.salesforce.bazel.sdk.index.jvm.jar;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -29,7 +29,7 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import com.salesforce.bazel.sdk.index.JvmCodeIndex;
+import com.salesforce.bazel.sdk.index.jvm.JvmCodeIndex;
 import com.salesforce.bazel.sdk.index.model.ClassIdentifier;
 import com.salesforce.bazel.sdk.index.model.CodeLocationDescriptor;
 
@@ -149,7 +149,7 @@ public class JavaJarCrawler {
 
             ClassIdentifier classId = new ClassIdentifier(fqClassname);
             jarLocationDescriptor.addClass(classId);
-            index.addClassnameLocation(classId.classname, jarLocationDescriptor);
+            index.addTypeLocation(classId.classname, jarLocationDescriptor);
         }
     }
 

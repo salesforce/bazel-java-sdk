@@ -23,6 +23,17 @@ java_binary(
 )
 
 java_binary(
+    name = "JvmCodeIndexerApp",
+    main_class = "com.salesforce.bazel.app.indexer.JvmCodeIndexerApp",
+    srcs = [
+      "src/main/java/com/salesforce/bazel/app/indexer/JvmCodeIndexerApp.java",
+    ],
+    deps = [
+      "//sdk/bazel-java-sdk",
+    ]
+)
+
+java_binary(
     name = "BazelSubscriberApp",
     main_class = "com.salesforce.bazel.app.subscriber.BazelSubscriberApp",
     srcs = [

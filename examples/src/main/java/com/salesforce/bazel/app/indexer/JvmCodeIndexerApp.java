@@ -21,38 +21,43 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.salesforce.bazel.sdk.index;
+package com.salesforce.bazel.app.indexer;
 
 import java.io.File;
 
-import com.salesforce.bazel.sdk.index.jar.JarIdentiferResolver;
-import com.salesforce.bazel.sdk.index.jar.JavaJarCrawler;
-import com.salesforce.bazel.sdk.index.source.JavaSourceCrawler;
+import com.salesforce.bazel.sdk.index.jvm.JavaSourceCrawler;
+import com.salesforce.bazel.sdk.index.jvm.JvmCodeIndex;
+import com.salesforce.bazel.sdk.index.jvm.jar.JarIdentiferResolver;
+import com.salesforce.bazel.sdk.index.jvm.jar.JavaJarCrawler;
+import com.salesforce.bazel.sdk.index.source.SourceFileCrawler;
 import com.salesforce.bazel.sdk.util.BazelPathHelper;
 
 /**
  * Indexer for building a JVM type index from nested sets of directories. Supports indexing both source files, and
  * compiled classes in jar files. Includes a command line launcher.
+ * <p>
+ * This class has knowledge of internal details on how different build systems lay out files.
+ * <p>
+ * Usage:<br>
+ * java -jar JvmCodeIndexerApp_deploy.jar [location of external jar files] [optional: root of directory with source files]
+ * <p>
+ * <b>USE CASE 1: Bazel Workspace</b><p>
+ * Bazel workspace location on file system: /home/mbenioff/dev/myrepo
+ * <p>
+ * java -jar JvmCodeIndexerApp_deploy.jar /home/mbenioff/dev/myrepo/bazel-bin/external /home/mbenioff/dev/myrepo
+ * <p>     
+ *      
+ * <b>USE CASE 2: Maven repository</b><p>
+ * Maven repository location on file system: /home/mbenioff/.m2/repository
+ * <p>
+ * java -jar examples.jar com.salesforce.bazel.app.indexer.JvmCodeIndexerApp /home/mbenioff/.m2/repository 
  */
-public class JvmCodeIndexer {
+public class JvmCodeIndexerApp {
     protected String sourceRoot;
     protected String externalJarRoot;
 
     // COMMAND LINE LAUNCHER
-
-    // This is the best way to learn how to use the indexer.
-
-    // USE CASE 1: Bazel Workspace
-    // Bazel workspace location on file system: /home/mbenioff/dev/myrepo
-    //
-    // java -jar bazel-java-sdk.jar com.salesforce.bazel.sdk.index.FileSystemCodeIndexer \
-    //      /home/mbenioff/dev/myrepo/bazel-bin/external /home/mbenioff/dev/myrepo
-
-    // USE CASE 2: Maven repository
-    // Maven repository location on file system: /home/mbenioff/.m2/repository
-    //
-    // java -jar bazel-java-sdk.jar com.salesforce.bazel.sdk.index.FileSystemCodeIndexer \
-    //      /home/mbenioff/.m2/repository
+    // This is the best way to learn how to use the JVM indexer. 
 
     public static void main(String[] args) {
         if (args.length < 1) {
@@ -67,7 +72,7 @@ public class JvmCodeIndexer {
         if (args.length > 1) {
             sourceRoot = args[1];
         }
-        JvmCodeIndexer indexer = new JvmCodeIndexer(externalJarRoot, sourceRoot);
+        JvmCodeIndexerApp indexer = new JvmCodeIndexerApp(externalJarRoot, sourceRoot);
 
         // run the index
         long startTime = System.currentTimeMillis();
@@ -82,7 +87,7 @@ public class JvmCodeIndexer {
 
     // INDEXER
 
-    public JvmCodeIndexer(String externalJarRoot, String sourceRoot) {
+    public JvmCodeIndexerApp(String externalJarRoot, String sourceRoot) {
         this.sourceRoot = sourceRoot;
         this.externalJarRoot = externalJarRoot;
     }
@@ -115,8 +120,10 @@ public class JvmCodeIndexer {
                 logInfo("The provided source code root directory does not exist. This is ok.");
                 return index;
             }
-            JavaSourceCrawler sourceCrawler =
-                    new JavaSourceCrawler(index, pickJavaSourceArtifactMarker(externalJarRoot));
+            String sourceArtifactMarker = pickJavaSourceArtifactMarker(externalJarRoot);
+            logInfo("Looking for source file packages by looking for files named "+sourceArtifactMarker);
+
+            SourceFileCrawler sourceCrawler = new JavaSourceCrawler(index, sourceArtifactMarker);            
             sourceCrawler.index(sourceRootFile);
         } else {
             logInfo("The provided source code root directory does not exist. This is ok.");
@@ -129,12 +136,17 @@ public class JvmCodeIndexer {
         return new JarIdentiferResolver();
     }
 
+    /**
+     * What file marks the root of a package?
+     */
     private static String pickJavaSourceArtifactMarker(String jarRepoPath) {
         if (jarRepoPath.contains(BazelPathHelper.osSeps(".m2/repository"))) { // $SLASH_OK
             return "pom.xml";
         } else if (jarRepoPath.contains("bazel-out") || jarRepoPath.contains("bazel-bin")) {
-            return "BUILD";
+            return "BUILD"; // TODO BUILD.bazel should be supported too
         }
+        // TODO gradle
+        
         return null;
     }
 
