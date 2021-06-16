@@ -21,6 +21,9 @@ import com.salesforce.bazel.sdk.util.BazelPathHelper;
  * <p>
  * The value in this app is as a starting point for using the SDK to write tools that are actually useful.
  * <p>
+ * Build:<p>
+ * bazel build //examples:BazelBuilderApp_deploy.jar
+ * <p>
  * Usage:
  * <ul>
  * <li>Build: bazel build //examples:BazelBuilderApp_deploy.jar</li>
@@ -37,7 +40,7 @@ public class BazelBuilderApp {
 
     public static void main(String[] args) throws Exception {
         parseArgs(args);
-        
+
         // Load the rules support, currently only JVM rules (java_library etc) are supported
         JvmRuleInit.initialize();
 

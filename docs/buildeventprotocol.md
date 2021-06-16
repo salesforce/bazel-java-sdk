@@ -232,6 +232,16 @@ that. See *BazelWorkspaceCommandOptions*.
 > events are also used to be parents of events where the more logical parent
 > event cannot be posted yet as the needed information is not yet complete.
 
+Progress events contain the raw output of the underlying build tool (e.g. javac).
+This is important information for many use cases of this SDK.
+Also, note that there will be *many* progress events as they are emitted
+throughout a build operation.
+
+:fire: Progress events are the area where the SDK needs more work. We will be
+adding built-in support for aggregating the collection of progress events into a more
+unified structure so that SDK use cases will not need to re-assemble the build
+log manually.
+
 **Example Payload:**
 Note that the raw _stderr_ value contains unicode formatting and other control characters.
 The SDK has a special parser to strip those characters before your
@@ -459,7 +469,8 @@ property.
       }
     ]
   }
-}```
+}
+```
 
 ### TYPE: TEST RESULT
 

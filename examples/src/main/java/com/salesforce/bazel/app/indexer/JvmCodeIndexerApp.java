@@ -36,6 +36,9 @@ import com.salesforce.bazel.sdk.util.BazelPathHelper;
  * Indexer for building a JVM type index from nested sets of directories. Supports indexing both source files, and
  * compiled classes in jar files. Includes a command line launcher.
  * <p>
+ * Build:<p>
+ * bazel build //examples:JvmCodeIndexerApp_deploy.jar
+ * <p>
  * This class has knowledge of internal details on how different build systems lay out files.
  * <p>
  * Usage:<br>
@@ -45,19 +48,19 @@ import com.salesforce.bazel.sdk.util.BazelPathHelper;
  * Bazel workspace location on file system: /home/mbenioff/dev/myrepo
  * <p>
  * java -jar JvmCodeIndexerApp_deploy.jar /home/mbenioff/dev/myrepo/bazel-bin/external /home/mbenioff/dev/myrepo
- * <p>     
- *      
+ * <p>
+ *
  * <b>USE CASE 2: Maven repository</b><p>
  * Maven repository location on file system: /home/mbenioff/.m2/repository
  * <p>
- * java -jar examples.jar com.salesforce.bazel.app.indexer.JvmCodeIndexerApp /home/mbenioff/.m2/repository 
+ * java -jar examples.jar com.salesforce.bazel.app.indexer.JvmCodeIndexerApp /home/mbenioff/.m2/repository
  */
 public class JvmCodeIndexerApp {
     protected String sourceRoot;
     protected String externalJarRoot;
 
     // COMMAND LINE LAUNCHER
-    // This is the best way to learn how to use the JVM indexer. 
+    // This is the best way to learn how to use the JVM indexer.
 
     public static void main(String[] args) {
         if (args.length < 1) {
@@ -123,7 +126,7 @@ public class JvmCodeIndexerApp {
             String sourceArtifactMarker = pickJavaSourceArtifactMarker(externalJarRoot);
             logInfo("Looking for source file packages by looking for files named "+sourceArtifactMarker);
 
-            SourceFileCrawler sourceCrawler = new JavaSourceCrawler(index, sourceArtifactMarker);            
+            SourceFileCrawler sourceCrawler = new JavaSourceCrawler(index, sourceArtifactMarker);
             sourceCrawler.index(sourceRootFile);
         } else {
             logInfo("The provided source code root directory does not exist. This is ok.");
@@ -146,7 +149,7 @@ public class JvmCodeIndexerApp {
             return "BUILD"; // TODO BUILD.bazel should be supported too
         }
         // TODO gradle
-        
+
         return null;
     }
 

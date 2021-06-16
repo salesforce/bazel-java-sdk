@@ -13,13 +13,13 @@ That helps us advocate for more resources on this project. Thanks!
 
 ### Features
 
-- Any workspace
+- Features for any workspace:
   - Execution of Bazel commands such as Bazel build and Bazel query and interpretation of the results
   - Modeling of Bazel concepts (targets, labels, BUILD files, aspects, etc)
-- Workspaces with Java rules
+- Features for workspaces with Java rules:
   - Efficient computation of the dependency graph
   - Generation of the Java classpath for a Bazel Java target
-  - Creation of a unified class index for Java dependencies and Java targets (e.g. for an IDE find-class feature)
+  - Creation of a unified class index for Java dependencies and Java targets (e.g. for an IDE find-any-class feature)
 
 :lemon: Currently the *bazel_java_sdk* is largely focused on workspaces with Java targets
   (```java_library```, ```java_test```, etc). It can execute commands on any workspace, but

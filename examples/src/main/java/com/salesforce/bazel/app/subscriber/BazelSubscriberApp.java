@@ -26,11 +26,14 @@ import com.salesforce.bazel.sdk.util.BazelPathHelper;
  * The listener for the events simply prints out each event, but this can be easily customized
  * for other use cases. See ExampleBazelEventSubscriber.java
  * <p>
+ * Build:<p>
+ * bazel build //examples:BazelSubscriberApp_deploy.jar
+ * <p>
  * Usage:
  * <ul>
  * <li>Build: bazel build //examples:BazelSubscriberApp_deploy.jar</li>
- * <li>Args: java -jar bazel-bin/examples/BazelSubscriberApp_deploy.jar [path to Bazel workspace dir]</li>
- * <li>Example: java -jar bazel-bin/examples/BazelSubscriberApp_deploy.jar ../my-bazel-ws
+ * <li>Args: java -jar bazel-bin/examples/BazelSubscriberApp_deploy.jar [path to Bazel workspace dir to analyze]</li>
+ * <li>Example: java -jar bazel-bin/examples/BazelSubscriberApp_deploy.jar /home/mbenioff/dev/my-bazel-ws
  * </ul>
  */
 public class BazelSubscriberApp {
@@ -44,7 +47,7 @@ public class BazelSubscriberApp {
 
     public static void main(String[] args) {
         parseArgs(args);
-        
+
         // Load the rules support, currently only JVM rules (java_library etc) are supported
         JvmRuleInit.initialize();
 

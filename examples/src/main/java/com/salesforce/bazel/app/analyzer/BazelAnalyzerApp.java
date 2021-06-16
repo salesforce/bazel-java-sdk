@@ -55,14 +55,17 @@ import com.salesforce.bazel.sdk.workspace.RealOperatingEnvironmentDetectionStrat
 
 /**
  * This app, as a tool, is not useful. It simply uses the Bazel Java SDK to read a Bazel workspace, compute the
- * dependency graph, and a few other tasks. The value in this app is as a starting point for using the SDK to write 
+ * dependency graph, and a few other tasks. The value in this app is as a starting point for using the SDK to write
  * tools that are actually useful.
  * <p>
- * NOTE: there are some limitations to be aware of. First, the dependency analysis features of the SDK rely on 
+ * NOTE: there are some limitations to be aware of. First, the dependency analysis features of the SDK rely on
  * Bazel Aspects, which require the packages to be built. If you have not built your workspace, this app will incur
  * the costs of building your packages in addition to the dependency analysis work. Second, computing the dependency
  * graph is quite expensive. It is recommended to analyze only a few hundred targets when using the demo app. By
  * default, it analyzes the entire Bazel workspace, which may be thousands of targets.
+ * <p>
+ * Build:<p>
+ * bazel build //examples:BazelAnalyzerApp_deploy.jar
  * <p>
  * Usage:
  * <ul>
@@ -77,11 +80,11 @@ public class BazelAnalyzerApp {
     // where bazel is installed on your machine
     private static String bazelExecutablePath;
     private static File bazelExecutableFile;
-    
+
     // the location of the Bazel workspace to analyze
     private static String bazelWorkspacePath;
     private static File bazelWorkspaceDir;
-    
+
     // optional parameter to limit analysis to a particular package (and subdirs); if not specified
     // this app will analyze your entire workspace, which will be painful if you have more than a few hundred targets
     private static String rootPackageToAnalyze = null;
@@ -94,10 +97,10 @@ public class BazelAnalyzerApp {
 
     public static void main(String[] args) throws Exception {
         parseArgs(args);
-        
+
         // Load the rules support, currently only JVM rules (java_library etc) are supported
         JvmRuleInit.initialize();
-        
+
         // load the aspect (the component we use to introspect the Bazel build) on the file system
         File aspectDir = loadAspectDirectory(ASPECT_LOCATION);
 
@@ -115,9 +118,9 @@ public class BazelAnalyzerApp {
                 new BazelWorkspace(workspaceName, bazelWorkspaceDir, osDetector, bazelWorkspaceCmdRunner);
         BazelWorkspaceCommandOptions bazelOptions = bazelWorkspace.getBazelWorkspaceCommandOptions();
         printBazelOptions(bazelOptions);
-        
-        // 
-        
+
+        //
+
         // scan for Bazel packages and print them out
         BazelPackageInfo rootPackage = workspaceScanner.getPackages(bazelWorkspaceDir, pathsToIgnore);
         List<BazelPackageLocation> selectedPackages = rootPackage.gatherChildren(rootPackageToAnalyze);
@@ -172,7 +175,7 @@ public class BazelAnalyzerApp {
             throw new IllegalArgumentException(
                     "Bazel workspace directory does not exist. Usage: java -jar BazelAnalyzerApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
         }
-        
+
         if (args.length > 2) {
             // optional third parameter is the package to scope the analysis to (- is a placeholder arg to signal there is no scope)
             if (!args[2].equals("-")) {
@@ -248,7 +251,7 @@ public class BazelAnalyzerApp {
             printPackage(child, prefix + "  ", suffix);
         }
     }
-    
+
     private static void printPackage(BazelPackageLocation pkg) {
         System.out.println("  "+pkg.getBazelPackageName());
     }
