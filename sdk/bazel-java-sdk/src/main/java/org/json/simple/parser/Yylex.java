@@ -55,9 +55,9 @@ class Yylex {
         while (i < l) {
             int count = packed.charAt(i++);
             int value = packed.charAt(i++);
-            do
+            do {
                 result[j++] = value;
-            while (--count > 0);
+            } while (--count > 0);
         }
         return j;
     }
@@ -127,7 +127,7 @@ class Yylex {
 
     /* error messages for the codes above */
     private static final String ZZ_ERROR_MSG[] =
-            { "Unkown internal scanner error", "Error: could not match input", "Error: pushback value was too large" };
+        { "Unkown internal scanner error", "Error: could not match input", "Error: pushback value was too large" };
 
     /**
      * ZZ_ATTRIBUTE[aState] contains the attributes of state <code>aState</code>
@@ -151,9 +151,9 @@ class Yylex {
         while (i < l) {
             int count = packed.charAt(i++);
             int value = packed.charAt(i++);
-            do
+            do {
                 result[j++] = value;
-            while (--count > 0);
+            } while (--count > 0);
         }
         return j;
     }
@@ -187,20 +187,11 @@ class Yylex {
     private int zzEndRead;
 
     /** number of newlines encountered up to the start of the matched text */
+    @SuppressWarnings("unused")
     private int yyline;
 
     /** the number of characters up to the start of the matched text */
     private int yychar;
-
-    /**
-     * the number of characters from the last newline up to the start of the matched text
-     */
-    private int yycolumn;
-
-    /**
-     * zzAtBOL == true <=> the scanner is currently at the beginning of a line
-     */
-    private boolean zzAtBOL = true;
 
     /** zzAtEOF == true <=> the scanner is at the EOF */
     private boolean zzAtEOF;
@@ -219,7 +210,7 @@ class Yylex {
      *            the java.io.Reader to read input from.
      */
     Yylex(java.io.Reader in) {
-        this.zzReader = in;
+        zzReader = in;
     }
 
     /**
@@ -246,9 +237,9 @@ class Yylex {
         while (i < 90) {
             int count = packed.charAt(i++);
             char value = packed.charAt(i++);
-            do
+            do {
                 map[j++] = value;
-            while (--count > 0);
+            } while (--count > 0);
         }
         return map;
     }
@@ -257,7 +248,7 @@ class Yylex {
      * Refills the input buffer.
      *
      * @return <code>false</code>, iff there was new input.
-     * 
+     *
      * @exception java.io.IOException
      *                if any I/O-Error occurs
      */
@@ -289,7 +280,7 @@ class Yylex {
             zzEndRead += numRead;
             return false;
         }
-        // unlikely but not impossible: read 0 characters, but not at end of stream    
+        // unlikely but not impossible: read 0 characters, but not at end of stream
         if (numRead == 0) {
             int c = zzReader.read();
             if (c == -1) {
@@ -311,8 +302,9 @@ class Yylex {
         zzAtEOF = true; /* indicate end of file */
         zzEndRead = zzStartRead; /* invalidate buffer    */
 
-        if (zzReader != null)
+        if (zzReader != null) {
             zzReader.close();
+        }
     }
 
     /**
@@ -326,11 +318,10 @@ class Yylex {
      */
     public final void yyreset(java.io.Reader reader) {
         zzReader = reader;
-        zzAtBOL = true;
         zzAtEOF = false;
         zzEndRead = zzStartRead = 0;
         zzCurrentPos = zzMarkedPos = 0;
-        yyline = yychar = yycolumn = 0;
+        yyline = yychar = 0;
         zzLexicalState = YYINITIAL;
     }
 
@@ -360,7 +351,7 @@ class Yylex {
 
     /**
      * Returns the character at position <tt>pos</tt> from the matched text.
-     * 
+     *
      * It is equivalent to yytext().charAt(pos), but faster
      *
      * @param pos
@@ -411,8 +402,9 @@ class Yylex {
      *            the number of characters to be read again. This number must not be greater than yylength()!
      */
     public void yypushback(int number) {
-        if (number > yylength())
+        if (number > yylength()) {
             zzScanError(ZZ_PUSHBACK_2BIG);
+        }
 
         zzMarkedPos -= number;
     }
@@ -454,9 +446,9 @@ class Yylex {
             zzForAction: {
                 while (true) {
 
-                    if (zzCurrentPosL < zzEndReadL)
+                    if (zzCurrentPosL < zzEndReadL) {
                         zzInput = zzBufferL[zzCurrentPosL++];
-                    else if (zzAtEOF) {
+                    } else if (zzAtEOF) {
                         zzInput = YYEOF;
                         break zzForAction;
                     } else {
@@ -477,16 +469,18 @@ class Yylex {
                         }
                     }
                     int zzNext = zzTransL[zzRowMapL[zzState] + zzCMapL[zzInput]];
-                    if (zzNext == -1)
+                    if (zzNext == -1) {
                         break zzForAction;
+                    }
                     zzState = zzNext;
 
                     int zzAttributes = zzAttrL[zzState];
                     if ((zzAttributes & 1) == 1) {
                         zzAction = zzState;
                         zzMarkedPosL = zzCurrentPosL;
-                        if ((zzAttributes & 8) == 8)
+                        if ((zzAttributes & 8) == 8) {
                             break zzForAction;
+                        }
                     }
 
                 }
@@ -547,7 +541,7 @@ class Yylex {
             case 33:
                 break;
             case 1: {
-                throw new ParseException(yychar, ParseException.ERROR_UNEXPECTED_CHAR, new Character(yycharat(0)));
+                throw new ParseException(yychar, ParseException.ERROR_UNEXPECTED_CHAR, yycharat(0));
             }
             case 34:
                 break;
@@ -626,7 +620,7 @@ class Yylex {
             case 48:
                 break;
             default:
-                if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
+                if ((zzInput == YYEOF) && (zzStartRead == zzCurrentPos)) {
                     zzAtEOF = true;
                     return null;
                 } else {

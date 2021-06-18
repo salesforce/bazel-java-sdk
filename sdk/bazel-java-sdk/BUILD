@@ -140,6 +140,9 @@ java_test(
 java_test(
     name = "BazelProblemTest",
     srcs = [
+        "src/main/java/com/salesforce/bazel/sdk/logging/BasicLoggerFacade.java",
+        "src/main/java/com/salesforce/bazel/sdk/logging/LogHelper.java",
+        "src/main/java/com/salesforce/bazel/sdk/logging/LoggerFacade.java",
         "src/main/java/com/salesforce/bazel/sdk/model/BazelLabel.java",
         "src/main/java/com/salesforce/bazel/sdk/model/BazelProblem.java",
         "src/test/java/com/salesforce/bazel/sdk/model/BazelProblemTest.java",
@@ -150,6 +153,9 @@ java_test(
 java_test(
     name = "BazelOutputDirectoryBuilderTest",
     srcs = [
+        "src/main/java/com/salesforce/bazel/sdk/logging/BasicLoggerFacade.java",
+        "src/main/java/com/salesforce/bazel/sdk/logging/LogHelper.java",
+        "src/main/java/com/salesforce/bazel/sdk/logging/LoggerFacade.java",
         "src/main/java/com/salesforce/bazel/sdk/model/BazelLabel.java",
         "src/main/java/com/salesforce/bazel/sdk/model/BazelTargetKind.java",
         "src/main/java/com/salesforce/bazel/sdk/command/BazelOutputDirectoryBuilder.java",
@@ -161,6 +167,9 @@ java_test(
 java_test(
     name = "BazelOutputParserTest",
     srcs = [
+        "src/main/java/com/salesforce/bazel/sdk/logging/BasicLoggerFacade.java",
+        "src/main/java/com/salesforce/bazel/sdk/logging/LogHelper.java",
+        "src/main/java/com/salesforce/bazel/sdk/logging/LoggerFacade.java",
         "src/main/java/com/salesforce/bazel/sdk/model/BazelLabel.java",
         "src/main/java/com/salesforce/bazel/sdk/model/BazelProblem.java",
         "src/main/java/com/salesforce/bazel/sdk/command/BazelOutputParser.java",
