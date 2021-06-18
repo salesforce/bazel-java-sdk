@@ -3,7 +3,6 @@ java_library(
     srcs = glob(["src/main/java/**/*.java"]),
     visibility = ["//visibility:public"],
     deps = [
-        "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
 
@@ -29,7 +28,6 @@ java_test(
     srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPBuildFinishedEventTest.java",],
     deps = [
         ":bazel-java-sdk",
-        "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
 
@@ -38,7 +36,6 @@ java_test(
     srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPBuildMetricsEventTest.java",],
     deps = [
         ":bazel-java-sdk",
-        "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
 
@@ -47,7 +44,6 @@ java_test(
     srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPBuildConfigurationEventTest.java",],
     deps = [
         ":bazel-java-sdk",
-        "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
 
@@ -56,7 +52,6 @@ java_test(
     srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPOptionsParsedEventTest.java",],
     deps = [
         ":bazel-java-sdk",
-        "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
 
@@ -65,7 +60,6 @@ java_test(
     srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPPatternEventTest.java",],
     deps = [
         ":bazel-java-sdk",
-        "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
 
@@ -74,7 +68,6 @@ java_test(
     srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPProgressEventTest.java",],
     deps = [
         ":bazel-java-sdk",
-        "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
 
@@ -83,7 +76,6 @@ java_test(
     srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPStartedEventTest.java",],
     deps = [
         ":bazel-java-sdk",
-        "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
 
@@ -92,7 +84,6 @@ java_test(
     srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPTargetCompletedEventTest.java",],
     deps = [
         ":bazel-java-sdk",
-        "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
 
@@ -101,7 +92,6 @@ java_test(
     srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPTargetConfiguredEventTest.java",],
     deps = [
         ":bazel-java-sdk",
-        "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
 
@@ -110,7 +100,6 @@ java_test(
     srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPTestResultEventTest.java",],
     deps = [
         ":bazel-java-sdk",
-        "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
 
@@ -119,7 +108,6 @@ java_test(
     srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPTestSummaryEventTest.java",],
     deps = [
         ":bazel-java-sdk",
-        "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
 
@@ -128,7 +116,6 @@ java_test(
     srcs = ["src/test/java/com/salesforce/bazel/sdk/bep/event/BEPUnstructuredCommandLineEventTest.java",],
     deps = [
         ":bazel-java-sdk",
-        "@maven//:com_googlecode_json_simple_json_simple",
     ],
 )
 
@@ -250,7 +237,6 @@ java_test(
         "//sdk/bazel-java-sdk-test-framework:test-command-mocks",
         "//sdk/bazel-java-sdk-test-framework:test-workspace-support",
 
-#        "@maven//:org_json_json",
         "@maven//:org_hamcrest_hamcrest_core",
         "@maven//:junit_junit",
         "@maven//:org_mockito_mockito_core",
