@@ -41,9 +41,6 @@ public class BazelBuilderApp {
     public static void main(String[] args) throws Exception {
         parseArgs(args);
 
-        // Load the rules support, currently only JVM rules (java_library etc) are supported
-        JvmRuleInit.initialize();
-
         // set up the command line env
         CommandConsoleFactory consoleFactory = new StandardCommandConsoleFactory();
         CommandBuilder commandBuilder = new ShellCommandBuilder(consoleFactory);

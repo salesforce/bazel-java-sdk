@@ -269,13 +269,13 @@ code interacts with the value.
 {
   "id": {
     "targetConfigured": {
-      "label": "//projects/libs/scone/abstractions:abstractions"
+      "label": "//foo/bar:mylib"
     }
   },
   "children": [
     {
       "targetCompleted": {
-        "label": "//projects/libs/scone/abstractions:abstractions",
+        "label": "//foo/bar:mylib",
         "configuration": {
           "id": "1aee508e1d8c40d63ce4bd544a171e81ac2463f0e7d2f7a8dd4d4ddf19a5366e"
         }

@@ -20,6 +20,8 @@ public class ExampleBazelEventSubscriber implements BazelBuildEventSubscriber {
         countEvent(event);
         
         // PROGRESS
+        // Progress events are very verbose, but they have interesting content. Enable this code
+        // if you want to peak inside stdout/stderr of your actions
 //        if (BEPProgressEvent.NAME.equals(event.getEventType())) {
 //            BEPProgressEvent progress = (BEPProgressEvent)event;
 //            
@@ -31,21 +33,21 @@ public class ExampleBazelEventSubscriber implements BazelBuildEventSubscriber {
 
         // ERRORS
         if (event.isError()) {
-            System.out.println(" ERROR:");
             
             // TEST FAILED?
             if (BEPTestResultEvent.NAME.equals(event.getEventType())) {
                 BEPTestResultEvent testResult = (BEPTestResultEvent)event;
                 Map<String, BEPFileUri> outputs = testResult.getActionOutputs();
                 for (String name : outputs.keySet()) {
+                    // find the plain-text test.log file; there is also sometimes (always?) an xml
+                    // version of it if you want something structured to parse
                     if (name.endsWith(".log")) {
                         BEPFileUri fileUri = outputs.get(name);
                         
-                        // get the lines from the log file for the test failure; ignore the test log
-                        // prior to the actual reporting of the error, which is a line that starts with
-                        // "Failures". Ignore any lines after "Test run finished after 1076 ms"
-                        String beginRegex = "Failures.*";
-                        String endRegex = "Test run finished.*";
+                        // get the lines from the log file for the test failure; the output is entirely dependent
+                        // on the test runner (e.g. JUnit test runner).
+                        String beginRegex = "There was.*";
+                        String endRegex = ".*shutdown.*";
                         boolean ignoreBlankLines = true;
                         List<String> lines = fileUri.loadLines(beginRegex, endRegex, ignoreBlankLines);
                         

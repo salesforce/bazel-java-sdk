@@ -5,7 +5,6 @@ import java.io.File;
 import com.salesforce.bazel.sdk.bep.BazelBuildEventSubscriber;
 import com.salesforce.bazel.sdk.bep.BazelBuildEventsPollingFileStream;
 import com.salesforce.bazel.sdk.bep.event.BEPProgressEvent;
-import com.salesforce.bazel.sdk.init.JvmRuleInit;
 import com.salesforce.bazel.sdk.util.BazelPathHelper;
 
 /**
@@ -49,7 +48,7 @@ public class BazelSubscriberApp {
         setup(args);
 
         // the files that Bazel writes BEP events to
-        File buildBEPFile = new File(bazelWorkspaceDir, buildBEPFilename);
+        //File buildBEPFile = new File(bazelWorkspaceDir, buildBEPFilename);
         File testBEPFile = new File(bazelWorkspaceDir, testBEPFilename);
 
         // BazelBuildEventsPollingFileStream will monitor the files that you add for updates, and reparse them
@@ -107,8 +106,5 @@ public class BazelSubscriberApp {
         
         // setup options
         BEPProgressEvent.includeStdOutErrInToString(false);
-        
-        // Load the rules support, currently only JVM rules (java_library etc) are supported
-        JvmRuleInit.initialize();
     }
 }
