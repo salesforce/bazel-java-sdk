@@ -9,7 +9,7 @@ import com.salesforce.bazel.sdk.bep.event.BEPEvent;
 /**
  * Contents of a single pass parsing of a BEP json file.
  */
-public class BazelBuildEventsFileContents {
+public class BEPFileContents {
     public List<BEPEvent> events = new ArrayList<>();
 
     // commonly needed quick lookups, if any event has these fields set, we set the flag on the result

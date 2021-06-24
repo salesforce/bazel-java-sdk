@@ -1,11 +1,9 @@
 package com.salesforce.bazel.app.subscriber;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 
 import com.salesforce.bazel.sdk.bep.BazelBuildEventSubscriber;
-import com.salesforce.bazel.sdk.bep.BazelBuildEventsFileStream;
+import com.salesforce.bazel.sdk.bep.BazelBuildEventsPollingFileStream;
 import com.salesforce.bazel.sdk.bep.event.BEPProgressEvent;
 import com.salesforce.bazel.sdk.init.JvmRuleInit;
 import com.salesforce.bazel.sdk.util.BazelPathHelper;
@@ -48,26 +46,26 @@ public class BazelSubscriberApp {
 
 
     public static void main(String[] args) {
-        parseArgs(args);
+        setup(args);
 
-        // Load the rules support, currently only JVM rules (java_library etc) are supported
-        JvmRuleInit.initialize();
-
-        BEPProgressEvent.includeStdOutErrInToString(false);
-
+        // the files that Bazel writes BEP events to
         File buildBEPFile = new File(bazelWorkspaceDir, buildBEPFilename);
         File testBEPFile = new File(bazelWorkspaceDir, testBEPFilename);
 
-        // the BazelBuildEventsFileStream will monitor the files that you add for updates, and reparse them
-        // when they change
-        //  parseOnStart tells the streamer to parse the contents of the file(s) at startup, which may not be what you
-        //   want because the user may have last run their build a week ago so the events are stale
+        // BazelBuildEventsPollingFileStream will monitor the files that you add for updates, and reparse them
+        // when they change. If you just want a single pass of an existing file, the BazelBuildEventsFileStream
+        // is what you want.        
+        //   parseOnStart tells the streamer to parse the contents of the file(s) at startup, which may not be what you
+        //   want because the user may have last run their build a week ago so the events are stale, but for this
+        //   demo it makes sense
         boolean parseOnStart = true;
-        BazelBuildEventsFileStream bepStream = new BazelBuildEventsFileStream();
+        BazelBuildEventsPollingFileStream bepStream = new BazelBuildEventsPollingFileStream();
+        
+        // add one or both of the BEP files to be monitored by the poller
         //bepStream.addFileToMonitor(buildBEPFile, parseOnStart);
         bepStream.addFileToMonitor(testBEPFile, parseOnStart);
         
-        // implement your subscriber how to like it
+        // implement your subscriber how you like it
         BazelBuildEventSubscriber exampleSubscriber = new ExampleBazelEventSubscriber();
 
         // subscribe to all events with this form:
@@ -80,13 +78,15 @@ public class BazelSubscriberApp {
         //bepStream.subscribe(exampleSubscriber, filterEventTypes, matchLastMessage);
 
         // start polling for changes to the BEP files; any new event that is added to the file
-        // will be sent to the subscriber(s)
+        // will be sent to the subscriber(s) you added to the stream above
         bepStream.activateStream();
     }
 
     // HELPERS
 
-    private static void parseArgs(String[] args) {
+    private static void setup(String[] args) {
+
+        // parse args
         if (args.length < 1) {
             throw new IllegalArgumentException(
                     "Usage: java -jar BazelBuildApp_deploy.jar [Bazel workspace absolute path]");
@@ -104,5 +104,11 @@ public class BazelSubscriberApp {
             throw new IllegalArgumentException(
                     "Bazel workspace directory does not exist. Usage: java -jar BazelBuildApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
         }
+        
+        // setup options
+        BEPProgressEvent.includeStdOutErrInToString(false);
+        
+        // Load the rules support, currently only JVM rules (java_library etc) are supported
+        JvmRuleInit.initialize();
     }
 }
