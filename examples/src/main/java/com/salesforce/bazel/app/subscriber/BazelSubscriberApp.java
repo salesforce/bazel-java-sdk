@@ -1,6 +1,8 @@
 package com.salesforce.bazel.app.subscriber;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.salesforce.bazel.sdk.bep.BazelBuildEventSubscriber;
 import com.salesforce.bazel.sdk.bep.BazelBuildEventsFileStream;
@@ -56,21 +58,29 @@ public class BazelSubscriberApp {
         File buildBEPFile = new File(bazelWorkspaceDir, buildBEPFilename);
         File testBEPFile = new File(bazelWorkspaceDir, testBEPFilename);
 
+        // the BazelBuildEventsFileStream will monitor the files that you add for updates, and reparse them
+        // when they change
+        //  parseOnStart tells the streamer to parse the contents of the file(s) at startup, which may not be what you
+        //   want because the user may have last run their build a week ago so the events are stale
+        boolean parseOnStart = true;
         BazelBuildEventsFileStream bepStream = new BazelBuildEventsFileStream();
-        bepStream.addFileToMonitor(buildBEPFile, true);
-        //bepStream.addFileToMonitor(testBEPFile, true);
+        //bepStream.addFileToMonitor(buildBEPFile, parseOnStart);
+        bepStream.addFileToMonitor(testBEPFile, parseOnStart);
+        
+        // implement your subscriber how to like it
         BazelBuildEventSubscriber exampleSubscriber = new ExampleBazelEventSubscriber();
 
         // subscribe to all events with this form:
         bepStream.subscribe(exampleSubscriber);
 
-        // filter events to receive only the ones you want:
-        //Set<String> eventTypes = new HashSet<>();
-        //eventTypes.add("testResult");
-        //bepStream.subscribe(exampleSubscriber, eventTypes);
+        // or filter the events to receive only the ones you want:
+        //Set<String> filterEventTypes = new HashSet<>();
+        //filterEventTypes.add(BEPProgressEvent.NAME);
+        //boolean matchLastMessage = true;
+        //bepStream.subscribe(exampleSubscriber, filterEventTypes, matchLastMessage);
 
-
-        // start polling
+        // start polling for changes to the BEP files; any new event that is added to the file
+        // will be sent to the subscriber(s)
         bepStream.activateStream();
     }
 

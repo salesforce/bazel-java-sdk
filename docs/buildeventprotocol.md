@@ -288,6 +288,36 @@ code interacts with the value.
 }
 ```
 
+### TYPE: NAMED SET OF FILES
+
+**Google Description:**
+> Payload of a message to describe a set of files, usually build artifacts, to
+> be referred to later by their name. In this way, files that occur identically
+> as outputs of several targets have to be named only once.
+
+**Example Payload:**
+
+```json
+{
+   "id":{
+      "namedSet":{ "id":"5" }
+   },
+   "namedSetOfFiles":{
+      "files":[
+         {
+            "name":"foo/bar/mylib2.jar",
+            "uri":"file:///private/var/tmp/_bazel_mbenioff/8fc74f66fda297c82a847368ee50d6a4/execroot/myrepo/bazel-out/darwin-fastbuild/bin/foo/bar/mylib.jar",
+            "pathPrefix":[ "bazel-out", "darwin-fastbuild", "bin" ]
+         },
+         {
+            "name":"foo/bar/mylib2.jar",
+            "uri":"file:///private/var/tmp/_bazel_mbenioff/8fc74f66fda297c82a847368ee50d6a4/execroot/myrepo/bazel-out/darwin-fastbuild/bin/foo/bar/mylib2.jar",
+            "pathPrefix":[ "bazel-out", "darwin-fastbuild", "bin" ]
+         }
+      ]
+   }
+}```
+
 ### TYPE: TARGET COMPLETED
 
 **Google Description:**
