@@ -25,6 +25,9 @@ import com.salesforce.bazel.sdk.logging.LogHelper;
  * <p>
  * In the above example, you must call addFileToMonitor() for each configured json file (bep_build.json and
  * bep_test.json).
+ * 
+ * TODO refactor this such that the FileStream is just a one scan and done class, and implement the file
+ * poller stuff in a subclass for those tools that want to monitor a file
  */
 public class BazelBuildEventsFileStream extends BazelBuildEventStream {
     private static final LogHelper LOG = LogHelper.log(BazelBuildEventsFileStream.class);
