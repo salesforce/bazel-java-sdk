@@ -24,8 +24,8 @@ import com.salesforce.bazel.sdk.logging.LogHelper;
  * <p>
  * <a href="https://docs.bazel.build/versions/master/build-event-protocol.html">BEP Documentation</a>
  */
-public class BazelBuildEventsFileParser {
-    static final LogHelper LOG = LogHelper.log(BazelBuildEventsFileParser.class);
+public class BEPFileParser {
+    static final LogHelper LOG = LogHelper.log(BEPFileParser.class);
 
     private final File bepFile;
 
@@ -36,16 +36,16 @@ public class BazelBuildEventsFileParser {
      * Creates the BazelBuildEventsFile for a File. Note that the File may not exist. This can happen if this
      * configuration happens prior to a build with the configuration setting enabled.
      */
-    public BazelBuildEventsFileParser(File bepFile) {
+    public BEPFileParser(File bepFile) {
         this.bepFile = bepFile;
     }
 
     /**
      * Reads the BEP json file, and returns a results object with the parsed events.
      */
-    public BazelBuildEventsFileContents readEvents(String callerForLog, BazelBuildEventsFileContents previousContents) {
+    public BEPFileContents readEvents(String callerForLog, BEPFileContents previousContents) {
 
-        BazelBuildEventsFileContents result = new BazelBuildEventsFileContents();
+        BEPFileContents result = new BEPFileContents();
         int eventIndex = 0;
 
         if (!bepFile.exists()) {
@@ -131,9 +131,9 @@ public class BazelBuildEventsFileParser {
     // simple manual test client
     public static void main(String[] args) {
         File bepFile = new File("/tmp/bep_build_success.json");
-        BazelBuildEventsFileParser bazelEventsFile = new BazelBuildEventsFileParser(bepFile);
+        BEPFileParser bazelEventsFile = new BEPFileParser(bepFile);
 
-        BazelBuildEventsFileContents result = bazelEventsFile.readEvents("testapp", null);
+        BEPFileContents result = bazelEventsFile.readEvents("testapp", null);
 
         for (BEPEvent event : result.events) {
             LOG.info(event.toString());
