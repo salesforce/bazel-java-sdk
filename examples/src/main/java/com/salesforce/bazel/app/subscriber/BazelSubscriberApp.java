@@ -8,24 +8,24 @@ import com.salesforce.bazel.sdk.bep.event.BEPProgressEvent;
 import com.salesforce.bazel.sdk.util.BazelPathHelper;
 
 /**
- * This app uses the Bazel Java SDK to monitor builds in a Bazel workspace on your machine. It
- * hooks into build activity using the Bazel Build Events Protocol (BEP), which allows this app to
- * see various build events like build start, build finish, build errors, test errors, etc. This
- * could be used to power customized notifications to the user, or a team of users.
+ * This app uses the Bazel Java SDK to monitor builds in a Bazel workspace on your machine. It hooks into build activity
+ * using the Bazel Build Events Protocol (BEP), which allows this app to see various build events like build start,
+ * build finish, build errors, test errors, etc. This could be used to power customized notifications to the user, or a
+ * team of users.
  * <p>
- * Because this app integrates with Bazel using BEP, this app will work with command line
- * builds but also with IDE builds.
+ * Because this app integrates with Bazel using BEP, this app will work with command line builds but also with IDE
+ * builds.
  * <p>
- * <b>NOTE:</b>
- * This app requires a configuration change to your Bazel workspace: you must add the following lines to
+ * <b>NOTE:</b> This app requires a configuration change to your Bazel workspace: you must add the following lines to
  * your .bazelrc file to enable BEP:<br/>
- *   build --build_event_json_file bep_build.json<br/>
- *    test --build_event_json_file bep_test.json<br/>
+ * build --build_event_json_file bep_build.json<br/>
+ * test --build_event_json_file bep_test.json<br/>
  * <p>
- * The listener for the events simply prints out each event, but this can be easily customized
- * for other use cases. See ExampleBazelEventSubscriber.java
+ * The listener for the events simply prints out each event, but this can be easily customized for other use cases. See
+ * ExampleBazelEventSubscriber.java
  * <p>
- * Build:<p>
+ * Build:
+ * <p>
  * bazel build //examples:BazelSubscriberApp_deploy.jar
  * <p>
  * Usage:
@@ -43,7 +43,6 @@ public class BazelSubscriberApp {
     private static String bazelWorkspacePath;
     private static File bazelWorkspaceDir;
 
-
     public static void main(String[] args) {
         setup(args);
 
@@ -59,11 +58,11 @@ public class BazelSubscriberApp {
         //   demo it makes sense
         boolean parseOnStart = true;
         BazelBuildEventsPollingFileStream bepStream = new BazelBuildEventsPollingFileStream();
-        
+
         // add one or both of the BEP files to be monitored by the poller
         //bepStream.addFileToMonitor(buildBEPFile, parseOnStart);
         bepStream.addFileToMonitor(testBEPFile, parseOnStart);
-        
+
         // implement your subscriber how you like it
         BazelBuildEventSubscriber exampleSubscriber = new ExampleBazelEventSubscriber();
 
@@ -103,7 +102,7 @@ public class BazelSubscriberApp {
             throw new IllegalArgumentException(
                     "Bazel workspace directory does not exist. Usage: java -jar BazelBuildApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
         }
-        
+
         // setup options
         BEPProgressEvent.includeStdOutErrInToString(false);
     }
