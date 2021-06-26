@@ -46,7 +46,7 @@ import com.salesforce.bazel.sdk.model.BazelLabel;
 import com.salesforce.bazel.sdk.model.BazelPackageInfo;
 import com.salesforce.bazel.sdk.model.BazelPackageLocation;
 import com.salesforce.bazel.sdk.model.BazelWorkspace;
-import com.salesforce.bazel.sdk.util.BazelPathHelper;
+import com.salesforce.bazel.sdk.path.BazelPathHelper;
 import com.salesforce.bazel.sdk.workspace.BazelWorkspaceScanner;
 import com.salesforce.bazel.sdk.workspace.OperatingEnvironmentDetectionStrategy;
 import com.salesforce.bazel.sdk.workspace.ProjectOrderResolver;

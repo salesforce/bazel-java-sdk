@@ -5,7 +5,7 @@ import java.io.File;
 import com.salesforce.bazel.sdk.bep.BazelBuildEventSubscriber;
 import com.salesforce.bazel.sdk.bep.BazelBuildEventsPollingFileStream;
 import com.salesforce.bazel.sdk.bep.event.BEPProgressEvent;
-import com.salesforce.bazel.sdk.util.BazelPathHelper;
+import com.salesforce.bazel.sdk.path.BazelPathHelper;
 
 /**
  * This app uses the Bazel Java SDK to monitor builds in a Bazel workspace on your machine. It hooks into build activity

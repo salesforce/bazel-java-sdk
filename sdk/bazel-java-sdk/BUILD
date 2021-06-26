@@ -123,60 +123,66 @@ java_test(
 java_test(
     name = "BazelLabelTest",
     srcs = [
-        "src/main/java/com/salesforce/bazel/sdk/model/BazelLabel.java",
         "src/test/java/com/salesforce/bazel/sdk/model/BazelLabelTest.java",
+    ],
+    deps = [
+        ":bazel-java-sdk",
+
+        "@maven//:org_hamcrest_hamcrest_core",
+        "@maven//:junit_junit",
     ],
 )
 
 java_test(
     name = "BazelLabelUtilTest",
     srcs = [
-        "src/main/java/com/salesforce/bazel/sdk/model/BazelLabel.java",
-        "src/main/java/com/salesforce/bazel/sdk/model/BazelLabelUtil.java",
         "src/test/java/com/salesforce/bazel/sdk/model/BazelLabelUtilTest.java",
+    ],
+    deps = [
+        ":bazel-java-sdk",
+
+        "@maven//:org_hamcrest_hamcrest_core",
+        "@maven//:junit_junit",
     ],
 )
 
 java_test(
     name = "BazelProblemTest",
     srcs = [
-        "src/main/java/com/salesforce/bazel/sdk/logging/BasicLoggerFacade.java",
-        "src/main/java/com/salesforce/bazel/sdk/logging/LogHelper.java",
-        "src/main/java/com/salesforce/bazel/sdk/logging/LoggerFacade.java",
-        "src/main/java/com/salesforce/bazel/sdk/model/BazelLabel.java",
-        "src/main/java/com/salesforce/bazel/sdk/model/BazelProblem.java",
         "src/test/java/com/salesforce/bazel/sdk/model/BazelProblemTest.java",
-        "src/main/java/com/salesforce/bazel/sdk/util/BazelPathHelper.java",
+    ],
+    deps = [
+        ":bazel-java-sdk",
+
+        "@maven//:org_hamcrest_hamcrest_core",
+        "@maven//:junit_junit",
     ],
 )
 
 java_test(
     name = "BazelOutputDirectoryBuilderTest",
     srcs = [
-        "src/main/java/com/salesforce/bazel/sdk/logging/BasicLoggerFacade.java",
-        "src/main/java/com/salesforce/bazel/sdk/logging/LogHelper.java",
-        "src/main/java/com/salesforce/bazel/sdk/logging/LoggerFacade.java",
-        "src/main/java/com/salesforce/bazel/sdk/model/BazelLabel.java",
-        "src/main/java/com/salesforce/bazel/sdk/model/BazelTargetKind.java",
-        "src/main/java/com/salesforce/bazel/sdk/command/BazelOutputDirectoryBuilder.java",
         "src/test/java/com/salesforce/bazel/sdk/command/BazelOutputDirectoryBuilderTest.java",
-        "src/main/java/com/salesforce/bazel/sdk/util/BazelPathHelper.java",
+    ],
+    deps = [
+        ":bazel-java-sdk",
+
+        "@maven//:org_hamcrest_hamcrest_core",
+        "@maven//:junit_junit",
     ],
 )
 
 java_test(
     name = "BazelOutputParserTest",
     srcs = [
-        "src/main/java/com/salesforce/bazel/sdk/logging/BasicLoggerFacade.java",
-        "src/main/java/com/salesforce/bazel/sdk/logging/LogHelper.java",
-        "src/main/java/com/salesforce/bazel/sdk/logging/LoggerFacade.java",
-        "src/main/java/com/salesforce/bazel/sdk/model/BazelLabel.java",
-        "src/main/java/com/salesforce/bazel/sdk/model/BazelProblem.java",
-        "src/main/java/com/salesforce/bazel/sdk/command/BazelOutputParser.java",
         "src/test/java/com/salesforce/bazel/sdk/command/BazelOutputParserTest.java",
-        "src/main/java/com/salesforce/bazel/sdk/util/BazelPathHelper.java",
     ],
-    deps = [],
+    deps = [
+        ":bazel-java-sdk",
+
+        "@maven//:org_hamcrest_hamcrest_core",
+        "@maven//:junit_junit",
+    ],
 )
 
 java_test(
@@ -205,17 +211,21 @@ java_test(
 java_test(
     name = "BazelPackageInfoTest",
     srcs = [
-        "src/main/java/com/salesforce/bazel/sdk/model/BazelLabel.java",
-        "src/main/java/com/salesforce/bazel/sdk/model/BazelPackageInfo.java",
         "src/test/java/com/salesforce/bazel/sdk/model/BazelPackageInfoTest.java",
-        "src/main/java/com/salesforce/bazel/sdk/model/BazelPackageLocation.java",
+    ],
+    deps = [
+        ":bazel-java-sdk",
+
+        "@maven//:org_hamcrest_hamcrest_core",
+        "@maven//:junit_junit",
     ],
 )
 
 java_test(
     name = "LogHelperTest",
-    srcs = ["src/test/java/com/salesforce/bazel/sdk/logging/CaptureLoggerFacade.java",
-            "src/test/java/com/salesforce/bazel/sdk/logging/LogHelperTest.java"],
+    srcs = [
+        "src/test/java/com/salesforce/bazel/sdk/logging/CaptureLoggerFacade.java",
+        "src/test/java/com/salesforce/bazel/sdk/logging/LogHelperTest.java"],
     deps = [
         ":bazel-java-sdk",
 
@@ -227,12 +237,13 @@ java_test(
 java_test(
     name = "ProjectViewTest",
     srcs = [
-        "src/main/java/com/salesforce/bazel/sdk/model/BazelLabel.java",
-        "src/main/java/com/salesforce/bazel/sdk/model/BazelPackageLocation.java",
-        "src/main/java/com/salesforce/bazel/sdk/project/ProjectView.java",
-        "src/main/java/com/salesforce/bazel/sdk/project/ProjectViewPackageLocation.java",
         "src/test/java/com/salesforce/bazel/sdk/project/ProjectViewTest.java",
-        "src/main/java/com/salesforce/bazel/sdk/util/BazelConstants.java",
+    ],
+    deps = [
+        ":bazel-java-sdk",
+
+        "@maven//:org_hamcrest_hamcrest_core",
+        "@maven//:junit_junit",
     ],
 )
 

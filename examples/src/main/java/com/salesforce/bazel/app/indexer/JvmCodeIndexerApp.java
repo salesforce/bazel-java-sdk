@@ -30,7 +30,7 @@ import com.salesforce.bazel.sdk.index.jvm.JvmCodeIndex;
 import com.salesforce.bazel.sdk.index.jvm.jar.JarIdentiferResolver;
 import com.salesforce.bazel.sdk.index.jvm.jar.JavaJarCrawler;
 import com.salesforce.bazel.sdk.index.source.SourceFileCrawler;
-import com.salesforce.bazel.sdk.util.BazelPathHelper;
+import com.salesforce.bazel.sdk.path.BazelPathHelper;
 
 /**
  * Indexer for building a JVM type index from nested sets of directories. Supports indexing both source files, and
@@ -104,7 +104,7 @@ public class JvmCodeIndexerApp {
 
         if (externalJarRoot.contains("bazel-out")) {
             if (externalJarRoot.endsWith("bin")) {
-                externalJarRoot = BazelPathHelper.osSeps(externalJarRoot + "/" + "external"); // $SLASH_OK
+                externalJarRoot = BazelPathHelper.osSeps(externalJarRoot + BazelPathHelper.UNIX_SLASH + "external");
             }
         }
         File externalJarRootFile = new File(externalJarRoot);
