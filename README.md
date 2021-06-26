@@ -3,7 +3,7 @@
 This library is used to programmatically invoke Bazel builds and perform other Bazel operations.
 It is implemented in Java and has a clean API and models for working with Bazel.
 
-These are some use cases for *bazel_java_sdk*:
+These are some use cases for *bazel-java-sdk*:
 - Code editor and IDE integrations
 - Advanced build use cases in which the Bazel command line is not sufficient
 - Integrations with other developer ecosystem tools, like Slack and CI systems
@@ -16,17 +16,18 @@ That helps us advocate for more resources on this project. Thanks!
 - Features for any workspace:
   - Execution of Bazel commands such as Bazel build and Bazel query and interpretation of the results
   - Modeling of Bazel concepts (targets, labels, BUILD files, aspects, etc)
+  - Parsing the stream of events from [Bazel's Build Event Protocol](docs/buildeventprotocol.md) into event model objects
 - Features for workspaces with Java rules:
   - Efficient computation of the dependency graph
   - Generation of the Java classpath for a Bazel Java target
   - Creation of a unified class index for Java dependencies and Java targets (e.g. for an IDE find-any-class feature)
 
-:lemon: Currently the *bazel_java_sdk* is largely focused on workspaces with Java targets
+:lemon: Currently the *bazel-java-sdk* is largely focused on workspaces with Java targets
   (```java_library```, ```java_test```, etc). It can execute commands on any workspace, but
     for the richer dependency analysis features only Java targets will work. Over time we wish
   to add broader support for [other target types](https://github.com/salesforce/bazel-java-sdk/blob/master/sdk/bazel-java-sdk/src/main/java/com/salesforce/bazel/sdk/model/BazelTargetKind.java).
 
-The *bazel_java_sdk* is tested and supported on Mac OS, Linux, and Windows.
+The *bazel-java-sdk* is tested and supported on Mac OS, Linux, and Windows.
 
 ### Getting Started
 
@@ -69,9 +70,11 @@ java_import(
 )
 ```
 
+The *bazel-java-sdk* does not need any dependencies.
+
 ### Examples
 
-A great way to be introduced to  *bazel_java_sdk* is through some examples:
+A great way to be introduced to  *bazel-java-sdk* is through some examples:
 
 [BazelBuilderApp](examples/src/main/java/com/salesforce/bazel/app/builder/BazelBuilderApp.java)
 This sample app uses the Bazel Java SDK to run a build on a Bazel workspace. It is the
@@ -94,7 +97,7 @@ This sample app uses the Bazel Java SDK to scan a Bazel workspace, or a Maven .m
   to provide a listing of JVM types available within the Bazel workspace.
 
 [Bazel Eclipse Feature](https://github.com/salesforce/bazel-eclipse)
-To see a robust implementation, look at the code for the original use case for the  *bazel_java_sdk*.
+To see a robust implementation, look at the code for the original use case for the  *bazel-java-sdk*.
 The Bazel Eclipse Feature is the Eclipse IDE integration with Bazel, and uses the SDK for the
   underlying execution of builds and analysis of classpath.
 
@@ -113,10 +116,10 @@ We use GitHub features to manage the project and to communicate with the communi
 
 Inside this SDK you will find models for the major concepts of Bazel.
 It is our intent to do the tedious but important job of modeling the Bazel build system in Java, such that
-  you can leverage the SDK for whatever custom build task is required.
+  you can leverage the SDK for whatever custom Bazel task is required.
 Our goal is to enable you to build a powerful and effective build tool in less than 100 lines of Java code.
 
-#### Minimal Dependencies
+#### No Dependencies
 
 Because this SDK will be consumed by larger projects, we do not want to bring any unnecessary baggage into
   the dependency tree.
