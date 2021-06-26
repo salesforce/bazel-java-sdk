@@ -1,4 +1,4 @@
-package com.salesforce.bazel.sdk.util;
+package com.salesforce.bazel.sdk.path;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +10,29 @@ import com.salesforce.bazel.sdk.logging.LogHelper;
  */
 public class BazelPathHelper {
     private static final LogHelper LOG = LogHelper.log(BazelPathHelper.class);
+
+    // Slash character for Bazel paths; this is provided as a constant to help code searches
+    // for Bazel specific code. 
+    public static final String BAZEL_SLASH = "/";
+
+    // Slash character for unix file paths; this is provided as a constant to help code searches
+    // for Unix specific code. 
+    public static final String UNIX_SLASH = "/";
+
+    // Backslash character; this is provided as a constant to help code searches
+    // for Windows specific code. There are two backslash characters because Java 
+    // requires a leading backslash to encode a backslash
+    public static final String WINDOWS_BACKSLASH = "\\";
+
+    // Regex pattern to use to look for a single backslash character in a path
+    // why 4? 
+    // Regex needs a double \ to escape backslash in the matcher (1+1=2)
+    // Java requires a backslash to encode a backslash in the String (2x2=4)
+    public static final String WINDOWS_BACKSLASH_REGEX = "\\\\";
+
+    // Slash character for file paths in jar files; this is provided as a constant to help code searches
+    // for Jar specific code. 
+    public static final String JAR_SLASH = "/";
 
     /**
      * Primary feature toggle. isUnix is true for all platforms except Windows.
@@ -74,10 +97,9 @@ public class BazelPathHelper {
 
     public static String osSepRegex() {
         if (isUnix) {
-            return "/";
+            return UNIX_SLASH;
         }
-        // why 4? Java requires 2 backslashes to encode the String, and regex needs a double \ to escape backslash in the matcher
-        return "\\\\";
+        return WINDOWS_BACKSLASH_REGEX;
     }
 
     /**
@@ -86,7 +108,7 @@ public class BazelPathHelper {
     public static String osSeps(String unixStylePath) {
         String path = unixStylePath;
         if (!isUnix) {
-            path = unixStylePath.replace("/", "\\");
+            path = unixStylePath.replace(UNIX_SLASH, WINDOWS_BACKSLASH);
         }
         return path;
     }
@@ -98,7 +120,7 @@ public class BazelPathHelper {
     public static String osSepsEscaped(String unixStylePath) {
         String path = unixStylePath;
         if (!isUnix) {
-            path = unixStylePath.replace("/", "\\\\");
+            path = unixStylePath.replace(UNIX_SLASH, WINDOWS_BACKSLASH);
         }
         return path;
     }
@@ -109,7 +131,7 @@ public class BazelPathHelper {
     public static String bazelLabelSeps(String fsPath) {
         String path = fsPath;
         if (!isUnix) {
-            path = fsPath.replace("\\", "/");
+            path = fsPath.replace(WINDOWS_BACKSLASH, UNIX_SLASH);
         }
         return path;
     }
