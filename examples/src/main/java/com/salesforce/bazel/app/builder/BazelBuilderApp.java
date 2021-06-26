@@ -11,7 +11,6 @@ import com.salesforce.bazel.sdk.command.CommandBuilder;
 import com.salesforce.bazel.sdk.command.shell.ShellCommandBuilder;
 import com.salesforce.bazel.sdk.console.CommandConsoleFactory;
 import com.salesforce.bazel.sdk.console.StandardCommandConsoleFactory;
-import com.salesforce.bazel.sdk.init.JvmRuleInit;
 import com.salesforce.bazel.sdk.model.BazelProblem;
 import com.salesforce.bazel.sdk.util.BazelPathHelper;
 
@@ -21,14 +20,15 @@ import com.salesforce.bazel.sdk.util.BazelPathHelper;
  * <p>
  * The value in this app is as a starting point for using the SDK to write tools that are actually useful.
  * <p>
- * Build:<p>
+ * Build:
+ * <p>
  * bazel build //examples:BazelBuilderApp_deploy.jar
  * <p>
  * Usage:
  * <ul>
  * <li>Build: bazel build //examples:BazelBuilderApp_deploy.jar</li>
- * <li>Args: java -jar bazel-bin/examples/BazelBuilderApp_deploy.jar [path to bazel executable] [path to Bazel
- * workspace dir]</li>
+ * <li>Args: java -jar bazel-bin/examples/BazelBuilderApp_deploy.jar [path to bazel executable] [path to Bazel workspace
+ * dir]</li>
  * <li>Example: java -jar bazel-bin/examples/BazelBuilderApp_deploy.jar /usr/local/bin/bazel ../my-bazel-ws
  * </ul>
  */

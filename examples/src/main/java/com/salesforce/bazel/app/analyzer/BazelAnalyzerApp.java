@@ -58,13 +58,14 @@ import com.salesforce.bazel.sdk.workspace.RealOperatingEnvironmentDetectionStrat
  * dependency graph, and a few other tasks. The value in this app is as a starting point for using the SDK to write
  * tools that are actually useful.
  * <p>
- * NOTE: there are some limitations to be aware of. First, the dependency analysis features of the SDK rely on
- * Bazel Aspects, which require the packages to be built. If you have not built your workspace, this app will incur
- * the costs of building your packages in addition to the dependency analysis work. Second, computing the dependency
- * graph is quite expensive. It is recommended to analyze only a few hundred targets when using the demo app. By
- * default, it analyzes the entire Bazel workspace, which may be thousands of targets.
+ * NOTE: there are some limitations to be aware of. First, the dependency analysis features of the SDK rely on Bazel
+ * Aspects, which require the packages to be built. If you have not built your workspace, this app will incur the costs
+ * of building your packages in addition to the dependency analysis work. Second, computing the dependency graph is
+ * quite expensive. It is recommended to analyze only a few hundred targets when using the demo app. By default, it
+ * analyzes the entire Bazel workspace, which may be thousands of targets.
  * <p>
- * Build:<p>
+ * Build:
+ * <p>
  * bazel build //examples:BazelAnalyzerApp_deploy.jar
  * <p>
  * Usage:
@@ -72,8 +73,10 @@ import com.salesforce.bazel.sdk.workspace.RealOperatingEnvironmentDetectionStrat
  * <li>Build: bazel build //examples:BazelAnalyzerApp_deploy.jar</li>
  * <li>Args: java -jar bazel-bin/examples/BazelAnalyzerApp_deploy.jar [path to bazel executable] [path to Bazel
  * workspace dir] [optional package to scope the analysis to] [optional comma separated list of paths to ignore]</li>
- * <li>Example: java -jar bazel-bin/examples/BazelAnalyzerApp_deploy.jar /usr/local/bin/bazel /home/mbenioff/dev/my-bazel-ws</li>
- * <li>Example: java -jar bazel-bin/examples/BazelAnalyzerApp_deploy.jar /usr/local/bin/bazel /home/mbenioff/dev/my-bazel-ws //projects/libs</li>
+ * <li>Example: java -jar bazel-bin/examples/BazelAnalyzerApp_deploy.jar /usr/local/bin/bazel
+ * /home/mbenioff/dev/my-bazel-ws</li>
+ * <li>Example: java -jar bazel-bin/examples/BazelAnalyzerApp_deploy.jar /usr/local/bin/bazel
+ * /home/mbenioff/dev/my-bazel-ws //projects/libs</li>
  * </ul>
  */
 public class BazelAnalyzerApp {
@@ -144,7 +147,8 @@ public class BazelAnalyzerApp {
 
         // put them in the right order for analysis
         ProjectOrderResolver projectOrderResolver = new ProjectOrderResolverImpl();
-        Iterable<BazelPackageLocation> orderedPackages = projectOrderResolver.computePackageOrder(rootPackage, selectedPackages, aspects);
+        Iterable<BazelPackageLocation> orderedPackages =
+                projectOrderResolver.computePackageOrder(rootPackage, selectedPackages, aspects);
         printPackageListOrder(orderedPackages);
     }
 
@@ -253,7 +257,7 @@ public class BazelAnalyzerApp {
     }
 
     private static void printPackage(BazelPackageLocation pkg) {
-        System.out.println("  "+pkg.getBazelPackageName());
+        System.out.println("  " + pkg.getBazelPackageName());
     }
 
     private static void printRootLabels(Set<String> rootLabels) {

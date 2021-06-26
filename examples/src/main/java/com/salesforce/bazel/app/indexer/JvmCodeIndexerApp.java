@@ -36,21 +36,25 @@ import com.salesforce.bazel.sdk.util.BazelPathHelper;
  * Indexer for building a JVM type index from nested sets of directories. Supports indexing both source files, and
  * compiled classes in jar files. Includes a command line launcher.
  * <p>
- * Build:<p>
+ * Build:
+ * <p>
  * bazel build //examples:JvmCodeIndexerApp_deploy.jar
  * <p>
  * This class has knowledge of internal details on how different build systems lay out files.
  * <p>
  * Usage:<br>
- * java -jar JvmCodeIndexerApp_deploy.jar [location of external jar files] [optional: root of directory with source files]
+ * java -jar JvmCodeIndexerApp_deploy.jar [location of external jar files] [optional: root of directory with source
+ * files]
  * <p>
- * <b>USE CASE 1: Bazel Workspace</b><p>
+ * <b>USE CASE 1: Bazel Workspace</b>
+ * <p>
  * Bazel workspace location on file system: /home/mbenioff/dev/myrepo
  * <p>
  * java -jar JvmCodeIndexerApp_deploy.jar /home/mbenioff/dev/myrepo/bazel-bin/external /home/mbenioff/dev/myrepo
  * <p>
  *
- * <b>USE CASE 2: Maven repository</b><p>
+ * <b>USE CASE 2: Maven repository</b>
+ * <p>
  * Maven repository location on file system: /home/mbenioff/.m2/repository
  * <p>
  * java -jar examples.jar com.salesforce.bazel.app.indexer.JvmCodeIndexerApp /home/mbenioff/.m2/repository
@@ -124,7 +128,7 @@ public class JvmCodeIndexerApp {
                 return index;
             }
             String sourceArtifactMarker = pickJavaSourceArtifactMarker(externalJarRoot);
-            logInfo("Looking for source file packages by looking for files named "+sourceArtifactMarker);
+            logInfo("Looking for source file packages by looking for files named " + sourceArtifactMarker);
 
             SourceFileCrawler sourceCrawler = new JavaSourceCrawler(index, sourceArtifactMarker);
             sourceCrawler.index(sourceRootFile);
