@@ -119,6 +119,32 @@ java_test(
     ],
 )
 
+java_test(
+    name = "BazelDependencyGraphFactoryTest",
+    srcs = [
+        "src/test/java/com/salesforce/bazel/sdk/graph/BazelDependencyGraphFactoryTest.java",
+    ],
+    deps = [
+        ":bazel-java-sdk",
+
+        "@maven//:org_mockito_mockito_core",
+        "@maven//:org_hamcrest_hamcrest_core",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "InMemoryDependencyGraphTest",
+    srcs = [
+        "src/test/java/com/salesforce/bazel/sdk/graph/InMemoryDependencyGraphTest.java",
+    ],
+    deps = [
+        ":bazel-java-sdk",
+
+        "@maven//:org_hamcrest_hamcrest_core",
+        "@maven//:junit_junit",
+    ],
+)
 
 java_test(
     name = "BazelLabelTest",
