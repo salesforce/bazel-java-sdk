@@ -184,17 +184,21 @@ public class BazelAnalyzerApp {
             // optional third parameter is the package to scope the analysis to (- is a placeholder arg to signal there is no scope)
             if (!args[2].equals("-")) {
                 rootPackageToAnalyze = args[2];
-                if (!rootPackageToAnalyze.startsWith("//")) {
+                if (!rootPackageToAnalyze.startsWith(BazelPathHelper.BAZEL_ROOT_SLASHES)) {
                     throw new IllegalArgumentException(
                             "The third argument is expected to be a Bazel package label, such as //foo/bar");
                 }
-                if (rootPackageToAnalyze.endsWith("*")) {
+                if (rootPackageToAnalyze.endsWith(BazelPathHelper.BAZEL_WILDCARD_ALLTARGETS)) {
                     throw new IllegalArgumentException(
-                            "The third argument is expected to be a Bazel package label, such as //foo/bar");
+                            "The third argument is expected to be a concrete Bazel package label, such as //foo/bar");
                 }
-                if (rootPackageToAnalyze.endsWith("...")) {
+                if (rootPackageToAnalyze.endsWith(BazelPathHelper.BAZEL_WILDCARD_ALLTARGETS_STAR)) {
                     throw new IllegalArgumentException(
-                            "The third argument is expected to be a Bazel package label, such as //foo/bar");
+                            "The third argument is expected to be a concrete Bazel package label, such as //foo/bar");
+                }
+                if (rootPackageToAnalyze.endsWith(BazelPathHelper.BAZEL_WILDCARD_ALLPACKAGES)) {
+                    throw new IllegalArgumentException(
+                            "The third argument is expected to be a concrete Bazel package label, such as //foo/bar");
                 }
                 // remove leading slashes
                 rootPackageToAnalyze = rootPackageToAnalyze.substring(2);
