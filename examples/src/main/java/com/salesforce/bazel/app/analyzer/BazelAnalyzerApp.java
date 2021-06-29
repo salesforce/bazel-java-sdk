@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.salesforce.bazel.sdk.aspect.AspectDependencyGraphBuilder;
+import com.salesforce.bazel.sdk.aspect.AspectDependencyGraphFactory;
 import com.salesforce.bazel.sdk.aspect.AspectTargetInfo;
 import com.salesforce.bazel.sdk.aspect.AspectTargetInfos;
 import com.salesforce.bazel.sdk.aspect.BazelAspectLocation;
@@ -41,11 +41,11 @@ import com.salesforce.bazel.sdk.command.shell.ShellCommandBuilder;
 import com.salesforce.bazel.sdk.console.CommandConsoleFactory;
 import com.salesforce.bazel.sdk.console.StandardCommandConsoleFactory;
 import com.salesforce.bazel.sdk.init.JvmRuleInit;
-import com.salesforce.bazel.sdk.model.BazelDependencyGraph;
 import com.salesforce.bazel.sdk.model.BazelLabel;
 import com.salesforce.bazel.sdk.model.BazelPackageInfo;
 import com.salesforce.bazel.sdk.model.BazelPackageLocation;
 import com.salesforce.bazel.sdk.model.BazelWorkspace;
+import com.salesforce.bazel.sdk.model.graph.BazelDependencyGraph;
 import com.salesforce.bazel.sdk.path.BazelPathHelper;
 import com.salesforce.bazel.sdk.workspace.BazelWorkspaceScanner;
 import com.salesforce.bazel.sdk.workspace.OperatingEnvironmentDetectionStrategy;
@@ -141,7 +141,7 @@ public class BazelAnalyzerApp {
         }
 
         // use the dependency data to interact with the dependency graph (print root labels)
-        BazelDependencyGraph depGraph = AspectDependencyGraphBuilder.build(aspects, false);
+        BazelDependencyGraph depGraph = AspectDependencyGraphFactory.build(aspects, false);
         Set<String> rootLabels = depGraph.getRootLabels();
         printRootLabels(rootLabels);
 
