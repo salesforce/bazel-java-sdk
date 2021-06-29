@@ -1,4 +1,4 @@
-package com.salesforce.bazel.sdk.model.graph;
+package com.salesforce.bazel.sdk.graph;
 
 import java.util.HashMap;
 import java.util.HashSet;

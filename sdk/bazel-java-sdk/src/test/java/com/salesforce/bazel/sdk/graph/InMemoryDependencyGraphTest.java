@@ -9,9 +9,9 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import com.salesforce.bazel.sdk.graph.InMemoryDependencyGraph;
+import com.salesforce.bazel.sdk.graph.InMemoryPackageLocation;
 import com.salesforce.bazel.sdk.model.BazelPackageLocation;
-import com.salesforce.bazel.sdk.model.graph.InMemoryDependencyGraph;
-import com.salesforce.bazel.sdk.model.graph.InMemoryPackageLocation;
 
 public class InMemoryDependencyGraphTest {
 

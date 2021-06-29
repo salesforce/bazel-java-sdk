@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.salesforce.bazel.sdk.aspect.AspectDependencyGraphFactory;
 import com.salesforce.bazel.sdk.aspect.AspectTargetInfos;
+import com.salesforce.bazel.sdk.graph.BazelDependencyGraph;
 import com.salesforce.bazel.sdk.logging.LogHelper;
 import com.salesforce.bazel.sdk.model.BazelPackageLocation;
-import com.salesforce.bazel.sdk.model.graph.BazelDependencyGraph;
 
 /**
  * Orders modules for import such that upstream dependencies are imported before downstream dependencies.

@@ -3,8 +3,8 @@ package com.salesforce.bazel.sdk.aspect;
 import java.util.HashMap;
 import java.util.List;
 
-import com.salesforce.bazel.sdk.model.graph.BazelDependencyGraph;
-import com.salesforce.bazel.sdk.model.graph.BazelDependencyGraphFactory;
+import com.salesforce.bazel.sdk.graph.BazelDependencyGraph;
+import com.salesforce.bazel.sdk.graph.BazelDependencyGraphFactory;
 import com.salesforce.bazel.sdk.path.BazelPathHelper;
 
 /**
