@@ -46,7 +46,7 @@ import com.salesforce.bazel.sdk.model.BazelLabel;
 import com.salesforce.bazel.sdk.model.BazelPackageInfo;
 import com.salesforce.bazel.sdk.model.BazelPackageLocation;
 import com.salesforce.bazel.sdk.model.BazelWorkspace;
-import com.salesforce.bazel.sdk.path.BazelPathHelper;
+import com.salesforce.bazel.sdk.path.FSPathHelper;
 import com.salesforce.bazel.sdk.workspace.BazelWorkspaceScanner;
 import com.salesforce.bazel.sdk.workspace.OperatingEnvironmentDetectionStrategy;
 import com.salesforce.bazel.sdk.workspace.ProjectOrderResolver;
@@ -161,11 +161,11 @@ public class BazelAnalyzerApp {
         }
         bazelExecutablePath = args[0];
         bazelExecutableFile = new File(bazelExecutablePath);
-        bazelExecutableFile = BazelPathHelper.getCanonicalFileSafely(bazelExecutableFile);
+        bazelExecutableFile = FSPathHelper.getCanonicalFileSafely(bazelExecutableFile);
 
         bazelWorkspacePath = args[1];
         bazelWorkspaceDir = new File(bazelWorkspacePath);
-        bazelWorkspaceDir = BazelPathHelper.getCanonicalFileSafely(bazelWorkspaceDir);
+        bazelWorkspaceDir = FSPathHelper.getCanonicalFileSafely(bazelWorkspaceDir);
 
         if (!bazelExecutableFile.exists()) {
             throw new IllegalArgumentException(
@@ -184,19 +184,12 @@ public class BazelAnalyzerApp {
             // optional third parameter is the package to scope the analysis to (- is a placeholder arg to signal there is no scope)
             if (!args[2].equals("-")) {
                 rootPackageToAnalyze = args[2];
-                if (!rootPackageToAnalyze.startsWith(BazelPathHelper.BAZEL_ROOT_SLASHES)) {
+                if (!rootPackageToAnalyze.startsWith(BazelLabel.BAZEL_ROOT_SLASHES)) {
                     throw new IllegalArgumentException(
-                            "The third argument is expected to be a Bazel package label, such as //foo/bar");
+                            "The third argument is expected to be a full Bazel package label, such as //foo/bar");
                 }
-                if (rootPackageToAnalyze.endsWith(BazelPathHelper.BAZEL_WILDCARD_ALLTARGETS)) {
-                    throw new IllegalArgumentException(
-                            "The third argument is expected to be a concrete Bazel package label, such as //foo/bar");
-                }
-                if (rootPackageToAnalyze.endsWith(BazelPathHelper.BAZEL_WILDCARD_ALLTARGETS_STAR)) {
-                    throw new IllegalArgumentException(
-                            "The third argument is expected to be a concrete Bazel package label, such as //foo/bar");
-                }
-                if (rootPackageToAnalyze.endsWith(BazelPathHelper.BAZEL_WILDCARD_ALLPACKAGES)) {
+                BazelLabel rootPackageToAnalyzeLabel = new BazelLabel(rootPackageToAnalyze);
+                if (!rootPackageToAnalyzeLabel.isConcrete()) {
                     throw new IllegalArgumentException(
                             "The third argument is expected to be a concrete Bazel package label, such as //foo/bar");
                 }
@@ -220,7 +213,7 @@ public class BazelAnalyzerApp {
 
     private static File loadAspectDirectory(String aspectPath) {
         File aspectDir = new File(aspectPath);
-        aspectDir = BazelPathHelper.getCanonicalFileSafely(aspectDir);
+        aspectDir = FSPathHelper.getCanonicalFileSafely(aspectDir);
 
         if (!aspectDir.exists()) {
             throw new IllegalArgumentException(
