@@ -12,7 +12,7 @@ import com.salesforce.bazel.sdk.command.shell.ShellCommandBuilder;
 import com.salesforce.bazel.sdk.console.CommandConsoleFactory;
 import com.salesforce.bazel.sdk.console.StandardCommandConsoleFactory;
 import com.salesforce.bazel.sdk.model.BazelProblem;
-import com.salesforce.bazel.sdk.path.BazelPathHelper;
+import com.salesforce.bazel.sdk.path.FSPathHelper;
 
 /**
  * This app, as a tool, is not useful. It simply uses the Bazel Java SDK to run a build on a Bazel workspace. In effect,
@@ -65,11 +65,11 @@ public class BazelBuilderApp {
         }
         bazelExecutablePath = args[0];
         bazelExecutableFile = new File(bazelExecutablePath);
-        bazelExecutableFile = BazelPathHelper.getCanonicalFileSafely(bazelExecutableFile);
+        bazelExecutableFile = FSPathHelper.getCanonicalFileSafely(bazelExecutableFile);
 
         bazelWorkspacePath = args[1];
         bazelWorkspaceDir = new File(bazelWorkspacePath);
-        bazelWorkspaceDir = BazelPathHelper.getCanonicalFileSafely(bazelWorkspaceDir);
+        bazelWorkspaceDir = FSPathHelper.getCanonicalFileSafely(bazelWorkspaceDir);
 
         if (!bazelExecutableFile.exists()) {
             throw new IllegalArgumentException(

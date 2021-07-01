@@ -30,7 +30,7 @@ import com.salesforce.bazel.sdk.index.jvm.JvmCodeIndex;
 import com.salesforce.bazel.sdk.index.jvm.jar.JarIdentiferResolver;
 import com.salesforce.bazel.sdk.index.jvm.jar.JavaJarCrawler;
 import com.salesforce.bazel.sdk.index.source.SourceFileCrawler;
-import com.salesforce.bazel.sdk.path.BazelPathHelper;
+import com.salesforce.bazel.sdk.path.FSPathHelper;
 
 /**
  * Indexer for building a JVM type index from nested sets of directories. Supports indexing both source files, and
@@ -104,7 +104,7 @@ public class JvmCodeIndexerApp {
 
         if (externalJarRoot.contains("bazel-out")) {
             if (externalJarRoot.endsWith("bin")) {
-                externalJarRoot = BazelPathHelper.osSeps(externalJarRoot + BazelPathHelper.UNIX_SLASH + "external");
+                externalJarRoot = FSPathHelper.osSeps(externalJarRoot + FSPathHelper.UNIX_SLASH + "external");
             }
         }
         File externalJarRootFile = new File(externalJarRoot);
@@ -147,7 +147,7 @@ public class JvmCodeIndexerApp {
      * What file marks the root of a package?
      */
     private static String pickJavaSourceArtifactMarker(String jarRepoPath) {
-        if (jarRepoPath.contains(BazelPathHelper.osSeps(".m2/repository"))) { // $SLASH_OK
+        if (jarRepoPath.contains(FSPathHelper.osSeps(".m2/repository"))) { // $SLASH_OK
             return "pom.xml";
         } else if (jarRepoPath.contains("bazel-out") || jarRepoPath.contains("bazel-bin")) {
             return "BUILD"; // TODO BUILD.bazel should be supported too
