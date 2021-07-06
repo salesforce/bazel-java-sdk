@@ -1,6 +1,6 @@
 ## Conforming Java Packages
 
-In various places in our Bazel Eclipse Feature documentation, we reference the term **Conforming Java Packages**.
+In various places in our Bazel Java SDK documentation, we reference the term **Conforming Java Packages**.
 This page defines that term.
 
 ### History: Maven and Configuration by Convention
@@ -41,7 +41,7 @@ But if you are an IDE feature developer, this is not a great thing.
 At least with Eclipse, the IDE features were not designed with all this flexibility in mind.
 We have to find ways of mapping Bazel flexibility into existing, more rigid, IDE concepts.
 
-While eventually we hope to support all of this in the Bazel Eclipse Feature, for now we have this news:
+While eventually we hope to support all of this in the Bazel Java SDK, for now we have this news:
 
 ```
 To constrain permutations and simplify development, this feature currently officially
@@ -75,7 +75,8 @@ The term refers to packages in Bazel with these characteristics:
 
 While these conditions impose some restrictions, these greatly simplify the development of the IDE feature.
 Over time, we hope to reduce these restrictions.
-See the [BEF project planning epics](https://github.com/salesforce/bazel-eclipse/projects) for more information, especially these issues:
+We track Issues both in this SDK repo, and also the Bazel Eclipse repo.
+For this work, please see these issues:
 
 - [Relax src/main/... and src/test/... package layout requirements](https://github.com/salesforce/bazel-eclipse/issues/8)
 - [Support Bazel Java modules with multiple BUILD files](https://github.com/salesforce/bazel-eclipse/issues/24)

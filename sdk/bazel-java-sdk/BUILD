@@ -9,6 +9,10 @@ java_library(
     srcs = glob(["src/main/java/**/*.java"]),
     visibility = ["//visibility:public"],
     deps = [
+       # DO NOT ADD ANY EXTERNAL DEPENDENCY!
+       # The SDK has a design tenet to not depend on any external library.
+       # The SDK is intended to be embedded in other projects, and having external
+       # dependencies complicates that.
     ],
 )
 
