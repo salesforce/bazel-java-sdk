@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.salesforce.bazel.sdk.command.internal.BazelWorkspaceAspectProcessor;
 import com.salesforce.bazel.sdk.command.test.MockCommand;
 import com.salesforce.bazel.sdk.command.test.MockCommandSimulatedOutput;
 import com.salesforce.bazel.sdk.command.test.MockCommandSimulatedOutputMatcher;
@@ -31,9 +32,8 @@ public class MockBuildCommand extends MockCommand {
         String target = findBazelTargetInArgs();
         if (!isValidBazelTarget(target)) {
             // by default, isValidBazelTarget() will throw an exception if the package is missing, but the test may configure it to return false instead
-            errorLines = Arrays.asList(new String[] { "ERROR: no such package '" + target
-                    + "': BUILD file not found in any of the following directories. Add a BUILD file to a directory to mark it as a package.",
-                    "- /fake/path/" + target }); // // $SLASH_OK: bazel path
+            errorLines = Arrays.asList("ERROR: no such package '" + target
+                + "': BUILD file not found in any of the following directories. Add a BUILD file to a directory to mark it as a package.", "- /fake/path/" + target); // // $SLASH_OK: bazel path
             return;
         }
 
@@ -65,7 +65,8 @@ public class MockBuildCommand extends MockCommand {
         // build command looks like: bazel build --override_repository=bazeljavasdk_aspect=/tmp/bef/bazelws/bazel-workspace/tools/aspect ...
         MockCommandSimulatedOutputMatcher aspectCommandMatcher1 = new MockCommandSimulatedOutputMatcher(1, "build");
         MockCommandSimulatedOutputMatcher aspectCommandMatcher2 =
-                new MockCommandSimulatedOutputMatcher(2, ".*bazeljavasdk_aspect.*");
+                new MockCommandSimulatedOutputMatcher(BazelWorkspaceAspectProcessor.ASPECTCMD_EXTERNALREPO_ARGINDEX,
+                        ".*bazeljavasdk_aspect.*");
 
         for (String packagePath : testWorkspaceFactory.workspaceDescriptor.aspectFileSets.keySet()) {
             // the last arg is the package path with the wildcard target (//projects/libs/javalib0:*)
@@ -73,7 +74,8 @@ public class MockBuildCommand extends MockCommand {
             String wildcardTarget =
                     BazelLabel.BAZEL_ROOT_SLASHES + packagePath + BazelLabel.BAZEL_COLON + ".*";
             MockCommandSimulatedOutputMatcher aspectCommandMatcher3 =
-                    new MockCommandSimulatedOutputMatcher(7, wildcardTarget);
+                    new MockCommandSimulatedOutputMatcher(BazelWorkspaceAspectProcessor.ASPECTCMD_TARGETLABEL_ARGINDEX,
+                            wildcardTarget);
 
             List<MockCommandSimulatedOutputMatcher> matchers = new ArrayList<>();
             Collections.addAll(matchers, aspectCommandMatcher1, aspectCommandMatcher2, aspectCommandMatcher3);
@@ -102,9 +104,7 @@ public class MockBuildCommand extends MockCommand {
         // assume the build will succeed and pre-set the stdout message (something further down may set this differently though)
         // note the time, target count, and action count are all static; if you want to write tests that inspect those values you have a lot of work to do here
         outputLines =
-                Arrays.asList(new String[] { "INFO: Analyzed 19 targets (0 packages loaded, 1 target configured).",
-                        "INFO: Found 19 targets...", "INFO: Elapsed time: 0.146s, Critical Path: 0.00s",
-                        "INFO: Build completed successfully, 1 total action" });
+                Arrays.asList("INFO: Analyzed 19 targets (0 packages loaded, 1 target configured).", "INFO: Found 19 targets...", "INFO: Elapsed time: 0.146s, Critical Path: 0.00s", "INFO: Build completed successfully, 1 total action");
 
         // TODO derive build output from test workspace structure
         // TODO allow testOptions to determine that a package build should fail
