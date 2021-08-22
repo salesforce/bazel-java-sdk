@@ -60,16 +60,16 @@ import com.salesforce.bazel.sdk.workspace.OperatingEnvironmentDetectionStrategy;
  * within the package are excluded from the classpath, as they are presumed to be represented by source code found in
  * source folders.
  */
-public class BazelJvmClasspath {
+public class BazelJvmClasspath implements JvmClasspath {
     // TODO make classpath cache timeout configurable
     private static final long CLASSPATH_CACHE_TIMEOUT_MS = 300000;
 
-    private final BazelWorkspace bazelWorkspace;
-    private final BazelProjectManager bazelProjectManager;
-    private final BazelProject bazelProject;
-    private final ImplicitClasspathHelper implicitDependencyHelper;
-    private final OperatingEnvironmentDetectionStrategy osDetector;
-    private final BazelCommandManager bazelCommandManager;
+    protected final BazelWorkspace bazelWorkspace;
+    protected final BazelProjectManager bazelProjectManager;
+    protected final BazelProject bazelProject;
+    protected final ImplicitClasspathHelper implicitDependencyHelper;
+    protected final OperatingEnvironmentDetectionStrategy osDetector;
+    protected final BazelCommandManager bazelCommandManager;
     private final LogHelper logger;
 
     private BazelJvmClasspathResponse cachedEntries;
@@ -99,6 +99,7 @@ public class BazelJvmClasspath {
      * TODO provide different classpath strategies. This one the Maven-like/Eclipse JDT style, where the classpath is
      * the union of the classpaths of all java rules in the package.
      */
+    @Override
     public BazelJvmClasspathResponse getClasspathEntries() {
         // sanity check
         if (bazelWorkspace == null) {
@@ -114,23 +115,23 @@ public class BazelJvmClasspath {
 
         if (cachedEntries != null) {
             long now = System.currentTimeMillis();
-            if ((now - cachePutTimeMillis) > CLASSPATH_CACHE_TIMEOUT_MS) {
-                logger.info("Evicted classpath from cache for project " + bazelProject.name);
-                cachedEntries = null;
-            } else {
+            if ((now - cachePutTimeMillis) <= CLASSPATH_CACHE_TIMEOUT_MS) {
                 logger.debug("  Using cached classpath for project " + bazelProject.name);
                 return cachedEntries;
             }
+            logger.info("Evicted classpath from cache for project " + bazelProject.name);
+            cachedEntries = null;
         }
 
         logger.info("Computing classpath for project " + bazelProject.name + " (cached entries: " + foundCachedEntries
-            + ", is import: " + isImport + ")");
+                + ", is import: " + isImport + ")");
         BazelWorkspaceCommandRunner bazelWorkspaceCmdRunner =
                 bazelCommandManager.getWorkspaceCommandRunner(bazelWorkspace);
 
         Set<String> projectsAddedToClasspath = new HashSet<>();
         Map<String, JvmClasspathEntry> mainClasspathEntryMap = new TreeMap<>();
         Map<String, JvmClasspathEntry> testClasspathEntryMap = new TreeMap<>();
+        Set<JvmClasspathEntry> implicitDeps = Collections.emptySet();
 
         try {
             BazelProjectTargets configuredTargetsForProject =
@@ -149,7 +150,8 @@ public class BazelJvmClasspath {
                 // since we only call query with labels for the same package, we expect to get a single BazelBuildFile instance back
                 if (buildFiles.isEmpty()) {
                     throw new IllegalStateException("Unexpected empty BazelBuildFile collection, this is a bug");
-                } else if (buildFiles.size() > 1) {
+                }
+                if (buildFiles.size() > 1) {
                     throw new IllegalStateException("Expected a single BazelBuildFile instance, this is a bug");
                 } else {
                     bazelBuildFileModel = buildFiles.iterator().next();
@@ -183,15 +185,21 @@ public class BazelJvmClasspath {
                     JVMAspectTargetInfo jvmTargetInfo = (JVMAspectTargetInfo) targetInfo;
 
                     if (actualActivatedTargets.contains(jvmTargetInfo.getLabelPath())) {
-                        if ("java_library".equals(jvmTargetInfo.getKind())) {
+                        if ("java_library".equals(jvmTargetInfo.getKind())
+                                || "java_binary".equals(jvmTargetInfo.getKind())) {
                             // this info describes a java_library target in the current package; don't add it to the classpath
                             // as all java_library targets in this package are assumed to be represented by source code entries
                             continue;
                         }
+
+                        // java_test aspect should be analyzed for implicit dependencies
+                        if ("java_test".equals(jvmTargetInfo.getKind())) {
+                            implicitDeps = implicitDependencyHelper.computeImplicitDependencies(bazelWorkspace, jvmTargetInfo);
+                        }
                         // else in some cases, the target is local, but we still want to proceed to process it below. the expected
                         // example here are java_import targets in the BUILD file that directly load jars from the file system
                         //   java_import(name = "zip4j", jars = ["lib/zip4j-2.6.4.jar"])
-                        if (!"java_import".equals(jvmTargetInfo.getKind())) {
+                        else if (!"java_import".equals(jvmTargetInfo.getKind())) {
                             // some other case like java_binary, proto_library, java_proto_library, etc
                             // proceed but log a warn
                             logger.info("Found unsupported target type as dependency: " + jvmTargetInfo.getKind()
@@ -199,7 +207,8 @@ public class BazelJvmClasspath {
                         }
                     }
 
-                    BazelProject otherProject = getSourceProjectForSourcePaths(jvmTargetInfo.getSources());
+                    List<String> sourcePaths = jvmTargetInfo.getSources();
+                    BazelProject otherProject = getSourceProjectForSourcePaths(sourcePaths);
                     if (otherProject == null) {
                         // no project found that houses the sources of this bazel target, add the jars to the classpath
                         // this means that this is an external jar, or a jar produced by a bazel target that was not imported
@@ -212,7 +221,7 @@ public class BazelJvmClasspath {
                             } else {
                                 // there was a problem with the aspect computation, this might resolve itself if we recompute it
                                 bazelWorkspaceCmdRunner
-                                .flushAspectInfoCache(configuredTargetsForProject.getConfiguredTargets());
+                                        .flushAspectInfoCache(configuredTargetsForProject.getConfiguredTargets());
                             }
                         }
                         for (JVMAspectOutputJarSet jarSet : jvmTargetInfo.getJars()) {
@@ -223,24 +232,12 @@ public class BazelJvmClasspath {
                             } else {
                                 // there was a problem with the aspect computation, this might resolve itself if we recompute it
                                 bazelWorkspaceCmdRunner
-                                .flushAspectInfoCache(configuredTargetsForProject.getConfiguredTargets());
+                                        .flushAspectInfoCache(configuredTargetsForProject.getConfiguredTargets());
                             }
                         }
                     } else { // otherProject != null
                         String otherBazelProjectName = otherProject.name;
-                        if (bazelProject.name.equals(otherBazelProjectName)) {
-                            // the project referenced is actually the the current project that this classpath container is for
-
-                            // some rule types have hidden dependencies that we need to add
-                            // if our project has any of those rules, we need to add in the dependencies to our classpath
-                            Set<JvmClasspathEntry> implicitDeps =
-                                    implicitDependencyHelper.computeImplicitDependencies(bazelWorkspace, jvmTargetInfo);
-                            for (JvmClasspathEntry implicitDep : implicitDeps) {
-                                addOrUpdateClasspathEntry(bazelWorkspaceCmdRunner, targetLabel, implicitDep,
-                                    isTestTarget, mainClasspathEntryMap, testClasspathEntryMap);
-                            }
-
-                        } else {
+                        if (! bazelProject.name.equals(otherBazelProjectName)) {
                             // add the referenced project to the classpath, directly as a project classpath entry
                             if (!projectsAddedToClasspath.contains(otherBazelProjectName)) {
                                 BazelProject otherBazelProject = bazelProjectManager.getProject(otherBazelProjectName);
@@ -275,7 +272,7 @@ public class BazelJvmClasspath {
 
         // cache the entries
         cachePutTimeMillis = System.currentTimeMillis();
-        response.jvmClasspathEntries = assembleClasspathEntries(mainClasspathEntryMap, testClasspathEntryMap);
+        response.jvmClasspathEntries = assembleClasspathEntries(mainClasspathEntryMap, testClasspathEntryMap, implicitDeps);
         cachedEntries = response;
         logger.debug("Cached the classpath for project " + bazelProject.name);
 
@@ -317,10 +314,12 @@ public class BazelJvmClasspath {
     }
 
     private JvmClasspathEntry[] assembleClasspathEntries(Map<String, JvmClasspathEntry> mainClasspathEntryMap,
-            Map<String, JvmClasspathEntry> testClasspathEntryMap) {
+            Map<String, JvmClasspathEntry> testClasspathEntryMap, Set<JvmClasspathEntry> implicitClasspathEntrySet) {
         List<JvmClasspathEntry> classpathEntries = new ArrayList<>();
         classpathEntries.addAll(mainClasspathEntryMap.values());
         classpathEntries.addAll(testClasspathEntryMap.values());
+        // should be added at the end of classpath entries
+        classpathEntries.addAll(implicitClasspathEntrySet);
         return classpathEntries.toArray(new JvmClasspathEntry[] {});
     }
 
@@ -341,7 +340,7 @@ public class BazelJvmClasspath {
     }
 
     private JvmClasspathEntry jarsToClasspathEntry(JVMAspectOutputJarSet jarSet, boolean isTestLib) {
-        JvmClasspathEntry cpEntry = null;
+        JvmClasspathEntry cpEntry;
         cpEntry = new JvmClasspathEntry(jarSet.getJar(), jarSet.getSrcJar(), isTestLib);
         return cpEntry;
     }

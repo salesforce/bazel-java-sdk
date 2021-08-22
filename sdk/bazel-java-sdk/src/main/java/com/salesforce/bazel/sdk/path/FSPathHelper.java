@@ -33,127 +33,235 @@
  */
 package com.salesforce.bazel.sdk.path;
 
- import java.io.File;
- import java.io.IOException;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
- import com.salesforce.bazel.sdk.logging.LogHelper;
+import com.salesforce.bazel.sdk.logging.LogHelper;
+import com.salesforce.bazel.sdk.util.WorkProgressMonitor;
 
- /**
-  * Constants and utils for file system paths.
-  */
- public final class FSPathHelper {
-     private static final LogHelper LOG = LogHelper.log(FSPathHelper.class);
+/**
+ * Constants and utils for file system paths.
+ */
+public final class FSPathHelper {
+    private static final LogHelper LOG = LogHelper.log(FSPathHelper.class);
 
-     // Slash character for unix file paths
-     public static final String UNIX_SLASH = "/";
+    // Slash character for unix file paths
+    public static final String UNIX_SLASH = "/";
 
-     // Backslash character; this is provided as a constant to help code searches
-     // for Windows specific code. There are two backslash characters because Java
-     // requires a leading backslash to encode a backslash
-     public static final String WINDOWS_BACKSLASH = "\\";
+    // Regex pattern to use to capture the / for unix file paths.
+    // Please consider calling osSepRegex() instead of using this directly.
+    // This is just /. The variable name is what we are after - make it clear this is a regex use case
+    // so we have visual cue that we need to use the Windows regex if on Windows.
+    public static final String UNIX_SLASH_REGEX = "/";
 
-     // Regex pattern to use to look for a single backslash character in a path
-     // why 4?
-     // Regex needs a double \ to escape backslash in the matcher (1+1=2)
-     // Java requires a backslash to encode a backslash in the String (2x2=4)
-     public static final String WINDOWS_BACKSLASH_REGEX = "\\\\";
+    // Backslash character; this is provided as a constant to help code searches
+    // for Windows specific code. There are two backslash characters because Java
+    // requires a leading backslash to encode a backslash
+    public static final String WINDOWS_BACKSLASH = "\\";
 
-     // Slash character for file paths in jar files
-     public static final String JAR_SLASH = "/";
+    // Regex pattern to use to look for a single backslash character in a path.
+    // Please consider calling osSepRegex() instead of using this directly.
+    // Why 4 backslashes?
+    // Regex needs a double \ to escape backslash in the matcher (1+1=2)
+    // Java requires a backslash to encode a backslash in the String (2x2=4)
+    public static final String WINDOWS_BACKSLASH_REGEX = "\\\\";
 
-     private FSPathHelper() {
+    // Slash character for file paths in jar files
+    public static final String JAR_SLASH = "/";
 
-     }
+    private FSPathHelper() {
 
-     /**
-      * Primary feature toggle. isUnix is true for all platforms except Windows. TODO this needs to be reworked in SDK
-      * Issue #32
-      */
-     public static boolean isUnix = true;
-     static {
-         if (System.getProperty("os.name").contains("Windows")) {
-             FSPathHelper.isUnix = false;
-         }
-     }
+    }
 
-     /**
-      * Resolve softlinks and other abstractions in the workspace paths.
-      */
-     public static File getCanonicalFileSafely(File directory) {
-         if (directory == null) {
-             return null;
-         }
-         try {
-             directory = directory.getCanonicalFile();
-         } catch (IOException ioe) {
-             LOG.error("error locating path [{}] on the file system", ioe, directory.getAbsolutePath());
-         }
-         return directory;
-     }
+    /**
+     * Primary feature toggle. isUnix is true for all platforms except Windows. TODO this needs to be reworked in SDK
+     * Issue #32
+     */
+    public static boolean isUnix = true;
+    static {
+        if (System.getProperty("os.name").contains("Windows")) {
+            FSPathHelper.isUnix = false;
+        }
+    }
 
-     /**
-      * Resolve softlinks and other abstractions in the workspace paths.
-      */
-     public static String getCanonicalPathStringSafely(File directory) {
-         String path = null;
-         if (directory == null) {
-             return null;
-         }
-         try {
-             path = directory.getCanonicalPath();
-         } catch (IOException ioe) {
-             LOG.error("error locating path [{}] on the file system", ioe, directory.getAbsolutePath());
-         }
-         if (path == null) {
-             // fallback to absolute path in case canonical path fails
-             path = directory.getAbsolutePath();
-         }
-         return path;
-     }
+    /**
+     * Resolve softlinks and other abstractions in the workspace paths.
+     */
+    public static File getCanonicalFileSafely(File directory) {
+        if (directory == null) {
+            return null;
+        }
+        try {
+            directory = directory.getCanonicalFile();
+        } catch (IOException ioe) {
+            LOG.error("error locating path [{}] on the file system", ioe, directory.getAbsolutePath());
+        }
+        return directory;
+    }
 
-     /**
-      * Resolve softlinks and other abstractions in the workspace paths.
-      */
-     public static String getCanonicalPathStringSafely(String path) {
-         if (path == null) {
-             return null;
-         }
-         try {
-             path = new File(path).getCanonicalPath();
-         } catch (IOException ioe) {
-             LOG.error("error locating path [{}] on the file system", ioe, path);
-         }
-         return path;
-     }
+    /**
+     * Resolve softlinks and other abstractions in the workspace paths.
+     */
+    public static String getCanonicalPathStringSafely(File directory) {
+        String path = null;
+        if (directory == null) {
+            return null;
+        }
+        try {
+            path = directory.getCanonicalPath();
+        } catch (IOException ioe) {
+            LOG.error("error locating path [{}] on the file system", ioe, directory.getAbsolutePath());
+        }
+        if (path == null) {
+            // fallback to absolute path in case canonical path fails
+            path = directory.getAbsolutePath();
+        }
+        return path;
+    }
 
-     public static String osSepRegex() {
-         if (isUnix) {
-             return UNIX_SLASH;
-         }
-         return WINDOWS_BACKSLASH_REGEX;
-     }
+    /**
+     * Resolve softlinks and other abstractions in the workspace paths.
+     */
+    public static String getCanonicalPathStringSafely(String path) {
+        if (path == null) {
+            return null;
+        }
+        try {
+            path = new File(path).getCanonicalPath();
+        } catch (IOException ioe) {
+            LOG.error("error locating path [{}] on the file system", ioe, path);
+        }
+        return path;
+    }
 
-     /**
-      * Convert a slash style relative path to Windows backslash, if running on Windows
-      */
-     public static String osSeps(String unixStylePath) {
-         String path = unixStylePath;
-         if (!isUnix) {
-             path = unixStylePath.replace(UNIX_SLASH, WINDOWS_BACKSLASH);
-         }
-         return path;
-     }
+    public static String osSepRegex() {
+        if (isUnix) {
+            return UNIX_SLASH_REGEX;
+        }
+        return WINDOWS_BACKSLASH_REGEX;
+    }
 
-     /**
-      * Convert a slash style relative path to Windows backslash, if running on Windows. Replace with two back slashes if
-      * so, as the consumer needs escaped backslashes.
-      */
-     public static String osSepsEscaped(String unixStylePath) {
-         String path = unixStylePath;
-         if (!isUnix) {
-             path = unixStylePath.replace(UNIX_SLASH, WINDOWS_BACKSLASH);
-         }
-         return path;
-     }
+    /**
+     * Convert a slash style relative path to Windows backslash, if running on Windows
+     */
+    public static String osSeps(String unixStylePath) {
+        String path = unixStylePath;
+        if (!isUnix) {
+            path = unixStylePath.replace(UNIX_SLASH, WINDOWS_BACKSLASH);
+        }
+        return path;
+    }
 
- }
+    /**
+     * Convert a slash style relative path to Windows backslash, if running on Windows. Replace with two back slashes if
+     * so, as the consumer needs escaped backslashes.
+     */
+    public static String osSepsEscaped(String unixStylePath) {
+        String path = unixStylePath;
+        if (!isUnix) {
+            path = unixStylePath.replace(UNIX_SLASH, WINDOWS_BACKSLASH);
+        }
+        return path;
+    }
+
+    /**
+     * Given a set of tokens, this function walks through the provided path looking for a node in the hierarchy with
+     * that name. If a resource (file/directory) is found, this function returns true.
+     * <p>
+     * An example use case is looking for a directory named 'test' or 'tests' in a file system path.
+     */
+    public static boolean doesPathContainNamedResource(String filesystemPath, Set<String> targetNames) {
+        String[] pathElements = filesystemPath.split(osSepRegex());
+
+        for (String element : pathElements) {
+            if (targetNames.contains(element)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes the last resource from the path.
+     * <p>
+     * Example: source/java/com/salesforce/foo/Foo.java => source/java/com/salesforce/foo
+     */
+    public static String removeLastResource(String filesystemPath) {
+        int lastSlash = filesystemPath.lastIndexOf(File.separator);
+        if (lastSlash > -1) {
+            return filesystemPath.substring(0, lastSlash);
+        }
+        return "";
+    }
+
+    /**
+     * Utility to find all files in a tree with a particular extension.
+     */
+    public static Set<File> findFileLocations(File dir, String extension, WorkProgressMonitor monitor, int depth) {
+        if (!dir.isDirectory()) {
+            return null;
+        }
+        Set<File> fileLocations = new TreeSet<>();
+
+        try {
+
+            // collect all Java files
+            List<Path> files = new ArrayList<>(1000);
+
+            Path start = dir.toPath();
+            Files.walkFileTree(start, new FileVisitor<Path>() {
+
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    if (isFileWithExtension(file, extension)) {
+                        files.add(file);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    return FileVisitResult.CONTINUE;
+                }
+
+            });
+
+            // normally in the SDK we do not use Java streams, to make the code more accessible, but the parallel
+            // streaming here really speeds up the file system scan
+            Set<File> syncSet = Collections.synchronizedSet(fileLocations);
+            files.parallelStream().forEach(file -> {
+                syncSet.add(FSPathHelper.getCanonicalFileSafely(file.toFile()));
+            });
+
+        } catch (Exception anyE) {
+            LOG.error("ERROR scanning for files with extension {} in location {}", anyE, extension,
+                dir.getAbsolutePath());
+        }
+        return fileLocations;
+    }
+
+    private static boolean isFileWithExtension(Path candidate, String extension) {
+        return candidate.getFileName().toString().endsWith(extension);
+    }
+
+}

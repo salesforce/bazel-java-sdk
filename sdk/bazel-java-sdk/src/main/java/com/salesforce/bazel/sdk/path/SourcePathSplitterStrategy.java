@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019, Salesforce.com, Inc. All rights reserved.
+ * Copyright (c) 2021, Salesforce.com, Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
@@ -31,63 +31,59 @@
  * specific language governing permissions and limitations under the License.
  *
  */
-package com.salesforce.bazel.sdk.model;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+package com.salesforce.bazel.sdk.path;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+/**
+ * Pluggable strategy for splitting a source path into two components like:
+ * <ul>
+ * <li>src/main/java</li>
+ * <li>com/salesforce/foo/Foo.java</li>
+ * </ul>
+ */
+public abstract class SourcePathSplitterStrategy {
 
-public class BazelPackageInfoTest {
+    // STATIC
 
-    @Rule
-    public TemporaryFolder tmpDir = new TemporaryFolder();
+    /**
+     * Map of pluggable strategies used to split a source path (src/main/java/com/salesforce/foo/Foo.java) into two
+     * components based on language specific rules:
+     * <ul>
+     * <li>src/main/java</li>
+     * <li>com/salesforce/foo/Foo.java</li>
+     * </ul>
+     * <p>
+     * This Map is public because each supported language will need to plug one or more strategies into the map. The key
+     * is a String file extension (.java) and the value is the splitter for that file type.
+     */
+    public static Map<String, SourcePathSplitterStrategy> splitterStrategies = new HashMap<>();
 
-    @Test
-    public void testGetChildPackageInfos() throws IOException {
-        BazelPackageInfo root = getRootBazelPackageInfo(false);
-
-        BazelPackageInfo child1 = getBazelPackageInfo(root, "sayhello");
-        BazelPackageInfo child2 = getBazelPackageInfo(root, "sayhello_again");
-
-        assertEquals(2, root.getChildPackageInfos().size());
-        assertTrue(root.getChildPackageInfos().contains(child1));
-        assertTrue(root.getChildPackageInfos().contains(child2));
-    }
-
-    @Test
-    public void testGetChildPackageInfosWithWorkspaceDotBazel() throws IOException {
-        BazelPackageInfo root = getRootBazelPackageInfo(true);
-
-        BazelPackageInfo child1 = getBazelPackageInfo(root, "sayhello");
-        BazelPackageInfo child2 = getBazelPackageInfo(root, "sayhello_again");
-
-        assertEquals(2, root.getChildPackageInfos().size());
-        assertTrue(root.getChildPackageInfos().contains(child1));
-        assertTrue(root.getChildPackageInfos().contains(child2));
-    }
-
-
-    // HELPERS
-
-    private BazelPackageInfo getRootBazelPackageInfo(boolean useAltWsFilename) throws IOException {
-        File f = tmpDir.newFolder("root");
-        if (useAltWsFilename) {
-            new File(f, "WORKSPACE.bazel").createNewFile();
-        } else {
-            new File(f, "WORKSPACE").createNewFile();
+    /**
+     * Looks up the splitter using the extension from the sourceFilePath (a/b/c/d/Foo.java)
+     */
+    public static SourcePathSplitterStrategy getSplitterForFilePath(String sourceFilePath) {
+        SourcePathSplitterStrategy splitter = null;
+        int lastDot = sourceFilePath.lastIndexOf(".");
+        if (lastDot > -1) {
+            String extension = sourceFilePath.substring(lastDot);
+            splitter = SourcePathSplitterStrategy.splitterStrategies.get(extension);
         }
-        return new BazelPackageInfo(f);
+        return splitter;
     }
 
-    private BazelPackageInfo getBazelPackageInfo(BazelPackageInfo root, String relPathFromRoot) throws IOException {
-        tmpDir.newFolder("root", relPathFromRoot);
-        return new BazelPackageInfo(root, relPathFromRoot);
-    }
+    // INSTANCES
+
+    /**
+     * Split a source path (src/main/java/com/salesforce/foo/Foo.java) into two components based on language specific
+     * rules:
+     * <ul>
+     * <li>src/main/java</li>
+     * <li>com/salesforce/foo/Foo.java</li>
+     * </ul>
+     */
+    public abstract SplitSourcePath splitSourcePath(File basePath, String relativePathToSourceFile);
 
 }
