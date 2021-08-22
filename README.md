@@ -1,4 +1,4 @@
-## Bazel Java SDK
+## Bazel Java SDK ![BEF Developer Logo](docs/bef_developers_small.png)
 
 This library is used to programmatically invoke Bazel builds and perform other Bazel operations.
 It is implemented in Java and has a clean API and models for working with Bazel.
