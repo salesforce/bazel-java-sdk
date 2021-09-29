@@ -124,7 +124,7 @@ public class BazelJvmClasspath implements JvmClasspath {
         }
 
         logger.info("Computing classpath for project " + bazelProject.name + " (cached entries: " + foundCachedEntries
-                + ", is import: " + isImport + ")");
+            + ", is import: " + isImport + ")");
         BazelWorkspaceCommandRunner bazelWorkspaceCmdRunner =
                 bazelCommandManager.getWorkspaceCommandRunner(bazelWorkspace);
 
@@ -153,9 +153,8 @@ public class BazelJvmClasspath implements JvmClasspath {
                 }
                 if (buildFiles.size() > 1) {
                     throw new IllegalStateException("Expected a single BazelBuildFile instance, this is a bug");
-                } else {
-                    bazelBuildFileModel = buildFiles.iterator().next();
                 }
+                bazelBuildFileModel = buildFiles.iterator().next();
             } catch (Exception anyE) {
                 logger.error("Unable to compute classpath containers entries for project " + bazelProject.name, anyE);
                 return returnEmptyClasspathOrThrow(anyE);
@@ -183,10 +182,14 @@ public class BazelJvmClasspath implements JvmClasspath {
                         continue;
                     }
                     JVMAspectTargetInfo jvmTargetInfo = (JVMAspectTargetInfo) targetInfo;
+                    String targetInfoLabelPath = jvmTargetInfo.getLabelPath();
+                    String kind = jvmTargetInfo.getKind();
+                    if ("java_import".equals(kind)) {
+                        logger.info("Found java_import rule");
+                    }
 
-                    if (actualActivatedTargets.contains(jvmTargetInfo.getLabelPath())) {
-                        if ("java_library".equals(jvmTargetInfo.getKind())
-                                || "java_binary".equals(jvmTargetInfo.getKind())) {
+                    if (actualActivatedTargets.contains(targetInfoLabelPath)) {
+                        if ("java_library".equals(kind) || "java_binary".equals(kind)) {
                             // this info describes a java_library target in the current package; don't add it to the classpath
                             // as all java_library targets in this package are assumed to be represented by source code entries
                             continue;
@@ -195,6 +198,8 @@ public class BazelJvmClasspath implements JvmClasspath {
                         // java_test aspect should be analyzed for implicit dependencies
                         if ("java_test".equals(jvmTargetInfo.getKind())) {
                             implicitDeps = implicitDependencyHelper.computeImplicitDependencies(bazelWorkspace, jvmTargetInfo);
+                            // there is no need to process test jar further
+                            continue;
                         }
                         // else in some cases, the target is local, but we still want to proceed to process it below. the expected
                         // example here are java_import targets in the BUILD file that directly load jars from the file system
@@ -221,7 +226,7 @@ public class BazelJvmClasspath implements JvmClasspath {
                             } else {
                                 // there was a problem with the aspect computation, this might resolve itself if we recompute it
                                 bazelWorkspaceCmdRunner
-                                        .flushAspectInfoCache(configuredTargetsForProject.getConfiguredTargets());
+                                .flushAspectInfoCache(configuredTargetsForProject.getConfiguredTargets());
                             }
                         }
                         for (JVMAspectOutputJarSet jarSet : jvmTargetInfo.getJars()) {
@@ -232,7 +237,7 @@ public class BazelJvmClasspath implements JvmClasspath {
                             } else {
                                 // there was a problem with the aspect computation, this might resolve itself if we recompute it
                                 bazelWorkspaceCmdRunner
-                                        .flushAspectInfoCache(configuredTargetsForProject.getConfiguredTargets());
+                                .flushAspectInfoCache(configuredTargetsForProject.getConfiguredTargets());
                             }
                         }
                     } else { // otherProject != null
@@ -304,19 +309,16 @@ public class BazelJvmClasspath implements JvmClasspath {
 
             // make it main cp
             mainClasspathEntryMap.put(pathStr, cpEntry);
-        } else {
+        } else if (!mainClasspathEntryMap.containsKey(pathStr)) {
             // add to the test classpath?
             // if it already exists in the main classpath, do not also add to the test classpath
-            if (!mainClasspathEntryMap.containsKey(pathStr)) {
-                testClasspathEntryMap.put(pathStr, cpEntry);
-            }
+            testClasspathEntryMap.put(pathStr, cpEntry);
         }
     }
 
     private JvmClasspathEntry[] assembleClasspathEntries(Map<String, JvmClasspathEntry> mainClasspathEntryMap,
             Map<String, JvmClasspathEntry> testClasspathEntryMap, Set<JvmClasspathEntry> implicitClasspathEntrySet) {
-        List<JvmClasspathEntry> classpathEntries = new ArrayList<>();
-        classpathEntries.addAll(mainClasspathEntryMap.values());
+        List<JvmClasspathEntry> classpathEntries = new ArrayList<>(mainClasspathEntryMap.values());
         classpathEntries.addAll(testClasspathEntryMap.values());
         // should be added at the end of classpath entries
         classpathEntries.addAll(implicitClasspathEntrySet);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019, Salesforce.com, Inc. All rights reserved.
+ * Copyright (c) 2021, Salesforce.com, Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
@@ -31,37 +31,42 @@
  * specific language governing permissions and limitations under the License.
  *
  */
-package com.salesforce.bazel.sdk.command;
+package com.salesforce.bazel.sdk.model;
 
-import com.salesforce.bazel.sdk.model.BazelLabel;
-import com.salesforce.bazel.sdk.path.FSPathHelper;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Knows how to build paths to various files under bazel output directories (bazel-bin etc)
+ * Model for a source code file in a Bazel workspace.
+ * <p>
+ * Currently this is mostly just a marker interface and some static utility functions. Over time, more shared behavior
+ * can be put here.
  */
-public class BazelOutputDirectoryBuilder {
+public class BazelSourceFile {
+
+    // file system coordinates for the file
+    protected String absolutePath;
+    protected File sourceFile;
+
+    // STATIC UTILS
 
     /**
-     * Runnable targets (usable with "bazel run") produce a shell script at build time (bazel build).
-     *
-     * This method returns the filesystem path to that shell script, relative to the Bazel WORKSPACE root.
+     * List of all file extensions that are recognized as source code files. This is set by the init classes, such as
+     * JvmRuleInit. Note the file extension includes the period for cases such as ".java".
      */
-    public String getRunScriptPath(BazelLabel label, boolean includeBazelBin) {
-        StringBuilder sb = new StringBuilder();
-        
-        if (includeBazelBin) {
-            // if you want to generate the path from the root of the workspace, and dont mind using the bazel-bin
-            // convenience soft link, passing true for includeBazelBin will do that
-            sb.append("bazel-bin");
-            sb.append(FSPathHelper.UNIX_SLASH);
+    public static List<String> sourceFileExtensions = new ArrayList<>();
+
+    /**
+     * The SDK knows of a set of file extensions that are associated with source code files. Does the passed
+     * filename/filepath end in one of them?
+     */
+    public static boolean hasSourceFileExtension(String filename) {
+        for (String sourceFileExtension : sourceFileExtensions) {
+            if (filename.endsWith(sourceFileExtension)) {
+                return true;
+            }
         }
-        sb.append(label.getPackagePath());
-        sb.append(FSPathHelper.UNIX_SLASH);
-        sb.append(label.getTargetName());
-
-        // generate the String, converting to Windows style path if necessary
-        String path = FSPathHelper.osSeps(sb.toString());
-
-        return path;
+        return false;
     }
 }
