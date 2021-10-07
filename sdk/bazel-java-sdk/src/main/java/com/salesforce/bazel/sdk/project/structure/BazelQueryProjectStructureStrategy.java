@@ -94,6 +94,7 @@ public class BazelQueryProjectStructureStrategy extends ProjectStructureStrategy
 
             Set<String> alreadySeenBasePaths = new HashSet<>();
             FSTree resourceFileStructure = new FSTree();
+            FSTree testResourceFileStructure = new FSTree();
 
             for (String srcPath : queryResults) {
                 if (doIgnoreFile(packageDir, srcPath)) {
@@ -123,13 +124,17 @@ public class BazelQueryProjectStructureStrategy extends ProjectStructureStrategy
                             String packageRelPathToFile =
                                     packageRelPath + File.separator + srcPathObj.sourceDirectoryPath;
 
+                            // TODO this is really fragile; we expect the user to put test code in a folder 
+                            // structure that contains a directory that starts with the word 'test'
                             boolean isTestPath = FSPathHelper.doesPathContainNamedResource(
-                                srcPathObj.sourceDirectoryPath, testSourceCodeFolderMarkers);
+                                srcPathObj.sourceDirectoryPath, testSourceCodeFolderMarkers, true);
+                            
                             if (isTestPath) {
                                 structure.testSourceDirFSPaths.add(packageRelPathToFile);
                             } else {
                                 structure.mainSourceDirFSPaths.add(packageRelPathToFile);
                             }
+                            
                             alreadySeenBasePaths.add(srcPathObj.sourceDirectoryPath);
                             LOG.info("Found source path {} for package {}", srcPathObj.sourceDirectoryPath,
                                 packageRelPath);
@@ -142,19 +147,27 @@ public class BazelQueryProjectStructureStrategy extends ProjectStructureStrategy
                         // this is a resource file, like xyz.properties or abc.xml
                         LOG.info("Found resource file with source path {} for package {}", srcPath,
                             packageRelPath);
-                        FSTree.addNode(resourceFileStructure, srcPath, FSPathHelper.osSepRegex(), true);
+                        boolean isTest = FSPathHelper.doesPathContainNamedResource(srcPath, testSourceCodeFolderMarkers, true);
+                        if (isTest) {
+                            FSTree.addNode(testResourceFileStructure, srcPath, FSPathHelper.osSepRegex(), true);
+                        } else {
+                            FSTree.addNode(resourceFileStructure, srcPath, FSPathHelper.osSepRegex(), true);
+                        }
                     }
                 }
             }
 
             // now figure out a reasonable way to represent the source paths of resource files
             computeResourceDirectories(packageRelPath, structure, resourceFileStructure);
+            computeResourceDirectories(packageRelPath, structure, testResourceFileStructure);
 
             // NOTE: the order of source paths in the lists is important. We want the main
-            // resources to appear before the test resources. Eclipse will honor that order in
+            // directories to appear before the test directories. Eclipse will honor that order in
             // the project explorer.
             Collections.sort(structure.mainSourceDirFSPaths);
+            Collections.sort(structure.mainResourceDirFSPaths);
             Collections.sort(structure.testSourceDirFSPaths);
+            Collections.sort(structure.testResourceDirFSPaths);
         } else {
             LOG.info("Did not find any source files for package [{}], ignoring for import.", packageLabel);
             structure = null;
@@ -210,10 +223,10 @@ public class BazelQueryProjectStructureStrategy extends ProjectStructureStrategy
         List<String> resourceDirectoryPaths = FSTree.computeMeaningfulDirectories(otherSourcePaths, File.separator);
         for (String resourceDirectoryPath : resourceDirectoryPaths) {
             String path = bazelPackageFSRelativePath + File.separator + resourceDirectoryPath;
-            if (FSPathHelper.doesPathContainNamedResource(resourceDirectoryPath, testSourceCodeFolderMarkers)) {
-                result.testSourceDirFSPaths.add(path);
+            if (FSPathHelper.doesPathContainNamedResource(resourceDirectoryPath, testSourceCodeFolderMarkers, true)) {
+                result.testResourceDirFSPaths.add(path);
             } else {
-                result.mainSourceDirFSPaths.add(path);
+                result.mainResourceDirFSPaths.add(path);
             }
         }
     }

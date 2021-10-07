@@ -341,9 +341,14 @@ public class BazelWorkspaceAspectProcessor {
                 }
             }
         }
+        
+        // now add this aspect to the transitive closure if test or import (TODO why?) 
         if ("java_test".equals(aspectTargetInfo.getKind())) {
-            allDeps.add(aspectTargetInfo); //add aspect itself and filter out on the level of classpath container
+            allDeps.add(aspectTargetInfo); 
+        } else if ("java_import".equals(aspectTargetInfo.getKind())) {
+            allDeps.add(aspectTargetInfo); 
         }
+        
         return Collections.unmodifiableSet(allDeps);
     }
 
@@ -404,15 +409,20 @@ public class BazelWorkspaceAspectProcessor {
     public static Map<BazelLabel, AspectTargetInfo> loadAspectFilePaths(List<String> aspectFilePaths)
             throws IOException, InterruptedException {
         Map<String, AspectTargetInfo> lToAtis = AspectTargetInfoFactory.loadAspectFilePaths(aspectFilePaths);
+        if (lToAtis.isEmpty()) {
+            LOG.error("No results returned from running aspects. This normally means there is a build error in the BUILD file. Please run 'bazel build //...' to verify that the workspace is valid.");
+        }
         Map<BazelLabel, AspectTargetInfo> bzToAtis = new HashMap<>(lToAtis.size());
         for (Map.Entry<String, AspectTargetInfo> e : lToAtis.entrySet()) {
             String key = e.getKey();
             if (key == null) {
                 // bug
+                LOG.error("Null key returned from AspectTargetInfoFactory.loadAspectFilePaths");
                 continue;
             }
             AspectTargetInfo value = e.getValue();
             bzToAtis.put(new BazelLabel(key), value);
+            LOG.debug("Aspect for {} generated successfully.", key);
         }
         return bzToAtis;
     }

@@ -78,9 +78,9 @@ public class BazelQueryProjectStructureStrategyTest {
         // validate
         assertNotNull(structure);
         assertContains(structure.mainSourceDirFSPaths, "projects/libs/apple/source/main/java");
-        assertContains(structure.mainSourceDirFSPaths, "projects/libs/apple/source/main/resources");
+        assertContains(structure.mainResourceDirFSPaths, "projects/libs/apple/source/main/resources");
         assertContains(structure.testSourceDirFSPaths, "projects/libs/apple/source/test/java");
-        assertContains(structure.testSourceDirFSPaths, "projects/libs/apple/source/test/resources");
+        assertContains(structure.testResourceDirFSPaths, "projects/libs/apple/source/test/resources");
     }
 
     @Test
@@ -88,22 +88,22 @@ public class BazelQueryProjectStructureStrategyTest {
         // to make this a unit test, we need to mock out the computations that would ordinarily involve collaborators
         // such as Bazel Query, filesystem scanning, and file parsing
         TestBazelQueryProjectStructureStrategy strategy = new TestBazelQueryProjectStructureStrategy();
-        addSourcePathForTest(strategy, "source/dev");
-        addSourcePathForTest(strategy, "source/dev2");
-        addSourcePathForTest(strategy, "source/test");
-        addSourcePathForTest(strategy, "src/test");
+        addSourcePathForTest(strategy, "source/dev/java");
+        addSourcePathForTest(strategy, "source/dev2/java");
+        addSourcePathForTest(strategy, "source/test/java");
+        addSourcePathForTest(strategy, "src/test/java");
         addMainResourcePathForTest(strategy, "projects/libs/apple/source/dev/resources/fruit");
         addMainResourcePathForTest(strategy, "projects/libs/apple/source/dev2/resources");
         addTestResourcePathForTest(strategy, "projects/libs/apple/source/test/resources");
 
-        addSimQueryResult(strategy, "source/dev/com/salesforce/apple/api/Apple.java");
-        addSimQueryResult(strategy, "source/dev2/com/salesforce/apple/api/ApplePie.java");
+        addSimQueryResult(strategy, "source/dev/java/com/salesforce/apple/api/Apple.java");
+        addSimQueryResult(strategy, "source/dev2/java/com/salesforce/apple/api/ApplePie.java");
         addSimQueryResult(strategy, "source/dev/resources/fruit/kinds.properties");
         addSimQueryResult(strategy, "source/dev2/resources/recipes/pies.properties");
         addSimQueryResult(strategy, "source/dev2/resources/recipes/cakes.properties");
         addSimQueryResult(strategy, "source/dev2/resources/recipes/sauces.properties");
-        addSimQueryResult(strategy, "source/test/com/salesforce/apple/api/AppleTest.java");
-        addSimQueryResult(strategy, "src/test/com/salesforce/apple/api/ApplePieTest.java");
+        addSimQueryResult(strategy, "source/test/java/com/salesforce/apple/api/AppleTest.java");
+        addSimQueryResult(strategy, "src/test/java/com/salesforce/apple/api/ApplePieTest.java");
         addSimQueryResult(strategy, "source/test/resources/test.properties");
 
         // run the test
@@ -113,13 +113,13 @@ public class BazelQueryProjectStructureStrategyTest {
 
         // validate
         assertNotNull(structure);
-        assertContains(structure.mainSourceDirFSPaths, "projects/libs/apple/source/dev");
-        assertContains(structure.mainSourceDirFSPaths, "projects/libs/apple/source/dev2");
-        assertContains(structure.mainSourceDirFSPaths, "projects/libs/apple/source/dev/resources/fruit");
-        assertContains(structure.mainSourceDirFSPaths, "projects/libs/apple/source/dev2/resources");
-        assertContains(structure.testSourceDirFSPaths, "projects/libs/apple/source/test");
-        assertContains(structure.testSourceDirFSPaths, "projects/libs/apple/src/test");
-        assertContains(structure.testSourceDirFSPaths, "projects/libs/apple/source/test/resources");
+        assertContains(structure.mainSourceDirFSPaths, "projects/libs/apple/source/dev/java");
+        assertContains(structure.mainSourceDirFSPaths, "projects/libs/apple/source/dev2/java");
+        assertContains(structure.mainResourceDirFSPaths, "projects/libs/apple/source/dev/resources/fruit");
+        assertContains(structure.mainResourceDirFSPaths, "projects/libs/apple/source/dev2/resources");
+        assertContains(structure.testSourceDirFSPaths, "projects/libs/apple/source/test/java");
+        assertContains(structure.testSourceDirFSPaths, "projects/libs/apple/src/test/java");
+        assertContains(structure.testResourceDirFSPaths, "projects/libs/apple/source/test/resources");
     }
 
     // INTERNALS
@@ -197,8 +197,8 @@ public class BazelQueryProjectStructureStrategyTest {
         protected void computeResourceDirectories(String bazelPackageFSRelativePath, ProjectStructure structure,
                 FSTree otherSourcePaths) {
             // computing resource directories is tested elsewhere, just simulate response here
-            structure.mainSourceDirFSPaths.addAll(mainResourcePathsForThisTest);
-            structure.testSourceDirFSPaths.addAll(testResourcePathsForThisTest);
+            structure.mainResourceDirFSPaths.addAll(mainResourcePathsForThisTest);
+            structure.testResourceDirFSPaths.addAll(testResourcePathsForThisTest);
         }
     }
 }
