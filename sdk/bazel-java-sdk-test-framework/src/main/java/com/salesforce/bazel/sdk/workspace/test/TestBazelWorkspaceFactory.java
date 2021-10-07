@@ -209,10 +209,41 @@ public class TestBazelWorkspaceFactory {
         // we will be collecting locations of Aspect json files for this package
         Set<String> packageAspectFiles = new TreeSet<>();
 
+        // we optionally additional deps to the main java_library, this collects those
+        List<String> extraDeps = new ArrayList<>();
+
         // create the BUILD file
         File buildFile = new File(javaPackageDir, workspaceDescriptor.buildFilename);
         buildFile.createNewFile();
         TestJavaRuleCreator.createJavaBuildFile(workspaceDescriptor, buildFile, packageDescriptor);
+
+        // java_import
+        if (addJavaImport) {
+            // sometimes developers just stick a .jar file in the source code repo within the package
+            // this is legal, and supported by Bazel with the java_import rule
+            // this creates a local file PKG/libs/liborange.jar
+            // we do this first because this lib will be a dependency to the main source below
+            String packageLibsDirName = "importlibs";
+            File importLibsDir = new File(javaPackageDir, packageLibsDirName);
+            importLibsDir.mkdirs();
+
+            String relativeImportLibsDir =
+                    FSPathHelper.osSeps(packageRelativeFilePath + FSPathHelper.UNIX_SLASH + packageLibsDirName);
+
+            String aspectFilePath_import =
+                    TestAspectFileCreator.createJavaAspectFileForImportLocalJar(workspaceDescriptor.outputBaseDirectory,
+                        packageRelativeBazelPath, relativeImportLibsDir, "orange", "liborange");
+            packageAspectFiles.add(aspectFilePath_import);
+            createFakeImportJars(importLibsDir, "liborange");
+            extraDeps.add(":orange");
+
+            // create an unused java_import (nothing depends on it) to see how that affects the classpath (it shouldn't)
+            aspectFilePath_import =
+                    TestAspectFileCreator.createJavaAspectFileForImportLocalJar(workspaceDescriptor.outputBaseDirectory,
+                        packageRelativeBazelPath, relativeImportLibsDir, "unsed", "libunused");
+            packageAspectFiles.add(aspectFilePath_import);
+            createFakeImportJars(importLibsDir, "libunused");
+        }
 
         // main source
         List<String> sourceFiles = new ArrayList<>();
@@ -241,7 +272,7 @@ public class TestBazelWorkspaceFactory {
         // Apple.java
         String classname1 = "Apple" + index;
         String javaPackageName = "com.salesforce.fruit" + index;
-        File javaFile1 = new File(javaSrcMainDir1, classname1);
+        File javaFile1 = new File(javaSrcMainDir1, classname1 + ".java");
         TestJavaFileCreator.createJavaSourceFile(javaFile1, javaPackageName, classname1);
         System.out.println("Created java file: " + javaFile1.getAbsolutePath());
         String appleSrc =
@@ -263,15 +294,14 @@ public class TestBazelWorkspaceFactory {
         File resourceFile = new File(javaSrcMainResourcesDir, "main.properties");
         resourceFile.createNewFile();
 
-        // main fruit source aspect
-        List<String> extraDeps = new ArrayList<>();
+        // main fruit source java_library aspect
         if (previousJavaLibTarget != null) {
             extraDeps.add(previousJavaLibTarget);
         }
-        String aspectFilePath_mainsource = TestAspectFileCreator.createJavaAspectFile(
+        String aspectFilePath_mainsource_library = TestAspectFileCreator.createJavaAspectFile(
             workspaceDescriptor.outputBaseDirectory, packageRelativeBazelPath, packageName, packageName, extraDeps,
             sourceFiles, true, explicitJavaTestDeps);
-        packageAspectFiles.add(aspectFilePath_mainsource);
+        packageAspectFiles.add(aspectFilePath_mainsource_library);
 
         // add aspects for maven jars (just picked a couple of typical maven jars to use)
         JarPathBundle jarPathBundle = createFakeExternalJar(workspaceDescriptor.outputBaseDirectory,
@@ -356,26 +386,6 @@ public class TestBazelWorkspaceFactory {
             packageAspectFiles.add(aspectFilePath_hamcrest);
         }
 
-        // java_import
-        if (addJavaImport) {
-            // sometimes developers just stick a .jar file in the source code repo within the package
-            // this is legal, and supported by Bazel with the java_import rule
-            // this creates a local file PKG/libs/libbanana.jar
-            String packageLibsDirName = "importlibs";
-            File importLibsDir = new File(javaPackageDir, packageLibsDirName);
-            importLibsDir.mkdirs();
-
-            String relativeImportLibsDir =
-                    FSPathHelper.osSeps(packageRelativeFilePath + FSPathHelper.UNIX_SLASH + packageLibsDirName);
-
-            String aspectFilePath_import = TestAspectFileCreator
-                    .createJavaAspectFileForImportLocalJar(workspaceDescriptor.outputBaseDirectory,
-                        packageRelativeBazelPath, relativeImportLibsDir, "banana", "libbanana");
-            packageAspectFiles.add(aspectFilePath_import);
-            createFakeImportJar(importLibsDir, "libbanana");
-
-        }
-
         // java_binary
         if (addJavaBinary) {
             File binaryDir = new File(workspaceDescriptor.dirBazelBin, FSPathHelper.osSeps(packageRelativeBazelPath));
@@ -409,7 +419,7 @@ public class TestBazelWorkspaceFactory {
             }
             // now save off our current lib target to add to the next
             previousJavaLibTarget = packageRelativeBazelPath + BazelLabel.BAZEL_COLON + packageName;
-            previousAspectFilePath = aspectFilePath_mainsource;
+            previousAspectFilePath = aspectFilePath_mainsource_library;
         }
     }
 
@@ -440,8 +450,11 @@ public class TestBazelWorkspaceFactory {
         return jarBundle;
     }
 
-    private void createFakeImportJar(File libDir, String jarname) throws IOException {
+    private void createFakeImportJars(File libDir, String jarname) throws IOException {
         File fakeJar = new File(libDir, jarname + ".jar");
+        fakeJar.createNewFile();
+        System.out.println("Created fake import jar file: " + fakeJar.getCanonicalPath());
+        fakeJar = new File(libDir, jarname + "-src.jar");
         fakeJar.createNewFile();
     }
 
