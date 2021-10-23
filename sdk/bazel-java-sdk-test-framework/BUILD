@@ -19,7 +19,10 @@ java_library(
 # Test workspace creator
 java_library(
     name = "test-workspace-support",
-    srcs = glob(["src/main/java/com/salesforce/bazel/sdk/workspace/test/*.java"]),
+    srcs = glob([
+        "src/main/java/com/salesforce/bazel/sdk/workspace/test/*.java",
+        "src/main/java/com/salesforce/bazel/sdk/workspace/test/java/*.java",
+    ]),
     visibility = ["//visibility:public"],
     deps = [
       "//sdk/bazel-java-sdk",

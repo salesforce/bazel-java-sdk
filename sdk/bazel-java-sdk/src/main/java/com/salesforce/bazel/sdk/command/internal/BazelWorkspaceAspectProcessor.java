@@ -318,9 +318,18 @@ public class BazelWorkspaceAspectProcessor {
         Set<AspectTargetInfo> allDeps = new HashSet<>();
         List<AspectTargetInfo> queue = new ArrayList<>();
         Set<String> skippedLabels = new HashSet<>();
+        Set<String> visitedLabels = new HashSet<>();
         queue.add(aspectTargetInfo);
         while (!queue.isEmpty()) {
             AspectTargetInfo ati = queue.remove(0);
+            
+            String thisLabel = ati.getLabelPath();
+            if (visitedLabels.contains(thisLabel)) {
+                // we have already visited this dependency (through another path) just skip it
+                continue;
+            }
+            visitedLabels.add(thisLabel);
+            
             if (ati != aspectTargetInfo) {
                 allDeps.add(ati);
             }
@@ -330,6 +339,11 @@ public class BazelWorkspaceAspectProcessor {
                     // this is a dep that is not something we work with, so we ignore it
                     continue;
                 }
+                if (visitedLabels.contains(label)) {
+                    // we have already visited this dependency (through another path) just skip it
+                    continue;
+                }
+                
                 BazelLabel depLabel = new BazelLabel(label);
                 AspectTargetInfo dep = depNameToTargetInfo.get(depLabel);
                 if (dep == null) {
@@ -391,8 +405,23 @@ public class BazelWorkspaceAspectProcessor {
             // Line must start with >>> and end with the aspect file suffix
             LOG.info("Running command to generate aspect file for labels indexed [" + startTargetIndex + "] through ["
                     + (startTargetIndex + 25) + "] out of the total [" + (lastValidTargetIndex + 1) + "]");
-            Function<String, String> filter = t -> t.startsWith(">>>")
-                    ? (t.endsWith(AspectTargetInfoFactory.ASPECT_FILENAME_SUFFIX) ? t.substring(3) : "") : null;
+            Function<String, String> filter = (t) -> {
+                LOG.info("Aspect output line: "+t);
+                String r = null;
+                if (t.startsWith(">>>")) {
+                    if (t.endsWith(AspectTargetInfoFactory.ASPECT_FILENAME_SUFFIX)) {
+                        LOG.info("  Aspect output (json file): {}", t);
+                        r = t.substring(3);
+                    } else {
+                        LOG.info("  Aspect output (ignored): {}", t);
+                        r = null;
+                    } 
+                } else {
+                    LOG.info("  Aspect output (ignored): {}", t);
+                    r = null;
+                }
+                return r;
+            };
 
             List<String> partialListOfGeneratedFilePaths =
                     bazelCommandExecutor.runBazelAndGetErrorLines(ConsoleType.WORKSPACE, bazelWorkspaceRootDirectory,
@@ -408,11 +437,19 @@ public class BazelWorkspaceAspectProcessor {
 
     public static Map<BazelLabel, AspectTargetInfo> loadAspectFilePaths(List<String> aspectFilePaths)
             throws IOException, InterruptedException {
+        Map<BazelLabel, AspectTargetInfo> bzToAtis = new HashMap<>();
+        
+        if (aspectFilePaths.size() == 0) {
+            LOG.error("No results returned from running aspects. This normally means there is a build error in the BUILD file. "+
+                    "Please run 'bazel build //...' to verify that the workspace is valid. ");
+            return bzToAtis;
+        }
+        
         Map<String, AspectTargetInfo> lToAtis = AspectTargetInfoFactory.loadAspectFilePaths(aspectFilePaths);
         if (lToAtis.isEmpty()) {
-            LOG.error("No results returned from running aspects. This normally means there is a build error in the BUILD file. Please run 'bazel build //...' to verify that the workspace is valid.");
+            LOG.error("No aspect files were parsed successfully. Aspect file list size: "+aspectFilePaths.size());
+            return bzToAtis;
         }
-        Map<BazelLabel, AspectTargetInfo> bzToAtis = new HashMap<>(lToAtis.size());
         for (Map.Entry<String, AspectTargetInfo> e : lToAtis.entrySet()) {
             String key = e.getKey();
             if (key == null) {
@@ -422,7 +459,7 @@ public class BazelWorkspaceAspectProcessor {
             }
             AspectTargetInfo value = e.getValue();
             bzToAtis.put(new BazelLabel(key), value);
-            LOG.debug("Aspect for {} generated successfully.", key);
+            LOG.info("Aspect for {} loaded successfully.", key);
         }
         return bzToAtis;
     }

@@ -40,20 +40,25 @@ package com.salesforce.bazel.sdk.lang.jvm.external;
  import java.util.List;
  import java.util.Map;
 
- import com.salesforce.bazel.sdk.model.BazelWorkspace;
- import com.salesforce.bazel.sdk.workspace.OperatingEnvironmentDetectionStrategy;
+import com.salesforce.bazel.sdk.index.jvm.jar.JarIdentifier;
+import com.salesforce.bazel.sdk.model.BazelWorkspace;
+import com.salesforce.bazel.sdk.path.FSPathHelper;
+import com.salesforce.bazel.sdk.workspace.OperatingEnvironmentDetectionStrategy;
 
  /**
   * Specialization of BazelExternalJarRuleType for the maven_install rule.
   * <p>
   * The maven_install rule is a bit tricky, in that it is not reliable in where to find the downloaded jars. Also, the
   * source jars may not be there. This will be an evolving solution as we better understand how to make this more
-  * reliable.
+  * reliable. We look for the downloaded jars in two entirely different locations:
+  * bazel-outputbase/external/maven/v1/https/repo1.maven.org/maven2/com/google/guava/guava/20.0/guava-20.0-sources.jar
+  * bazel-bin/maven/v1/https/ourinternalrepo.com/path/public/com/google/guava/guava/30.1-jre/guava-30.1-jre.jar
   */
  public class MavenInstallExternalJarRuleType extends BazelExternalJarRuleType {
      // these options are expected to be driven by tool preferences
      public static boolean cachedJars_supplyCoursierCacheLocation = false;
      public static boolean cachedJars_supplyWorkspaceBazelBinLocations = true;
+     public static boolean cachedJars_supplyWorkspaceBazelOutputBaseLocations = true;
 
      // derived from the WORKSPACE file (or .bzl files included from the WORKSPACE)
      // each maven_install rule invocation must have a unique namespace, the default value is "maven"
@@ -85,10 +90,22 @@ package com.salesforce.bazel.sdk.lang.jvm.external;
              File[] markerFiles = externalDir.listFiles(new FilenameFilter() {
                  @Override
                  public boolean accept(File dir, String name) {
-                     return "maven".equals(name);
+                     return "maven".equals(name) || "deprecated".equals(name); // TODO support multiple namespaces
                  }
              });
              isUsedInWorkspace = markerFiles.length > 0;
+         }
+         if (!isUsedInWorkspace) {
+             File outputExternalDir = new File(bazelWorkspace.getBazelOutputBaseDirectory(), "external");
+             if (outputExternalDir.exists()) {
+                 File[] markerFiles = outputExternalDir.listFiles(new FilenameFilter() {
+                     @Override
+                     public boolean accept(File dir, String name) {
+                         return "maven".equals(name) || "deprecated".equals(name); // TODO support multiple namespaces
+                     }
+                 });
+                 isUsedInWorkspace = markerFiles.length > 0;
+             }
          }
 
          return isUsedInWorkspace;
@@ -121,6 +138,9 @@ package com.salesforce.bazel.sdk.lang.jvm.external;
          if (cachedJars_supplyWorkspaceBazelBinLocations) {
              addBazelBinLocations(bazelWorkspace, namespaces, localJarLocationsNew);
          }
+         if (cachedJars_supplyWorkspaceBazelOutputBaseLocations) {
+             addBazelOutputBaseLocations(bazelWorkspace, namespaces, localJarLocationsNew);
+         }
 
          // for thread safety, we build the list in a local var, and then switch at the end here
          downloadedJarLocations = localJarLocationsNew;
@@ -142,6 +162,52 @@ package com.salesforce.bazel.sdk.lang.jvm.external;
 
          coursierUtil.discardComputedWork(bazelWorkspace);
      }
+     
+     /**
+      * Is the passed file path a file downloaded by this rule type?
+      */
+     @Override
+     public boolean doesBelongToRuleType(BazelWorkspace bazelWorkspace, String absoluteFilepath) {
+         // bazel-outputbase/external/maven/v1/https/ or bazel-bin/maven/v1/https
+         return absoluteFilepath.contains("v1"+File.separator+"http");
+     }
+     
+     /**
+      * Attempt to derive the Bazel label for this external jar file based solely on filepath.
+      * \@maven//:org_slf4j_slf4j_api
+      * This won't be possible in all cases; returning null is acceptable.
+      */
+     @Override
+     public String deriveBazelLabel(BazelWorkspace bazelWorkspace, String absoluteFilepath, JarIdentifier jarId) {
+         // find the 'external' directory that contains this jar 
+         File externalDir = new File(bazelWorkspace.getBazelBinDirectory(), "external");
+         String externalPath = externalDir.getAbsolutePath();
+         if (!absoluteFilepath.startsWith(externalPath)) {
+             externalDir = new File(bazelWorkspace.getBazelOutputBaseDirectory(), "external");
+             externalPath = externalDir.getAbsolutePath();
+             if (!absoluteFilepath.startsWith(externalPath)) {
+                 return null;
+             }
+         }
+         
+         // the next directory below the external directory is the maven_install namespace, make it relative
+         // maven/v1/https/repo1.maven.org/maven2/com/google/guava/guava/20.0/guava-20.0-sources.jar
+         String relativeFilepath = absoluteFilepath.substring(externalPath.length()+1); 
+         String[] tokens = FSPathHelper.split(relativeFilepath);
+         if (tokens.length == 0) {
+             return null;
+         }
+         String mavenInstallNamespace = tokens[0];
+         String groupName = jarId.group.replace("-", "_");
+         groupName = jarId.group.replace(".", "_");
+         String artifactName = jarId.artifact.replace("-", "_");
+         String label = "@"+mavenInstallNamespace+"//:"+groupName+"_"+artifactName;
+         return label;
+     }
+     
+
+     
+     // INTERNAL
 
      protected List<String> loadNamespaces(BazelWorkspace bazelWorkspace) {
          List<String> namespaces = new ArrayList<>();
@@ -151,9 +217,10 @@ package com.salesforce.bazel.sdk.lang.jvm.external;
          //        maven_install(name = "deprecated", ...
          // TODO BazelWorkspace should have some parsing functions for retrieving rule data.
          // in this case, we need to find maven_install rule invocations, and pluck the list of name attributes.
-         // for our primary repo, this is complicated by the fact that the maven_install rules are actually in
+         // for our primary internal repo, this is complicated by the fact that the maven_install rules are actually in
          // .bzl files brought in by load() statements in the WORKSPACE
-         namespaces.add("maven");
+         namespaces.add("maven"); // TODO support multiple namespaces
+         namespaces.add("deprecated"); // TODO support multiple namespaces
 
          return namespaces;
      }
@@ -173,4 +240,22 @@ package com.salesforce.bazel.sdk.lang.jvm.external;
              localJarLocationsNew.add(rootMavenInstallDir);
          }
      }
- }
+
+     /**
+      * maven_install will download jars (and sometimes source jars) into directories such as:
+      * ROOT/bazel-bin/external/maven ROOT/bazel-bin/external/webtest if you have two maven_install rules with names
+      * 'maven' and 'webtest'
+      */
+     protected void addBazelOutputBaseLocations(BazelWorkspace bazelWorkspace, List<String> namespaces,
+             List<File> localJarLocationsNew) {
+         File bazeloutputbaseDir = bazelWorkspace.getBazelOutputBaseDirectory();
+         File externalDir = new File(bazeloutputbaseDir, "external");
+
+         for (String namespace : namespaces) {
+             File rootMavenInstallDir = new File(externalDir, namespace);
+             localJarLocationsNew.add(rootMavenInstallDir);
+         }
+     }
+     
+     
+}

@@ -32,7 +32,10 @@ import java.util.zip.ZipFile;
 import com.salesforce.bazel.sdk.index.jvm.JvmCodeIndex;
 import com.salesforce.bazel.sdk.index.model.ClassIdentifier;
 import com.salesforce.bazel.sdk.index.model.CodeLocationDescriptor;
+import com.salesforce.bazel.sdk.lang.jvm.external.BazelExternalJarRuleManager;
+import com.salesforce.bazel.sdk.lang.jvm.external.BazelExternalJarRuleType;
 import com.salesforce.bazel.sdk.logging.LogHelper;
+import com.salesforce.bazel.sdk.model.BazelWorkspace;
 import com.salesforce.bazel.sdk.path.FSPathHelper;
 
 /**
@@ -41,12 +44,21 @@ import com.salesforce.bazel.sdk.path.FSPathHelper;
 public class JavaJarCrawler {
     private static final LogHelper LOG = LogHelper.log(JavaJarCrawler.class);
 
+    private BazelWorkspace bazelWorkspace;
     private final JvmCodeIndex index;
     private final JarIdentiferResolver resolver;
+    private BazelExternalJarRuleManager externalJarRuleManager;
 
     public JavaJarCrawler(JvmCodeIndex index, JarIdentiferResolver resolver) {
         this.index = index;
         this.resolver = resolver;
+    }
+    
+    public JavaJarCrawler(BazelWorkspace bazelWorkspace, JvmCodeIndex index, JarIdentiferResolver resolver, BazelExternalJarRuleManager externalJarRuleManager) {
+        this.bazelWorkspace = bazelWorkspace;
+        this.index = index;
+        this.resolver = resolver;
+        this.externalJarRuleManager = externalJarRuleManager; 
     }
 
     public void index(File basePath, boolean doIndexClasses) {
@@ -102,18 +114,29 @@ public class JavaJarCrawler {
         }
     }
 
-    protected void foundJar(File gavRoot, File jarFile, ZipFile zipFile, boolean doIndexClasses) {
+    protected void foundJar(File gavRootDir, File jarFile, ZipFile zipFile, boolean doIndexClasses) {
         // precisely identify the jar file
         LOG.debug("found jar: [{}]", jarFile.getName());
-        JarIdentifier jarId = resolver.resolveJarIdentifier(gavRoot, jarFile, zipFile);
+        JarIdentifier jarId = resolver.resolveJarIdentifier(gavRootDir, jarFile, zipFile);
         if (jarId == null) {
             // this jar is not part of the typical dependencies (e.g. it is a jar used in the build toolchain); ignore
             return;
         }
-        CodeLocationDescriptor jarLocationDescriptor = new CodeLocationDescriptor(jarFile, jarId);
+        String bazelLabel = null;
+        String absoluteFilepath = jarFile.getAbsolutePath();
+        
+        if (bazelWorkspace != null) {
+	        BazelExternalJarRuleType ruleType = externalJarRuleManager.findOwningRuleType(bazelWorkspace, absoluteFilepath);
+	        if (ruleType != null) {
+	            bazelLabel = ruleType.deriveBazelLabel(bazelWorkspace, absoluteFilepath, jarId);
+	        }
+        }
+        CodeLocationDescriptor jarLocationDescriptor = new CodeLocationDescriptor(jarFile, jarId, bazelLabel);
 
-        // add to our index using artifact name
+        // add to our index using artifact name (eg. junit, hamcrest-core, slf4j-api) 
         index.addArtifactLocation(jarId.artifact, jarLocationDescriptor);
+        // add to our index using file name (eg. junit-4.12.jar) 
+        index.addFileLocation(jarFile.getName(), jarLocationDescriptor);
 
         // if we don't want an index of each class found in a jar, bail here and save a lot of work
         if (!doIndexClasses) {

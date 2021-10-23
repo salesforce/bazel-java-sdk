@@ -2,15 +2,10 @@ package com.salesforce.bazel.sdk.workspace.test;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
-import com.salesforce.bazel.sdk.model.BazelLabel;
 import com.salesforce.bazel.sdk.path.FSPathHelper;
+import com.salesforce.bazel.sdk.workspace.test.java.TestJavaPackageFactory;
 
 /**
  * Utility class to generate a Bazel workspace and other artifacts on the filesystem. As of this writing, the workspace
@@ -18,14 +13,13 @@ import com.salesforce.bazel.sdk.path.FSPathHelper;
  * looking for particular files.
  * <p>
  * There is a separate test layer in the command plugin that simulates Bazel command executions.
+ * <p>
+ * Warning: in some contexts our tests run in parallel, so make sure to avoid any static variables in this framework
+ * otherwise you can have tests writing files into the wrong test workspace.
  */
 public class TestBazelWorkspaceFactory {
 
     public TestBazelWorkspaceDescriptor workspaceDescriptor;
-
-    // incremental state; as we build projects we make dependency references to the previous one
-    private String previousJavaLibTarget = null;
-    private String previousAspectFilePath = null;
 
     // CTORS
 
@@ -94,13 +88,14 @@ public class TestBazelWorkspaceFactory {
                 }
             }
 
+            TestJavaPackageFactory javaPackageFactory = new TestJavaPackageFactory();
             for (int i = 0; i < numJavaPackages; i++) {
 
                 // Do the heavy lifting to fully simulate a Java package with source, test source code
                 String packageName = "javalib" + i;
                 File javaPackageDir = new File(libsDir, packageName);
-                createFakeJavaPackage(packageName, libsRelativeBazelPath, javaPackageDir, i, explicitJavaTestDeps,
-                    doCreateJavaImport, doCreateJavaBinary, true);
+                javaPackageFactory.createFakeJavaPackage(workspaceDescriptor, packageName, libsRelativeBazelPath,
+                    javaPackageDir, i, explicitJavaTestDeps, doCreateJavaImport, doCreateJavaBinary, true);
 
                 // simulate a nested workspace to make sure we just ignore it for now (see BEF issue #25)
                 // this nested workspace appears in this java package, because in Bazel nested workspaces
@@ -193,307 +188,6 @@ public class TestBazelWorkspaceFactory {
         return sb.toString();
     }
 
-    // JAVA
-
-    private void createFakeJavaPackage(String packageName, String packageRelativePath, File javaPackageDir, int index,
-            boolean explicitJavaTestDeps, boolean addJavaImport, boolean addJavaBinary, boolean trackState)
-                    throws Exception {
-        String packageRelativeBazelPath = packageRelativePath + "/" + packageName; // $SLASH_OK bazel path
-        String packageRelativeFilePath = FSPathHelper.osSeps(packageRelativeBazelPath);
-        javaPackageDir.mkdir();
-
-        // create the catalog entries
-        TestBazelPackageDescriptor packageDescriptor = new TestBazelPackageDescriptor(workspaceDescriptor,
-            packageRelativeBazelPath, packageName, javaPackageDir, trackState);
-
-        // we will be collecting locations of Aspect json files for this package
-        Set<String> packageAspectFiles = new TreeSet<>();
-
-        // we optionally additional deps to the main java_library, this collects those
-        List<String> extraDeps = new ArrayList<>();
-
-        // create the BUILD file
-        File buildFile = new File(javaPackageDir, workspaceDescriptor.buildFilename);
-        buildFile.createNewFile();
-        TestJavaRuleCreator.createJavaBuildFile(workspaceDescriptor, buildFile, packageDescriptor);
-
-        // java_import
-        if (addJavaImport) {
-            // sometimes developers just stick a .jar file in the source code repo within the package
-            // this is legal, and supported by Bazel with the java_import rule
-            // this creates a local file PKG/libs/liborange.jar
-            // we do this first because this lib will be a dependency to the main source below
-            String packageLibsDirName = "importlibs";
-            File importLibsDir = new File(javaPackageDir, packageLibsDirName);
-            importLibsDir.mkdirs();
-
-            String relativeImportLibsDir =
-                    FSPathHelper.osSeps(packageRelativeFilePath + FSPathHelper.UNIX_SLASH + packageLibsDirName);
-
-            String aspectFilePath_import =
-                    TestAspectFileCreator.createJavaAspectFileForImportLocalJar(workspaceDescriptor.outputBaseDirectory,
-                        packageRelativeBazelPath, relativeImportLibsDir, "orange", "liborange");
-            packageAspectFiles.add(aspectFilePath_import);
-            createFakeImportJars(importLibsDir, "liborange");
-            extraDeps.add(":orange");
-
-            // create an unused java_import (nothing depends on it) to see how that affects the classpath (it shouldn't)
-            aspectFilePath_import =
-                    TestAspectFileCreator.createJavaAspectFileForImportLocalJar(workspaceDescriptor.outputBaseDirectory,
-                        packageRelativeBazelPath, relativeImportLibsDir, "unsed", "libunused");
-            packageAspectFiles.add(aspectFilePath_import);
-            createFakeImportJars(importLibsDir, "libunused");
-        }
-
-        // main source
-        List<String> sourceFiles = new ArrayList<>();
-        String srcMainRoot1 = "src/main";
-        String srcMainRoot2 = "src/main";
-        if (workspaceDescriptor.testOptions.nonStandardJavaLayout_enabled) {
-            srcMainRoot1 = "source/dev";
-            srcMainRoot2 = "source/dev";
-            if (workspaceDescriptor.testOptions.nonStandardJavaLayout_multipledirs) {
-                // not only is the project using non standard layout, it has multiple source directories
-                srcMainRoot2 = "source/dev2";
-            }
-        }
-
-        String srcMainPath1 = FSPathHelper.osSeps(srcMainRoot1 + "/java/com/salesforce/fruit" + index); // $SLASH_OK
-        String srcMainPath2 = FSPathHelper.osSeps(srcMainRoot2 + "/java/com/salesforce/fruit" + index); // $SLASH_OK
-
-        File javaSrcMainDir1 = new File(javaPackageDir, srcMainPath1);
-        File javaSrcMainDir2 = javaSrcMainDir1;
-        javaSrcMainDir1.mkdirs();
-        if (workspaceDescriptor.testOptions.nonStandardJavaLayout_multipledirs) {
-            javaSrcMainDir2 = new File(javaPackageDir, srcMainPath2);
-            javaSrcMainDir2.mkdirs();
-        }
-
-        // Apple.java
-        String classname1 = "Apple" + index;
-        String javaPackageName = "com.salesforce.fruit" + index;
-        File javaFile1 = new File(javaSrcMainDir1, classname1 + ".java");
-        TestJavaFileCreator.createJavaSourceFile(javaFile1, javaPackageName, classname1);
-        System.out.println("Created java file: " + javaFile1.getAbsolutePath());
-        String appleSrc =
-                FSPathHelper.osSeps(packageRelativeBazelPath + "/" + srcMainPath1 + "/" + classname1 + ".java"); // $SLASH_OK
-        sourceFiles.add(appleSrc);
-
-        // Banana.java
-        String classname2 = "Banana" + index;
-        File javaFile2 = new File(javaSrcMainDir2, classname2 + ".java");
-        TestJavaFileCreator.createJavaSourceFile(javaFile2, javaPackageName, classname2);
-        String bananaSrc =
-                FSPathHelper.osSeps(packageRelativeBazelPath + "/" + srcMainPath2 + "/" + classname2 + ".java"); // $SLASH_OK
-        sourceFiles.add(bananaSrc);
-
-        // main resources
-        String srcMainResourcesPath = FSPathHelper.osSeps(srcMainRoot1 + "/resources"); // $SLASH_OK
-        File javaSrcMainResourcesDir = new File(javaPackageDir, srcMainResourcesPath);
-        javaSrcMainResourcesDir.mkdirs();
-        File resourceFile = new File(javaSrcMainResourcesDir, "main.properties");
-        resourceFile.createNewFile();
-
-        // main fruit source java_library aspect
-        if (previousJavaLibTarget != null) {
-            extraDeps.add(previousJavaLibTarget);
-        }
-        String aspectFilePath_mainsource_library = TestAspectFileCreator.createJavaAspectFile(
-            workspaceDescriptor.outputBaseDirectory, packageRelativeBazelPath, packageName, packageName, extraDeps,
-            sourceFiles, true, explicitJavaTestDeps);
-        packageAspectFiles.add(aspectFilePath_mainsource_library);
-
-        // add aspects for maven jars (just picked a couple of typical maven jars to use)
-        JarPathBundle jarPathBundle = createFakeExternalJar(workspaceDescriptor.outputBaseDirectory,
-            FSPathHelper.osSeps("org/slf4j/slf4j-api/1.7.25"), "slf4j-api-1.7.25");
-        String aspectFilePath_slf4j = TestAspectFileCreator.createJavaAspectFileForMavenJar(
-            workspaceDescriptor.outputBaseDirectory, "org_slf4j_slf4j_api", jarPathBundle.jarRelativePath,
-            jarPathBundle.srcJarRelativePath);
-        packageAspectFiles.add(aspectFilePath_slf4j);
-        jarPathBundle = createFakeExternalJar(workspaceDescriptor.outputBaseDirectory,
-            FSPathHelper.osSeps("com/google/guava/guava/20.0"), "guava-20.0");
-        String aspectFilePath_guava = TestAspectFileCreator.createJavaAspectFileForMavenJar(
-            workspaceDescriptor.outputBaseDirectory, "com_google_guava_guava", jarPathBundle.jarRelativePath,
-            jarPathBundle.srcJarRelativePath);
-        packageAspectFiles.add(aspectFilePath_guava);
-
-        // test source
-        List<String> testSourceFiles = new ArrayList<>();
-        String srcTestRoot1 = "src/test";
-        String srcTestRoot2 = "src/test";
-        if (workspaceDescriptor.testOptions.nonStandardJavaLayout_enabled) {
-            srcTestRoot1 = "source/test";
-            srcTestRoot2 = "source/test";
-            if (workspaceDescriptor.testOptions.nonStandardJavaLayout_multipledirs) {
-                // not only is the project using non standard layout, it has multiple source directories
-                srcTestRoot2 = "source/test2";
-            }
-        }
-
-        String srcTestPath1 = FSPathHelper.osSeps(srcTestRoot1 + "/java/com/salesforce/fruit" + index); // $SLASH_OK
-        String srcTestPath2 = FSPathHelper.osSeps(srcTestRoot2 + "/java/com/salesforce/fruit" + index); // $SLASH_OK
-        File javaSrcTestDir1 = new File(javaPackageDir, srcTestPath1);
-        File javaSrcTestDir2 = javaSrcTestDir1;
-        javaSrcTestDir1.mkdirs();
-        if (workspaceDescriptor.testOptions.nonStandardJavaLayout_multipledirs) {
-            javaSrcTestDir2 = new File(javaPackageDir, srcTestPath2);
-            javaSrcTestDir2.mkdirs();
-        }
-
-        String tclassname1 = "Apple" + index + "Test";
-        File javaTestFile1 = new File(javaSrcTestDir1, tclassname1 + ".java");
-        TestJavaFileCreator.createJavaSourceFile(javaTestFile1, javaPackageName, tclassname1);
-        String appleTestSrc =
-                FSPathHelper.osSeps(packageRelativeBazelPath + "/" + srcTestPath1 + "/Apple" + index + "Test.java"); // $SLASH_OK
-        testSourceFiles.add(appleTestSrc);
-
-        String tclassname2 = "Banana" + index + "Test";
-        File javaTestFile2 = new File(javaSrcTestDir2, tclassname2 + ".java");
-        TestJavaFileCreator.createJavaSourceFile(javaTestFile2, javaPackageName, tclassname2);
-        String bananaTestSrc =
-                FSPathHelper.osSeps(packageRelativeBazelPath + "/" + srcTestPath2 + "/Banana" + index + "Test.java"); // $SLASH_OK
-        testSourceFiles.add(bananaTestSrc);
-
-        // test fruit source aspect
-        String aspectFilePath_testsource = TestAspectFileCreator.createJavaAspectFile(
-            workspaceDescriptor.outputBaseDirectory, packageRelativePath + "/" + packageName, packageName, // $SLASH_OK: bazel path
-            packageName, null, testSourceFiles, false, explicitJavaTestDeps);
-        packageAspectFiles.add(aspectFilePath_testsource);
-
-        // test resources
-        String srcTestResourcesPath = FSPathHelper.osSeps(srcTestRoot1 + "/resources"); // $SLASH_OK
-        File javaSrcTestResourcesDir = new File(javaPackageDir, srcTestResourcesPath);
-        javaSrcTestResourcesDir.mkdirs();
-        File testResourceFile = new File(javaSrcTestResourcesDir, "test.properties");
-        testResourceFile.createNewFile();
-
-        // add aspects for test maven jars if we have explicit java test deps mode enabled
-        if (explicitJavaTestDeps) {
-            jarPathBundle =
-                    createFakeExternalJar(workspaceDescriptor.outputBaseDirectory,
-                        FSPathHelper.osSeps("junit/junit/4.12"), "junit-4.12");
-            String aspectFilePath_junit = TestAspectFileCreator.createJavaAspectFileForMavenJar(
-                workspaceDescriptor.outputBaseDirectory, "junit_junit", jarPathBundle.jarRelativePath,
-                jarPathBundle.srcJarRelativePath);
-            packageAspectFiles.add(aspectFilePath_junit);
-
-            jarPathBundle = createFakeExternalJar(workspaceDescriptor.outputBaseDirectory,
-                FSPathHelper.osSeps("org/hamcrest/hamcrest-core/1.3"),
-                    "hamcrest-core-1.3");
-            String aspectFilePath_hamcrest = TestAspectFileCreator.createJavaAspectFileForMavenJar(
-                workspaceDescriptor.outputBaseDirectory, "org_hamcrest_hamcrest_core", jarPathBundle.jarRelativePath,
-                jarPathBundle.srcJarRelativePath);
-            packageAspectFiles.add(aspectFilePath_hamcrest);
-        }
-
-        // java_binary
-        if (addJavaBinary) {
-            File binaryDir = new File(workspaceDescriptor.dirBazelBin, FSPathHelper.osSeps(packageRelativeBazelPath));
-            binaryDir.mkdirs();
-            String binaryFilename = TestOptions.JAVA_BINARY_TARGET_NAME;
-            if (!FSPathHelper.isUnix) {
-                binaryFilename = TestOptions.JAVA_BINARY_TARGET_NAME + ".exe";
-            }
-            File javaBinaryFile = new File(binaryDir, binaryFilename);
-            javaBinaryFile.createNewFile();
-            System.out.println("Created fake java_binary file: " + javaBinaryFile.getCanonicalPath());
-        }
-
-        // write fake jar files to the filesystem for this project
-        createFakeProjectJars(packageRelativeFilePath, packageName);
-
-        // preserve created data for the package in the descriptor
-        workspaceDescriptor.aspectFileSets.put(packageRelativeBazelPath, packageAspectFiles);
-        workspaceDescriptor.createdMainSourceFilesForPackages.put(packageRelativeBazelPath, sourceFiles);
-        workspaceDescriptor.createdTestSourceFilesForPackages.put(packageRelativeBazelPath, testSourceFiles);
-
-        if (trackState) {
-            // we chain the libs together to test inter project deps
-            // we normally want to keep track of all the packages we have created, but in some test cases
-            // we create Java packages that we don't expect to import (e.g. in a nested workspace that isn't
-            // imported) in such cases trackState will be false
-
-            // add the previous aspect file (I think this is unnecessary)
-            if (previousAspectFilePath != null) {
-                packageAspectFiles.add(previousAspectFilePath);
-            }
-            // now save off our current lib target to add to the next
-            previousJavaLibTarget = packageRelativeBazelPath + BazelLabel.BAZEL_COLON + packageName;
-            previousAspectFilePath = aspectFilePath_mainsource_library;
-        }
-    }
-
-    private JarPathBundle createFakeExternalJar(File dirOutputBase, String folderPath, String jarname)
-            throws IOException {
-        JarPathBundle jarBundle = new JarPathBundle();
-        jarBundle.jarFileName = jarname + ".jar";
-
-        // create the relative dir path from output base
-        String maveninstallPath = FSPathHelper.osSeps("external/maven/v1/https/repo1.maven.org/maven2/");
-        File jarDir = new File(dirOutputBase, maveninstallPath + folderPath);
-        jarDir.mkdirs();
-
-        // create the jar
-        jarBundle.jarRelativePath = FSPathHelper.osSeps(maveninstallPath + folderPath + "/" + jarBundle.jarFileName); // $SLASH_OK
-        File fakeJar = new File(dirOutputBase, jarBundle.jarRelativePath);
-        fakeJar.createNewFile();
-        jarBundle.jarAbsolutePath = fakeJar.getAbsolutePath();
-        System.out.println("Created fake jar file: " + fakeJar.getCanonicalPath());
-
-        // create the source jar
-        jarBundle.srcJarRelativePath =
-                FSPathHelper.osSeps(maveninstallPath + folderPath + "/" + jarname + "-sources.jar"); // $SLASH_OK
-        File fakeSourceJar = new File(dirOutputBase, jarBundle.srcJarRelativePath);
-        fakeSourceJar.createNewFile();
-        jarBundle.srcJarAbsolutePath = fakeSourceJar.getAbsolutePath();
-
-        return jarBundle;
-    }
-
-    private void createFakeImportJars(File libDir, String jarname) throws IOException {
-        File fakeJar = new File(libDir, jarname + ".jar");
-        fakeJar.createNewFile();
-        System.out.println("Created fake import jar file: " + fakeJar.getCanonicalPath());
-        fakeJar = new File(libDir, jarname + "-src.jar");
-        fakeJar.createNewFile();
-    }
-
-    private JarPathBundle createFakeProjectJars(String packageRelativePath, String packageName) throws IOException {
-        File packageBinDir = new File(workspaceDescriptor.dirBazelBin, packageRelativePath);
-        packageBinDir.mkdirs(); // execroot/bazel_demo_simplejava_mvninstall/bazel-out/darwin-fastbuild/bin/projects/services/fruit-salad-service/fruit-salad
-        JarPathBundle jarBundle = new JarPathBundle();
-
-        jarBundle.jarFileName = "lib" + packageName + ".jar";
-        File fakeJar = new File(packageBinDir, jarBundle.jarFileName);
-        jarBundle.jarRelativePath =
-                FSPathHelper.osSeps(packageRelativePath + FSPathHelper.UNIX_SLASH + jarBundle.jarFileName);
-        fakeJar.createNewFile();
-        jarBundle.jarAbsolutePath = fakeJar.getAbsolutePath();
-        System.out.println("Created fake jar file: " + fakeJar.getCanonicalPath());
-
-        String interfacejar = "lib" + packageName + "-hjar.jar";
-        fakeJar = new File(packageBinDir, interfacejar);
-        fakeJar.createNewFile();
-        jarBundle.interfaceJarAbsolutePath = fakeJar.getAbsolutePath();
-
-        String sourcejar = "lib" + packageName + "-src.jar";
-        fakeJar = new File(packageBinDir, sourcejar);
-        jarBundle.srcJarRelativePath = FSPathHelper.osSeps(packageRelativePath + FSPathHelper.UNIX_SLASH + sourcejar);
-        fakeJar.createNewFile();
-        jarBundle.srcJarAbsolutePath = fakeJar.getAbsolutePath();
-
-        String testjar = "lib" + packageName + "-test.jar";
-        fakeJar = new File(packageBinDir, testjar);
-        fakeJar.createNewFile();
-        jarBundle.testJarAbsolutePath = fakeJar.getAbsolutePath();
-
-        String testsourcejar = "lib" + packageName + "-test-src.jar";
-        fakeJar = new File(packageBinDir, testsourcejar);
-        fakeJar.createNewFile();
-        jarBundle.srcTestJarAbsolutePath = fakeJar.getAbsolutePath();
-
-        return jarBundle;
-    }
 
     /**
      * Creates a nested workspace with a Java packages in it.
@@ -512,23 +206,9 @@ public class TestBazelWorkspaceFactory {
         File nestedLibDir = new File(nestedWorkspaceDir, packageRelativePath);
         nestedLibDir.mkdir();
         File nestedJavaPackage = new File(nestedLibDir, packageName);
-        createFakeJavaPackage(packageName, packageRelativePath, nestedJavaPackage, 99, explicitJavaTestDeps,
-            addJavaImport, false, false);
-    }
 
-    @SuppressWarnings("unused")
-    private static class JarPathBundle {
-        public String jarFileName; // slf4j-api-1.7.25.jar or libapple.jar
-
-        public String jarAbsolutePath;
-        public String jarRelativePath; // execroot/bazel_demo_simplejava_mvninstall/bazel-out/darwin-fastbuild/bin/projects/services/fruit-salad-service/fruit-salad/fruit-salad.jar
-
-        public String srcJarAbsolutePath;
-        public String srcJarRelativePath; // execroot/bazel_demo_simplejava_mvninstall/bazel-out/darwin-fastbuild/bin/projects/services/fruit-salad-service/fruit-salad/fruit-salad-src.jar
-
-        // for workspace built jars, Bazel will generate these extra jars
-        public String interfaceJarAbsolutePath; // libapple-hjar.jar
-        public String testJarAbsolutePath; // apple-test.jar
-        public String srcTestJarAbsolutePath; // apple-test-src.jar
+        TestJavaPackageFactory javaPackageFactory = new TestJavaPackageFactory();
+        javaPackageFactory.createFakeJavaPackage(workspaceDescriptor, packageName, packageRelativePath,
+            nestedJavaPackage, 99, explicitJavaTestDeps, addJavaImport, false, false);
     }
 }

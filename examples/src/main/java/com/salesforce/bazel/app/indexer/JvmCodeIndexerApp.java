@@ -57,7 +57,7 @@ import com.salesforce.bazel.sdk.path.FSPathHelper;
  * <p>
  * Maven repository location on file system: /home/mbenioff/.m2/repository
  * <p>
- * java -jar examples.jar com.salesforce.bazel.app.indexer.JvmCodeIndexerApp /home/mbenioff/.m2/repository
+ * java -jar ./bazel-bin/examples/JvmCodeIndexerApp_deploy.jar /home/mbenioff/.m2/repository
  */
 public class JvmCodeIndexerApp {
     protected String sourceRoot;
