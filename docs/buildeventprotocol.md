@@ -49,6 +49,49 @@ The basic flow that is typical for a tool:
   - if not found, sleep
   - if found, analyze the events in the file
 
+This pattern is implemented for you in the SDK.
+You just need to implement an event subscriber that will act on received events.
+See the *Sample Code* below for details.
+
+## Sample Code
+
+This is an excerpt from the *SubscriberExample* found in the [examples](../examples) directory.
+The first part requires that you setup a stream and provide the subscriber:
+
+```java
+
+bepStream = ... // see the Subscriber example for this part
+
+// subscribe to all events with this form:
+bepStream.subscribe(exampleSubscriber);
+
+// start polling for changes to the BEP files; any new event that is added to the file
+// will be sent to the subscriber(s) you added to the stream above
+bepStream.activateStream();
+```
+
+and then the subscriber can act on each event:
+
+```java
+public void onEvent(BEPEvent event) {
+    // This example acts on TEST RESULT events
+    if (BEPTestResultEvent.NAME.equals(event.getEventType())) {
+        BEPTestResultEvent testResult = (BEPTestResultEvent) event;
+        Map<String, BEPFileUri> outputs = testResult.getActionOutputs();
+        for (String name : outputs.keySet()) {
+            // find the plain-text test.log file
+            if (name.endsWith(".log")) {
+                BEPFileUri fileUri = outputs.get(name);
+                List<String> lines = fileUri.loadLines(beginRegex, endRegex, ignoreBlankLines);
+                // print the log lines from the testResult event
+                for (String line : lines) {
+                    System.out.println("  > " + line);
+                }
+            }
+        }
+    }
+}
+```
 
 ## Event Type Catalog
 
@@ -316,7 +359,8 @@ code interacts with the value.
          }
       ]
    }
-}```
+}
+```
 
 ### TYPE: TARGET COMPLETED
 
