@@ -43,7 +43,6 @@ import com.salesforce.bazel.sdk.model.BazelLabel;
 import com.salesforce.bazel.sdk.model.BazelTargetKind;
 import com.salesforce.bazel.sdk.path.FSPathHelper;
 import com.salesforce.bazel.sdk.workspace.test.TestBazelWorkspaceDescriptor;
-import com.salesforce.bazel.sdk.workspace.test.TestBazelWorkspaceFactory;
 import com.salesforce.bazel.sdk.workspace.test.TestOptions;
 
 public class BazelLauncherBuilderTest {
@@ -65,7 +64,7 @@ public class BazelLauncherBuilderTest {
 
         addBazelCommandOutput(env, 0,
             FSPathHelper.osSeps(".*bin/projects/libs/javalib0/" + TestOptions.JAVA_BINARY_TARGET_NAME + ".*"), // $SLASH_OK
-            "fake bazel launcher script result");
+                "fake bazel launcher script result");
 
         Command command = launcherBuilder.build();
         BazelProcessBuilder processBuilder = command.getProcessBuilder();
@@ -91,7 +90,7 @@ public class BazelLauncherBuilderTest {
 
         addBazelCommandOutput(env, 0,
             FSPathHelper.osSeps(".*bin/projects/libs/javalib0/" + TestOptions.JAVA_BINARY_TARGET_NAME + ".*"), // $SLASH_OK
-            "fake bazel launcher script result");
+                "fake bazel launcher script result");
 
         List<String> cmdTokens = launcherBuilder.build().getProcessBuilder().command();
 
@@ -200,13 +199,12 @@ public class BazelLauncherBuilderTest {
         File outputbaseDir = new File(testDir, "obase" + key);
         outputbaseDir.mkdirs();
 
-        TestOptions testOptions = new TestOptions().numberOfJavaPackages(3).addJavaBinaryRule(true);
-
-        TestBazelWorkspaceDescriptor descriptor =
-                new TestBazelWorkspaceDescriptor(workspaceDir, outputbaseDir).testOptions(testOptions);
-        TestBazelWorkspaceFactory workspace = new TestBazelWorkspaceFactory(descriptor).build();
+        TestBazelWorkspaceDescriptor descriptor = new TestBazelWorkspaceDescriptor(workspaceDir, outputbaseDir);
+        descriptor.testOptions.numberOfJavaPackages(3).addJavaBinaryRule(true);
         TestBazelCommandEnvironmentFactory env = new TestBazelCommandEnvironmentFactory();
-        env.createTestEnvironment(workspace, testDir, testOptions);
+
+        descriptor.testOptions.bazelWorkspaceCreator.build(descriptor);
+        env.createTestEnvironment(testDir, descriptor.testOptions, false);
 
         return env;
     }

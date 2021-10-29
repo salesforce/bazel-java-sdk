@@ -36,8 +36,6 @@ import org.junit.rules.TemporaryFolder;
 import com.salesforce.bazel.sdk.command.test.MockWorkProgressMonitor;
 import com.salesforce.bazel.sdk.command.test.TestBazelCommandEnvironmentFactory;
 import com.salesforce.bazel.sdk.workspace.test.TestBazelWorkspaceDescriptor;
-import com.salesforce.bazel.sdk.workspace.test.TestBazelWorkspaceFactory;
-import com.salesforce.bazel.sdk.workspace.test.TestOptions;
 
 public class BazelCommandExecutorTest {
     @Rule
@@ -117,12 +115,12 @@ public class BazelCommandExecutorTest {
         File outputbaseDir = new File(testDir, "obase-" + key);
         outputbaseDir.mkdirs();
 
-        TestOptions testOptions = new TestOptions().numberOfJavaPackages(1);
-
         TestBazelWorkspaceDescriptor descriptor = new TestBazelWorkspaceDescriptor(workspaceDir, outputbaseDir);
-        TestBazelWorkspaceFactory workspace = new TestBazelWorkspaceFactory(descriptor).build();
+        descriptor.testOptions.numberOfJavaPackages(1);
         TestBazelCommandEnvironmentFactory env = new TestBazelCommandEnvironmentFactory();
-        env.createTestEnvironment(workspace, testDir, testOptions);
+
+        descriptor.testOptions.bazelWorkspaceCreator.build(descriptor);
+        env.createTestEnvironment(testDir, descriptor.testOptions, false);
 
         return env;
     }

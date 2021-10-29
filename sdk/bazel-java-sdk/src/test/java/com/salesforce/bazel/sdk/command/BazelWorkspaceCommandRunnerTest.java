@@ -39,7 +39,6 @@ import com.salesforce.bazel.sdk.command.test.MockWorkProgressMonitor;
 import com.salesforce.bazel.sdk.command.test.TestBazelCommandEnvironmentFactory;
 import com.salesforce.bazel.sdk.model.BazelLabel;
 import com.salesforce.bazel.sdk.workspace.test.TestBazelWorkspaceDescriptor;
-import com.salesforce.bazel.sdk.workspace.test.TestBazelWorkspaceFactory;
 import com.salesforce.bazel.sdk.workspace.test.TestOptions;
 
 public class BazelWorkspaceCommandRunnerTest {
@@ -54,7 +53,7 @@ public class BazelWorkspaceCommandRunnerTest {
     public void testGlobalRunner_bazelpath() throws Exception {
         TestBazelCommandEnvironmentFactory env = new TestBazelCommandEnvironmentFactory();
         TestOptions testOptions = new TestOptions().uniqueKey("bpath");
-        env.createTestEnvironment(tmpFolder.newFolder(), testOptions);
+        env.createEmptyTestEnvironment(tmpFolder.newFolder(), testOptions);
 
         // verify that the command runner has the Bazel exec path
         assertEquals(env.bazelExecutable.getAbsolutePath(), BazelWorkspaceCommandRunner.getBazelExecutablePath());
@@ -64,7 +63,7 @@ public class BazelWorkspaceCommandRunnerTest {
     public void testGlobalRunner_checkBazelVersion() throws Exception {
         TestBazelCommandEnvironmentFactory env = new TestBazelCommandEnvironmentFactory();
         TestOptions testOptions = new TestOptions().uniqueKey("bver");
-        env.createTestEnvironment(tmpFolder.newFolder(), testOptions);
+        env.createEmptyTestEnvironment(tmpFolder.newFolder(), testOptions);
 
         // run our version check, will throw if version is not approved
         // during tests, the Bazel command is simulated by MockVersionCommand
@@ -79,7 +78,7 @@ public class BazelWorkspaceCommandRunnerTest {
         testOptions.bazelVersion = "0.9.0";
 
         TestBazelCommandEnvironmentFactory env = new TestBazelCommandEnvironmentFactory();
-        env.createTestEnvironment(tmpFolder.newFolder(), testOptions);
+        env.createEmptyTestEnvironment(tmpFolder.newFolder(), testOptions);
 
         // run our version check, will throw if version is not approved
         // during tests, the Bazel command is simulated by MockVersionCommand
@@ -99,14 +98,13 @@ public class BazelWorkspaceCommandRunnerTest {
         File outputbaseDir = new File(testDir, "obase-wsetup");
         outputbaseDir.mkdirs();
 
-        TestOptions testOptions = new TestOptions().numberOfJavaPackages(3);
-
         // setup a test workspace on disk, this will write out WORKSPACE, BUILD and aspect files
-        TestBazelWorkspaceDescriptor descriptor =
-                new TestBazelWorkspaceDescriptor(workspaceDir, outputbaseDir).testOptions(testOptions);
-        TestBazelWorkspaceFactory workspace = new TestBazelWorkspaceFactory(descriptor).build();
+        TestBazelWorkspaceDescriptor descriptor = new TestBazelWorkspaceDescriptor(workspaceDir, outputbaseDir);
+        descriptor.testOptions.numberOfJavaPackages(3);
         TestBazelCommandEnvironmentFactory env = new TestBazelCommandEnvironmentFactory();
-        env.createTestEnvironment(workspace, testDir, testOptions);
+
+        descriptor.testOptions.bazelWorkspaceCreator.build(descriptor);
+        env.createTestEnvironment(testDir, descriptor.testOptions, false);
 
         // get the command runner associated with our test workspace on disk
         BazelWorkspaceCommandRunner workspaceRunner = env.bazelWorkspaceCommandRunner;

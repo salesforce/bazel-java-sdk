@@ -35,7 +35,6 @@ import org.junit.rules.TemporaryFolder;
 import com.salesforce.bazel.sdk.init.JvmRuleInit;
 import com.salesforce.bazel.sdk.model.BazelPackageInfo;
 import com.salesforce.bazel.sdk.workspace.test.TestBazelWorkspaceDescriptor;
-import com.salesforce.bazel.sdk.workspace.test.TestBazelWorkspaceFactory;
 import com.salesforce.bazel.sdk.workspace.test.TestOptions;
 
 /**
@@ -59,12 +58,10 @@ public class BazelWorkspaceScannerTest {
         //        File tmpWorkspaceDir = new File("/tmp/bazeltest/ws"); // $SLASH_OK sample code
         //        File tmpOutputBase = new File("/tmp/bazeltest/bin"); // $SLASH_OK sample code
 
-        TestOptions testOptions = new TestOptions().numberOfJavaPackages(5).numberGenrulePackages(2);
-
         TestBazelWorkspaceDescriptor descriptor =
-                new TestBazelWorkspaceDescriptor(tmpWorkspaceDir, tmpOutputBase).testOptions(testOptions);
-
-        new TestBazelWorkspaceFactory(descriptor).build();
+                new TestBazelWorkspaceDescriptor(tmpWorkspaceDir, tmpOutputBase);
+        descriptor.testOptions.numberOfJavaPackages(5).numberGenrulePackages(2);
+        descriptor.testOptions.bazelWorkspaceCreator.build(descriptor);
 
         BazelWorkspaceScanner scanner = new BazelWorkspaceScanner();
         BazelPackageInfo rootWorkspacePackage = scanner.getPackages(tmpWorkspaceDir, null);
@@ -91,7 +88,7 @@ public class BazelWorkspaceScannerTest {
 
         TestBazelWorkspaceDescriptor descriptor =
                 new TestBazelWorkspaceDescriptor(tmpWorkspaceDir, tmpOutputBase).testOptions(testOptions);
-        new TestBazelWorkspaceFactory(descriptor).build();
+        testOptions.bazelWorkspaceCreator.build(descriptor);
 
         BazelWorkspaceScanner scanner = new BazelWorkspaceScanner();
         BazelPackageInfo rootWorkspacePackage = scanner.getPackages(tmpWorkspaceDir, null);

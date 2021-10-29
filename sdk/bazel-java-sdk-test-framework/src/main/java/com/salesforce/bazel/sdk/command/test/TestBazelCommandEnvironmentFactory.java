@@ -32,7 +32,6 @@ import com.salesforce.bazel.sdk.command.BazelWorkspaceCommandRunner;
 import com.salesforce.bazel.sdk.model.BazelWorkspace;
 import com.salesforce.bazel.sdk.workspace.OperatingEnvironmentDetectionStrategy;
 import com.salesforce.bazel.sdk.workspace.test.TestBazelWorkspaceDescriptor;
-import com.salesforce.bazel.sdk.workspace.test.TestBazelWorkspaceFactory;
 import com.salesforce.bazel.sdk.workspace.test.TestOptions;
 
 /**
@@ -41,7 +40,6 @@ import com.salesforce.bazel.sdk.workspace.test.TestOptions;
  * replaces the real Bazel executable with command simulations.
  */
 public class TestBazelCommandEnvironmentFactory {
-    public TestBazelWorkspaceFactory testWorkspace;
     public BazelWorkspaceCommandRunner globalCommandRunner;
     public BazelWorkspaceCommandRunner bazelWorkspaceCommandRunner;
 
@@ -52,9 +50,9 @@ public class TestBazelCommandEnvironmentFactory {
 
     /**
      * Basic testing environment for the command layer. It creates a simple Bazel workspace on the filesystem with no
-     * Java/generic packages. This is only useful for very basic tests that don't need a Bazel workspace.
+     * packages. This is only useful for very basic tests that don't need a Bazel workspace.
      */
-    public void createTestEnvironment(File tempDir, TestOptions testOptions) throws Exception {
+    public void createEmptyTestEnvironment(File tempDir, TestOptions testOptions) throws Exception {
         // the name of the directory that contains the bazel workspace is significant, as the Eclipse feature
         // will use it in the name of the Eclipse project
         File workspaceDir = new File(tempDir, "bazel-ws-" + testOptions.uniqueKey);
@@ -64,17 +62,16 @@ public class TestBazelCommandEnvironmentFactory {
 
         TestBazelWorkspaceDescriptor descriptor =
                 new TestBazelWorkspaceDescriptor(workspaceDir, outputBase, "bazel_command_executor_test");
-        TestBazelWorkspaceFactory testWorkspace = new TestBazelWorkspaceFactory(descriptor);
-        testWorkspace.build();
-        createTestEnvironment(testWorkspace, tempDir, testOptions);
+        descriptor.testOptions(testOptions);
+        testOptions.bazelWorkspaceCreator.build(descriptor);
+        createTestEnvironment(tempDir, testOptions, false);
     }
 
     /**
      * Creates a testing environment based on a test workspace passed in from the caller. If you are testing commands in
      * the context of actual Bazel packages (e.g. Java) this is the form to use.
      */
-    public void createTestEnvironment(TestBazelWorkspaceFactory testWorkspace, File tempDir, TestOptions testOptions) {
-        this.testWorkspace = testWorkspace;
+    public void createTestEnvironment(File tempDir, TestOptions testOptions, boolean flag) {
 
         File execDir = new File(tempDir, "executable");
         execDir.mkdir();
@@ -86,15 +83,16 @@ public class TestBazelCommandEnvironmentFactory {
 
         bazelAspectLocation = new MockBazelAspectLocation(tempDir, "test-aspect-label");
         commandConsole = new MockCommandConsole();
-        commandBuilder = new MockCommandBuilder(commandConsole, testWorkspace, testOptions);
+        commandBuilder = new MockCommandBuilder(commandConsole, testOptions.bazelWorkspaceCreator, testOptions);
 
         BazelCommandManager bazelCommandManager = new BazelCommandManager(bazelAspectLocation, commandBuilder,
-                commandConsole, bazelExecutable.bazelExecutableFile);
+            commandConsole, bazelExecutable.bazelExecutableFile);
         bazelCommandManager.setBazelExecutablePath(bazelExecutable.bazelExecutableFile.getAbsolutePath());
 
         OperatingEnvironmentDetectionStrategy osStrategy = Mockito.mock(OperatingEnvironmentDetectionStrategy.class);
         BazelWorkspace bazelWorkspace =
-                new BazelWorkspace("test", testWorkspace.workspaceDescriptor.workspaceRootDirectory, osStrategy);
+                new BazelWorkspace("test", testOptions.bazelWorkspaceCreator.workspaceDescriptor.workspaceRootDirectory,
+                    osStrategy);
         BazelWorkspaceCommandRunner commandRunner = bazelCommandManager.getWorkspaceCommandRunner(bazelWorkspace);
         bazelWorkspace.setBazelWorkspaceMetadataStrategy(commandRunner);
         bazelWorkspace.setBazelWorkspaceCommandRunner(commandRunner);

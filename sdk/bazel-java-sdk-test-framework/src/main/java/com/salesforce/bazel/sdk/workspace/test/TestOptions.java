@@ -36,6 +36,14 @@ import java.util.HashMap;
 public class TestOptions extends HashMap<String, String> {
     private static final long serialVersionUID = 1L;
 
+    // WORKSPACE FACTORY
+    // The factory for creating the test Bazel workspace. For more elaborate test cases, you may wish to
+    // subclass the default factory and override one or more construction methods. See the factory class
+    // for more details.
+
+    public TestBazelWorkspaceFactory bazelWorkspaceCreator = new TestBazelWorkspaceFactory();
+
+
     // COMMON OPTIONS
 
     // short string to be used as a unique identifier (for unique temp folder names, etc)
