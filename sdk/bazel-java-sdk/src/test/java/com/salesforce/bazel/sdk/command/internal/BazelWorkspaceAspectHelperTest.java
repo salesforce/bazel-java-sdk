@@ -41,6 +41,8 @@ import com.salesforce.bazel.sdk.aspect.AspectTargetInfo;
 import com.salesforce.bazel.sdk.command.test.TestBazelCommandEnvironmentFactory;
 import com.salesforce.bazel.sdk.model.BazelLabel;
 import com.salesforce.bazel.sdk.workspace.test.TestBazelWorkspaceDescriptor;
+import com.salesforce.bazel.sdk.workspace.test.TestBazelWorkspaceFactory;
+import com.salesforce.bazel.sdk.workspace.test.TestOptions;
 
 /**
  * Tests various behaviors of the BazelWorkspaceAspectHelper collaborator.
@@ -162,12 +164,15 @@ public class BazelWorkspaceAspectHelperTest {
         File outputbaseDir = new File(testDir, "obase-" + testKey);
         outputbaseDir.mkdirs();
 
-        TestBazelWorkspaceDescriptor descriptor = new TestBazelWorkspaceDescriptor(workspaceDir, outputbaseDir);
-        descriptor.testOptions.numberOfJavaPackages(1);
+        TestOptions testOptions = new TestOptions().numberOfJavaPackages(1);
+
+        TestBazelWorkspaceDescriptor descriptor =
+                new TestBazelWorkspaceDescriptor(workspaceDir, outputbaseDir).testOptions(testOptions);
+        TestBazelWorkspaceFactory workspace = new TestBazelWorkspaceFactory(descriptor);
         TestBazelCommandEnvironmentFactory env = new TestBazelCommandEnvironmentFactory();
 
-        descriptor.testOptions.bazelWorkspaceCreator.build(descriptor);
-        env.createTestEnvironment(testDir, descriptor.testOptions, false);
+        workspace.build();
+        env.createTestEnvironment(workspace, testDir, testOptions);
 
         return env;
     }

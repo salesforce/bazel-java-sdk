@@ -43,6 +43,7 @@ import com.salesforce.bazel.sdk.model.BazelLabel;
 import com.salesforce.bazel.sdk.model.BazelTargetKind;
 import com.salesforce.bazel.sdk.path.FSPathHelper;
 import com.salesforce.bazel.sdk.workspace.test.TestBazelWorkspaceDescriptor;
+import com.salesforce.bazel.sdk.workspace.test.TestBazelWorkspaceFactory;
 import com.salesforce.bazel.sdk.workspace.test.TestOptions;
 
 public class BazelLauncherBuilderTest {
@@ -199,12 +200,15 @@ public class BazelLauncherBuilderTest {
         File outputbaseDir = new File(testDir, "obase" + key);
         outputbaseDir.mkdirs();
 
-        TestBazelWorkspaceDescriptor descriptor = new TestBazelWorkspaceDescriptor(workspaceDir, outputbaseDir);
-        descriptor.testOptions.numberOfJavaPackages(3).addJavaBinaryRule(true);
+        TestOptions testOptions = new TestOptions().numberOfJavaPackages(3).addJavaBinaryRule(true);
+
+        TestBazelWorkspaceDescriptor descriptor =
+                new TestBazelWorkspaceDescriptor(workspaceDir, outputbaseDir).testOptions(testOptions);
+        TestBazelWorkspaceFactory workspace = new TestBazelWorkspaceFactory(descriptor);
         TestBazelCommandEnvironmentFactory env = new TestBazelCommandEnvironmentFactory();
 
-        descriptor.testOptions.bazelWorkspaceCreator.build(descriptor);
-        env.createTestEnvironment(testDir, descriptor.testOptions, false);
+        workspace.build();
+        env.createTestEnvironment(workspace, testDir, testOptions);
 
         return env;
     }
