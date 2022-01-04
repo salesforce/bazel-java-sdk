@@ -57,25 +57,23 @@ public class TestBazelWorkspaceFactory {
     /**
      * Constructor
      *
+     * @param descriptor
+     *            the model by which the workspace will be built
      */
-    public TestBazelWorkspaceFactory() {
+    public TestBazelWorkspaceFactory(TestBazelWorkspaceDescriptor descriptor) {
+        workspaceDescriptor = descriptor;
     }
 
     /**
-     * Builds the test workspace on disk using the descriptor provided. It is expected that this method only be called
-     * once.
+     * Builds the test workspace on disk using the descriptor provided in the constructor.
      * <p>
      * If you need to create a test workspace with unique features, subclassing this class and swapping out the
      * implementation of one or more of the methods below will be the right solution.
      * <p>
      * Information from the build will be written back into the descriptor. Major errors will throw a RuntimeException
      * and expect the test to fail.
-     *
-     * @param descriptor
-     *            the model by which the workspace will be built
      */
-    public void build(TestBazelWorkspaceDescriptor descriptor) throws Exception {
-        workspaceDescriptor = descriptor;
+    public void build() throws Exception {
 
         // Create the outputbase structure
         createOutputBaseStructure();
