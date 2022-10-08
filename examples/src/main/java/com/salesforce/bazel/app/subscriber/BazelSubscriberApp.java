@@ -16,43 +16,40 @@ import com.salesforce.bazel.sdk.path.FSPathHelper;
  * Because this app integrates with Bazel using BEP, this app will work with command line builds but also with IDE
  * builds.
  * <p>
- * <b>NOTE:</b> This app requires a configuration change to your Bazel workspace: you must add the following lines to
- * your .bazelrc file to enable BEP:<br/>
+ * <b>NOTE:</b> This app requires a configuration change to your Bazel workspace.
+ * To be clear, this change is made to the workspace you want to subscribe to, not the
+ * bazel-java-sdk workspace.
+ * You must add the following lines to your .bazelrc file to enable BEP:<br/>
  * build --build_event_json_file bep_build.json<br/>
  * test --build_event_json_file bep_test.json<br/>
  * <p>
  * The listener for the events simply prints out each event, but this can be easily customized for other use cases. See
  * ExampleBazelEventSubscriber.java
  * <p>
- * Build:
+ * Build this app:
  * <p>
  * bazel build //examples:BazelSubscriberApp_deploy.jar
  * <p>
  * Usage:
  * <ul>
- * <li>Build: bazel build //examples:BazelSubscriberApp_deploy.jar</li>
- * <li>Args: java -jar bazel-bin/examples/BazelSubscriberApp_deploy.jar [path to Bazel workspace dir to analyze]</li>
- * <li>Example: java -jar bazel-bin/examples/BazelSubscriberApp_deploy.jar /home/mbenioff/dev/my-bazel-ws
+ * <li>Update your Bazel workspace .bazelrc to generate the json files, as described above.</li>
+ * <li>Build this app: bazel build //examples:BazelSubscriberApp_deploy.jar</li>
+ * <li>Usage: java -jar bazel-bin/examples/BazelSubscriberApp_deploy.jar [path to BEP file that is written to by your build]</li>
+ * <li>Example: java -jar bazel-bin/examples/BazelSubscriberApp_deploy.jar /home/mbenioff/dev/my-bazel-ws/bep_build.json</li>
+ * <li>Run your build (e.g. bazel build //...) in the workspace that is writing to the BEP file</li>
+ * <li>Console will write each event published by the build</li>
  * </ul>
  */
 public class BazelSubscriberApp {
 
-    public static final String buildBEPFilename = "bep_build.json";
-    public static final String testBEPFilename = "bep_test.json";
-
-    private static String bazelWorkspacePath;
-    private static File bazelWorkspaceDir;
+    private static File bepFile;
 
     public static void main(String[] args) {
         setup(args);
 
-        // the files that Bazel writes BEP events to
-        //File buildBEPFile = new File(bazelWorkspaceDir, buildBEPFilename);
-        File testBEPFile = new File(bazelWorkspaceDir, testBEPFilename);
-
         // BazelBuildEventsPollingFileStream will monitor the files that you add for updates, and reparse them
         // when they change. If you just want a single pass of an existing file, the BazelBuildEventsFileStream
-        // is what you want.        
+        // is what you want.
         //   parseOnStart tells the streamer to parse the contents of the file(s) at startup, which may not be what you
         //   want because the user may have last run their build a week ago so the events are stale, but for this
         //   demo it makes sense
@@ -61,7 +58,7 @@ public class BazelSubscriberApp {
 
         // add one or both of the BEP files to be monitored by the poller
         //bepStream.addFileToMonitor(buildBEPFile, parseOnStart);
-        bepStream.addFileToMonitor(testBEPFile, parseOnStart);
+        bepStream.addFileToMonitor(bepFile, parseOnStart);
 
         // implement your subscriber how you like it
         BazelBuildEventSubscriber exampleSubscriber = new ExampleBazelEventSubscriber();
@@ -87,20 +84,16 @@ public class BazelSubscriberApp {
         // parse args
         if (args.length < 1) {
             throw new IllegalArgumentException(
-                    "Usage: java -jar BazelBuildApp_deploy.jar [Bazel workspace absolute path]");
+                    "Usage: java -jar BazelBuildApp_deploy.jar [BEP file path]");
         }
 
-        bazelWorkspacePath = args[0];
-        bazelWorkspaceDir = new File(bazelWorkspacePath);
-        bazelWorkspaceDir = FSPathHelper.getCanonicalFileSafely(bazelWorkspaceDir);
+        String bepFilename = args[0];
+        bepFile = new File(bepFilename);
+        bepFile = FSPathHelper.getCanonicalFileSafely(bepFile);
 
-        if (!bazelWorkspaceDir.exists()) {
+        if (!bepFile.exists()) {
             throw new IllegalArgumentException(
-                    "Bazel workspace directory does not exist. Usage: java -jar BazelBuildApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
-        }
-        if (!bazelWorkspaceDir.isDirectory()) {
-            throw new IllegalArgumentException(
-                    "Bazel workspace directory does not exist. Usage: java -jar BazelBuildApp_deploy.jar [Bazel executable path] [Bazel workspace absolute path]");
+                    "Bazel workspace directory does not exist. Usage: java -jar BazelBuildApp_deploy.jar [BEP file path]");
         }
 
         // setup options
