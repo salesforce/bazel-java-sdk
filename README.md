@@ -126,6 +126,15 @@ Because this SDK will be consumed by larger projects, we do not want to bring an
   the dependency tree.
 You will not find libraries such Guava or Spring used by this SDK for this reason.
 
+#### JDK Runtime Support is Lagging
+
+Build engineering is often underfunded within companies.
+Toolsets, once built, are commonly unfunded unless a major problem or feature is needed.
+That means forcing users to upgrade the JDK to adopt a new version of the SDK is not friendly.
+For that reason, the SDK will significantly lag in allowing use of newer JDK features.
+That new JDK feature released last month...yeah we won't be using it for years.
+For example, as of October 2022 we are still compatible with a JDK8 runtime.
+
 #### Approachable Coding Style
 
 Our industry struggles to bring in new contributors that do not have formal training in software.
