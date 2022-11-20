@@ -29,8 +29,9 @@ import java.util.List;
 
 import com.salesforce.bazel.sdk.index.CodeIndexEntry;
 import com.salesforce.bazel.sdk.index.model.CodeLocationDescriptor;
-import com.salesforce.bazel.sdk.lang.jvm.classpath.BazelJvmClasspathResponse;
+import com.salesforce.bazel.sdk.lang.jvm.classpath.JvmClasspathData;
 import com.salesforce.bazel.sdk.lang.jvm.classpath.JvmClasspathEntry;
+import com.salesforce.bazel.sdk.lang.jvm.classpath.impl.JvmInMemoryClasspath;
 import com.salesforce.bazel.sdk.lang.jvm.external.BazelExternalJarRuleManager;
 import com.salesforce.bazel.sdk.model.BazelWorkspace;
 import com.salesforce.bazel.sdk.util.WorkProgressMonitor;
@@ -42,7 +43,7 @@ import com.salesforce.bazel.sdk.workspace.OperatingEnvironmentDetectionStrategy;
  * types that they could use. It could also be used for build tooling that needs to enumerate all available types in a
  * workspace.
  */
-public class BazelJvmIndexClasspath {
+public class BazelJvmIndexClasspath extends JvmInMemoryClasspath {
     /**
      * Associated workspace.
      */
@@ -59,33 +60,41 @@ public class BazelJvmIndexClasspath {
 
     // computed data
     protected JvmCodeIndex index;
-    protected BazelJvmClasspathResponse cacheResponse;
+    protected JvmClasspathData cachedClasspath;
 
     /**
      * Ctor with workspace.
      */
     public BazelJvmIndexClasspath(BazelWorkspace bazelWorkspace, OperatingEnvironmentDetectionStrategy os,
             BazelExternalJarRuleManager externalJarRuleManager, List<File> additionalJarLocations) {
+        super("Global Index Classpath", -1);
+        
         this.bazelWorkspace = bazelWorkspace;
         this.os = os;
         this.externalJarRuleManager = externalJarRuleManager;
         this.additionalJarLocations = additionalJarLocations;
     }
 
+    // API
+    
     /**
      * Computes the JVM classpath for the associated Bazel workspace. The first invocation is expected to take a long
      * time, but subsequent invocations will read from cache.
      */
-    public synchronized BazelJvmClasspathResponse getClasspathEntries(WorkProgressMonitor progressMonitor) {
-        if (cacheResponse != null) {
-            return cacheResponse;
+    public JvmClasspathData computeClasspath(WorkProgressMonitor progressMonitor) {
+        synchronized (this) {
+            if (cachedClasspath != null) {
+                return cachedClasspath;
+            }
+            
+            // make sure the index is loaded
+            getIndex(progressMonitor);
+            
+            // build the Global classpath
+            cachedClasspath = convertIndexIntoResponse(index);
         }
-
-        index = JvmCodeIndex.buildWorkspaceIndex(bazelWorkspace, externalJarRuleManager, additionalJarLocations,
-            progressMonitor);
-        cacheResponse = convertIndexIntoResponse(index);
-
-        return cacheResponse;
+        
+        return cachedClasspath;
     }
 
     /**
@@ -95,7 +104,10 @@ public class BazelJvmIndexClasspath {
         if (index != null) {
             return index;
         }
-        index = JvmCodeIndex.buildWorkspaceIndex(bazelWorkspace, externalJarRuleManager, additionalJarLocations,
+        JvmCodeIndexer indexer = new JvmCodeIndexer();
+        JvmCodeIndexerOptions indexerOptions = JvmCodeIndexerOptions.buildJvmGlobalSearchOptions();
+
+        index = indexer.buildWorkspaceIndex(bazelWorkspace, externalJarRuleManager, indexerOptions, additionalJarLocations,
             progressMonitor);
         return index;
     }
@@ -103,13 +115,19 @@ public class BazelJvmIndexClasspath {
     /**
      * Clears the cache, which will make the next invocation of getClasspathEntries() expensive.
      */
-    public synchronized void clearCache() {
-        index = null;
-        cacheResponse = null;
+    @Override
+    public void clean() {
+        synchronized (this) {
+            index = null;
+            cachedClasspath = null;
+            super.clean();
+        }
     }
+    
+    // INTERNAL
 
-    protected BazelJvmClasspathResponse convertIndexIntoResponse(JvmCodeIndex index) {
-        BazelJvmClasspathResponse response = new BazelJvmClasspathResponse();
+    protected JvmClasspathData convertIndexIntoResponse(JvmCodeIndex index) {
+        JvmClasspathData response = new JvmClasspathData();
         List<JvmClasspathEntry> entries = new ArrayList<>();
 
         for (String artifact : index.artifactDictionary.keySet()) {
@@ -144,9 +162,9 @@ public class BazelJvmIndexClasspath {
 
         JvmClasspathEntry cpEntry = null;
         if (!candidateSourcePath.exists()) {
-            cpEntry = new JvmClasspathEntry(location.locationOnDisk.getPath(), false);
+            cpEntry = new JvmClasspathEntry(location.locationOnDisk.getPath(), false, false);
         } else {
-            cpEntry = new JvmClasspathEntry(location.locationOnDisk.getPath(), candidateSourcePath.getPath(), false);
+            cpEntry = new JvmClasspathEntry(location.locationOnDisk.getPath(), candidateSourcePath.getPath(), false, false);
         }
         entries.add(cpEntry);
     }
