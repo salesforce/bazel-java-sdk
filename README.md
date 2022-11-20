@@ -111,6 +111,8 @@ We use GitHub features to manage the project and to communicate with the communi
 - [Pull Requests](https://github.com/salesforce/bazel-java-sdk/pulls) want to contribute a fix or a feature? Send us a PR! See our [Contributors Guide](CONTRIBUTING.md).
 - [Releases](https://github.com/salesforce/bazel-java-sdk/releases) released versions of the SDK are published here
 
+🔥 As of now, the major consumer of the SDK is [bazel-eclipse](https://github.com/salesforce/bazel-eclipse). The ongoing development of the SDK is mostly occuring as side effect of [Issues being worked on](https://github.com/salesforce/bazel-eclipse/issues) in that repository. bazel-eclipse has a copy of the SDK, and we are using copy scripts to move code back and forth between Git repositories. 
+
 ### Design Tenets
 
 #### Model the Domain
