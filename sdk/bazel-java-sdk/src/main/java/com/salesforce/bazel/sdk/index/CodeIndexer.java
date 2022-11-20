@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, Salesforce.com, Inc. All rights reserved.
+ * Copyright (c) 2022, Salesforce.com, Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
@@ -31,24 +31,12 @@
  * specific language governing permissions and limitations under the License.
  *
  */
-package com.salesforce.bazel.sdk.lang.jvm.classpath;
+package com.salesforce.bazel.sdk.index;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.salesforce.bazel.sdk.project.BazelProject;
-
-public class BazelJvmClasspathResponse {
-    /**
-     * The jvm classpath entries (e.g. jar files)
-     */
-    public JvmClasspathEntry[] jvmClasspathEntries = new JvmClasspathEntry[] {};
-
-    /**
-     * The list of projects that should be added to the classpath, if this environment is using project support. The
-     * caller is expected to invoke the following: bazelProjectManager.setProjectReferences(bazelProject,
-     * computedClasspath.classpathProjectReferences); But due to locking in some environments, this may need to be
-     * delayed.
-     */
-    public List<BazelProject> classpathProjectReferences = new ArrayList<>();
+/**
+ * Base class for all processors that can compute CodeIndex objects.
+ */
+public class CodeIndexer {
+    // currently just a marker interface to help you find the impls
+    // over time, we will probably find some common members/methods we can move down into here
 }

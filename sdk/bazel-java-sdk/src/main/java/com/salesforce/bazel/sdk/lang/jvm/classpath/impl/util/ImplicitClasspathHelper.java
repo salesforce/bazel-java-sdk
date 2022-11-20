@@ -31,7 +31,7 @@
  * specific language governing permissions and limitations under the License.
  *
  */
-package com.salesforce.bazel.sdk.lang.jvm.classpath;
+package com.salesforce.bazel.sdk.lang.jvm.classpath.impl.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,9 +42,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.salesforce.bazel.sdk.aspect.AspectTargetInfo;
 import com.salesforce.bazel.sdk.command.BazelWorkspaceCommandOptions;
+import com.salesforce.bazel.sdk.lang.jvm.classpath.JvmClasspathEntry;
 import com.salesforce.bazel.sdk.logging.LogHelper;
+import com.salesforce.bazel.sdk.model.BazelLabel;
+import com.salesforce.bazel.sdk.model.BazelTargetKind;
 import com.salesforce.bazel.sdk.model.BazelWorkspace;
 import com.salesforce.bazel.sdk.path.FSPathHelper;
 
@@ -64,14 +66,17 @@ import com.salesforce.bazel.sdk.path.FSPathHelper;
  */
 public class ImplicitClasspathHelper {
 
+    // TODO this is specific to the aspect classpath provider, can we make it more generic?
+    
     // observed location where the TestRunner is written; this is an internal Bazel detail that may change
     private static final String IMPLICIT_RUNNER = "external/bazel_tools/tools/jdk/_ijar/TestRunner"; // $SLASH_OK
 
     public Set<JvmClasspathEntry> computeImplicitDependencies(BazelWorkspace bazelWorkspace,
-            AspectTargetInfo targetInfo) {
+            BazelLabel targetLabel, BazelTargetKind targetKind) {
         Set<JvmClasspathEntry> deps = new HashSet<>();
 
-        String ruleKind = targetInfo.getKind();
+        // TODO dont use String for kind here, use the proper object
+        String ruleKind = targetKind.getKindName();
         if (!"java_test".equals(ruleKind)) {
             deps = new TreeSet<>();
         }
@@ -90,23 +95,24 @@ public class ImplicitClasspathHelper {
         //     bazel-bin/external/bazel_tools/tools/jdk/_ijar/TestRunner/external/remote_java_tools_darwin/java_tools/Runner_deploy-ijar.jar
         // which comes in from the transitive graph (not sure how the toolchain points to the TestRunner though):
         // java_test => @bazel_tools//tools/jdk:current_java_toolchain => @remote_java_tools_darwin//:toolchain  ?=> TestRunner
-        String filePathForRunnerJar = computeFilePathForRunnerJar(bazelWorkspace, targetInfo);
+        String filePathForRunnerJar = computeFilePathForRunnerJar(bazelWorkspace, targetLabel);
         if (filePathForRunnerJar != null) {
             // now manufacture the classpath entry
+            boolean isRuntimeLib = false;
             boolean isTestLib = true;
-            JvmClasspathEntry runnerJarEntry = new JvmClasspathEntry(filePathForRunnerJar, isTestLib);
+            JvmClasspathEntry runnerJarEntry = new JvmClasspathEntry(filePathForRunnerJar, isRuntimeLib, isTestLib);
             deps.add(runnerJarEntry);
         }
         return deps;
     }
 
-    String computeFilePathForRunnerJar(BazelWorkspace bazelWorkspace, AspectTargetInfo targetInfo) {
+    String computeFilePathForRunnerJar(BazelWorkspace bazelWorkspace, BazelLabel label) {
         File bazelBinDir = bazelWorkspace.getBazelBinDirectory();
         File testRunnerDir = new File(bazelBinDir, FSPathHelper.osSeps(IMPLICIT_RUNNER));
 
         LogHelper logger = LogHelper.log(this.getClass());
         if (!testRunnerDir.exists()) {
-            logger.error("Could not add implicit test deps to target [" + targetInfo.getLabelPath() + "], directory ["
+            logger.error("Could not add implicit test deps to target [" + label.getLabelPath() + "], directory ["
                     + FSPathHelper.getCanonicalPathStringSafely(testRunnerDir) + "] does not exist.");
             return null;
         }

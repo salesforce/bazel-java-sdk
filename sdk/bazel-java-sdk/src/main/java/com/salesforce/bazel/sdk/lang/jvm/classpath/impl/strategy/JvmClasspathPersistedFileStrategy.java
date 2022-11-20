@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, Salesforce.com, Inc. All rights reserved.
+ * Copyright (c) 2022, Salesforce.com, Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
@@ -31,47 +31,36 @@
  * specific language governing permissions and limitations under the License.
  *
  */
-package com.salesforce.bazel.sdk.lang.jvm.classpath;
+package com.salesforce.bazel.sdk.lang.jvm.classpath.impl.strategy;
 
-import com.salesforce.bazel.sdk.project.BazelProject;
+import com.salesforce.bazel.sdk.command.BazelCommandManager;
+import com.salesforce.bazel.sdk.lang.jvm.classpath.JvmClasspathData;
+import com.salesforce.bazel.sdk.lang.jvm.classpath.impl.util.ImplicitClasspathHelper;
+import com.salesforce.bazel.sdk.model.BazelWorkspace;
+import com.salesforce.bazel.sdk.project.BazelProjectManager;
+import com.salesforce.bazel.sdk.workspace.OperatingEnvironmentDetectionStrategy;
 
 /**
- * Entry in a classpath for the JVM that points to a Jar with bytecode.
+ * This classpath strategy consults a previously persisted file from which to read the classpath data.
+ * <p>
+ * The main use case is to make restarting your tool (IDE, etc) a cheap operation. By persisting the classpath
+ * data file (and reading it with this class) we can skip the expensive recomputation of all classpaths of all
+ * open projects. 
  */
-public class JvmClasspathEntry implements Comparable<JvmClasspathEntry> {
+public class JvmClasspathPersistedFileStrategy extends JvmClasspathStrategy {
 
-    // TODO make classpath entries better typed (jar, project)
-
-    // Jar Entry
-    public String pathToJar;
-    public String pathToSourceJar;
-    
-    // Scope
-    public boolean isRuntimeJar = false; // TODO aspect currently doesn't output what is runtime vs main, so this is not implemented yet
-    public boolean isTestJar = false;
-
-    // Project Entry
-    public BazelProject bazelProject;
-
-    public JvmClasspathEntry(String pathToJar, boolean isRuntimeJar, boolean isTestJar) {
-        this.pathToJar = pathToJar;
-        this.isRuntimeJar = isRuntimeJar;
-        this.isTestJar = isTestJar;
-    }
-
-    public JvmClasspathEntry(String pathToJar, String pathToSourceJar, boolean isRuntimeJar, boolean isTestJar) {
-        this.pathToJar = pathToJar;
-        this.pathToSourceJar = pathToSourceJar;
-        this.isRuntimeJar = isRuntimeJar;
-        this.isTestJar = isTestJar;
-    }
-
-    public JvmClasspathEntry(BazelProject bazelProject) {
-        this.bazelProject = bazelProject;
+    public JvmClasspathPersistedFileStrategy(BazelWorkspace bazelWorkspace, BazelProjectManager bazelProjectManager,
+            ImplicitClasspathHelper implicitDependencyHelper, OperatingEnvironmentDetectionStrategy osDetector,
+            BazelCommandManager bazelCommandManager) {
+        super(bazelWorkspace, bazelProjectManager, implicitDependencyHelper, osDetector, bazelCommandManager);
     }
 
     @Override
-    public int compareTo(JvmClasspathEntry otherEntry) {
-        return pathToJar.compareTo(otherEntry.pathToJar);
+    public JvmClasspathData getClasspathForTarget(JvmClasspathStrategyRequest request) {
+        
+        // TODO 
+        
+        return null;
     }
+
 }

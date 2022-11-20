@@ -33,45 +33,60 @@
  */
 package com.salesforce.bazel.sdk.lang.jvm.classpath;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
 import com.salesforce.bazel.sdk.project.BazelProject;
 
 /**
- * Entry in a classpath for the JVM that points to a Jar with bytecode.
+ * Carries the data from a classpath computation.
  */
-public class JvmClasspathEntry implements Comparable<JvmClasspathEntry> {
-
-    // TODO make classpath entries better typed (jar, project)
-
-    // Jar Entry
-    public String pathToJar;
-    public String pathToSourceJar;
+public class JvmClasspathData {
     
-    // Scope
-    public boolean isRuntimeJar = false; // TODO aspect currently doesn't output what is runtime vs main, so this is not implemented yet
-    public boolean isTestJar = false;
+    /**
+     * Marks if this data comes from a successful computation of the classpath. If the underlying mechanism
+     * used to compute the classpath failed, this will remain false.
+     */
+    public boolean isComplete = false;
+    
+    /**
+     * The jvm classpath entries (e.g. jar files)
+     */
+    public JvmClasspathEntry[] jvmClasspathEntries = new JvmClasspathEntry[] {};
 
-    // Project Entry
-    public BazelProject bazelProject;
+    /**
+     * The list of projects that should be added to the classpath, if this environment is using project support. The
+     * caller is expected to invoke the following: bazelProjectManager.setProjectReferences(bazelProject,
+     * computedClasspath.classpathProjectReferences); But due to locking in some environments, this may need to be
+     * delayed.
+     */
+    public List<BazelProject> classpathProjectReferences = new ArrayList<>();
+    
+    
+    // INTERNAL
+    
+    // Indices to help during computation of what is on the test classpath, versus main+runtime.
+    // key: path to the jar file, e.g. external/maven/v1/https/repo1.maven.org/maven2/com.google.guava/guava/20.0/guava-20.0.jar
+    
+    /**
+     * Internal. Used during computation of what is on the test classpath, versus main+runtime.
+     */
+    public Map<String, JvmClasspathEntry> mainClasspathEntryMap = new TreeMap<>();
 
-    public JvmClasspathEntry(String pathToJar, boolean isRuntimeJar, boolean isTestJar) {
-        this.pathToJar = pathToJar;
-        this.isRuntimeJar = isRuntimeJar;
-        this.isTestJar = isTestJar;
-    }
+    /**
+     * Internal. Used during computation of what is on the test classpath, versus main+runtime.
+     */
+    public Map<String, JvmClasspathEntry> testClasspathEntryMap = new TreeMap<>();
 
-    public JvmClasspathEntry(String pathToJar, String pathToSourceJar, boolean isRuntimeJar, boolean isTestJar) {
-        this.pathToJar = pathToJar;
-        this.pathToSourceJar = pathToSourceJar;
-        this.isRuntimeJar = isRuntimeJar;
-        this.isTestJar = isTestJar;
-    }
+    /**
+     *  Internal. Set for the list of implicitDeps that will be added to the test classpath (this may be empty if implicit deps 
+     *  are disabled for the workspace). This will be added by the classpath engine to the jvmClasspathEntries as needed, so this
+     *  member is not intended for use by clients.
+     */
+    public Set<JvmClasspathEntry> implicitDeps = Collections.emptySet();
 
-    public JvmClasspathEntry(BazelProject bazelProject) {
-        this.bazelProject = bazelProject;
-    }
-
-    @Override
-    public int compareTo(JvmClasspathEntry otherEntry) {
-        return pathToJar.compareTo(otherEntry.pathToJar);
-    }
 }

@@ -25,6 +25,7 @@ package com.salesforce.bazel.app.indexer;
 
 import java.io.File;
 
+import com.salesforce.bazel.sdk.index.CodeIndexReporter;
 import com.salesforce.bazel.sdk.index.jvm.JavaSourceCrawler;
 import com.salesforce.bazel.sdk.index.jvm.JvmCodeIndex;
 import com.salesforce.bazel.sdk.index.jvm.jar.JarIdentiferResolver;
@@ -87,7 +88,8 @@ public class JvmCodeIndexerApp {
         long endTime = System.currentTimeMillis();
 
         // print the results
-        index.printIndex();
+        CodeIndexReporter reporter = index.getReport();
+        reporter.printIndexAsText();
         System.out.println("\nTotal processing time (milliseconds): " + (endTime - startTime));
 
     }
@@ -116,7 +118,7 @@ public class JvmCodeIndexerApp {
         JarIdentiferResolver jarResolver = pickJavaJarResolver(externalJarRoot);
         if (jarResolver != null) {
             JavaJarCrawler jarCrawler = new JavaJarCrawler(index, jarResolver);
-            jarCrawler.index(externalJarRootFile, true);
+            jarCrawler.index(externalJarRootFile);
         } else {
             logInfo("Could not determine the build system (maven/bazel) from the jar root. Skipping jar scanning...");
         }

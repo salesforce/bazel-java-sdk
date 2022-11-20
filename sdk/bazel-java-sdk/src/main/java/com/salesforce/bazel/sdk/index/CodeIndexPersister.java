@@ -25,9 +25,13 @@ package com.salesforce.bazel.sdk.index;
 
 import java.io.File;
 
+/**
+ * A code index can take some time to generate, so this class can persist/read the index to/from file.
+ * TODO this is not implemented yet
+ */
 public class CodeIndexPersister {
 
     public CodeIndexPersister(File outputDirectory) {
-        // TODO
+        // TODO CodeIndexPersister is not implemented yet. Consider reusing the CodeIndexReport class, it does more or less what we need
     }
 }
